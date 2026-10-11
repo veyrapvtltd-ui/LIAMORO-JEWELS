@@ -60,7 +60,7 @@
       "@id": "https://liamorojewels.com/#store",
       "name": "Liamoro Jewels",
       "alternateName": ["Liamoro Pure Silver Jewellery", "Liamoro", "Liamoro Jewels India"],
-      "legalName": "Ramchand Suresh Kumar",
+      "legalName": "Unnat Jain",
       "url": "https://liamorojewels.com/",
       "logo": "https://liamorojewels.com/logo.png",
       "image": [
@@ -1621,7 +1621,7 @@
 
                         <div class="custom-form-group">
                             <label class="custom-form-label">Cost Price / C.P. (₹ INR)</label>
-                            <input type="number" id="new-prod-cost-price" class="custom-input" placeholder="e.g. 4500 (Manufacturing Cost)" step="1" oninput="calculateUnitProfitBadge()">
+                            <input type="number" id="new-prod-cost-price" class="custom-input" placeholder="e.g. 4500 (Manufacturing Cost)" step="1" oninput="this.dataset.autoCalculated = 'false'; calculateUnitProfitBadge()">
                         </div>
                         <div class="custom-form-group">
                             <label class="custom-form-label">Selling Price / S.P. (₹ INR)</label>
@@ -3305,13 +3305,13 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <!-- Main Application Logic -->
-    <script src="app.js?v=83"></script>
+    <script src="app.js?v=84"></script>
 
     <!-- Progressive Web App (PWA) Service Worker & Install Prompt -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js?v=32')
+            navigator.serviceWorker.register('./sw.js?v=33')
                 .then(reg => {
                     reg.update();
                     console.log('LIAMORO PWA Service Worker registered:', reg.scope);

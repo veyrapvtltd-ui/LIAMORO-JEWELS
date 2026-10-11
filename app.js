@@ -58,7 +58,7 @@ function getItemNoDisplay(p, fallbackIndex = null) {
 // Helper to enforce exact product pricing & cost requirements:
 // Best Sellers: Exact C.P & S.P from BEST SELLERS directory (Cross, Dollar, Dumbbell, Hexagon, Panda, Rings 1-5)
 // Whoop: Cost 7,000 / Price 15,000 (Pure 925 Sterling Silver only, No Brass)
-// Divine Pendants: Cost 20,000 / Price 30,000
+// Divine Pendants: Cost 30,000 / Price 30,000
 // Men Studs: Exact Cost & Selling Price matching MEN STUDS product folders
 function normalizeProductData(p, index) {
     if (!p) return p;
@@ -123,8 +123,8 @@ function normalizeProductData(p, index) {
         p.specs.cost_price = p.costPrice;
     } else if (isPendant) {
         p.price = 30000;
-        p.costPrice = 20000;
-        p.cost_price = 20000;
+        p.costPrice = 30000;
+        p.cost_price = 30000;
         p.originalPrice = 30000;
         p.original_price = 30000;
         p.category = 'pendants';
@@ -132,7 +132,7 @@ function normalizeProductData(p, index) {
         p.specs.weight = p.specs.weight || '12.5g';
         p.specs.metal = 'Solid 92.5% Sterling Silver';
         p.specs.disable_auto_rate = true;
-        p.specs.cost_price = 20000;
+        p.specs.cost_price = 30000;
     } else if (isCharm) {
         // Charms: Cost 3500, Price 15000, MRP 20000 (25% OFF)
         p.price = 15000;
@@ -1014,6 +1014,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Om Sacred Shield Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 28,
@@ -1024,6 +1026,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "12.5g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1037,6 +1040,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Shri Hanuman Ji Sankat Mochan Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 34,
@@ -1047,6 +1052,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "13.2g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1060,6 +1066,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Lord Shiva Trishul & Damru Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 42,
@@ -1070,6 +1078,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "11.8g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1083,6 +1092,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Lord Ganesha Vighnaharta Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 31,
@@ -1093,6 +1104,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "12.0g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1106,6 +1118,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Om Floral Mandala Aura Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 26,
@@ -1116,6 +1130,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "12.4g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1129,6 +1144,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Lord Shiva Meditating Mahadev Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 39,
@@ -1139,6 +1156,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "13.5g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1152,6 +1170,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Sacred Shankh Conch Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 22,
@@ -1162,6 +1182,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "11.5g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1175,6 +1196,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Om Radiant Prana Sun Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 27,
@@ -1185,6 +1208,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "12.8g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1198,6 +1222,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Om Trimurti Chandra Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 30,
@@ -1208,6 +1234,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "11.2g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1221,6 +1248,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Mahadev Trishul Mahakaal Divine Pendant",
         "category": "pendants",
         "price": 30000,
+        "cost_price": 30000,
+        "costPrice": 30000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 45,
@@ -1231,6 +1260,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "13.0g",
+            "cost_price": 30000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -5626,7 +5656,7 @@ function getProductCostPrice(prod) {
     // Exact category costs
     if (prod.category === 'charms' || (prod.id && prod.id.includes('charm'))) return 3500;
     if (prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'))) return 7000;
-    if (prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'))) return 20000;
+    if (prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'))) return 30000;
 
     const sp = prod.price || 0;
     return Math.round(sp * 0.6);
@@ -5657,7 +5687,7 @@ function calculateUnitProfitBadge() {
         badge.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                 <span>💡 <strong>Estimated Income (60% Default C.P: ₹${estCp.toLocaleString("en-IN")}):</strong> +₹${estProfit.toLocaleString("en-IN")} / unit (40.0% margin)</span>
-                <span style="font-size:0.75rem; text-decoration:underline; cursor:pointer;" onclick="document.getElementById('new-prod-cost-price').value = ${estCp}; calculateUnitProfitBadge();">Apply Default C.P.</span>
+                <span style="font-size:0.75rem; text-decoration:underline; cursor:pointer;" onclick="const el = document.getElementById('new-prod-cost-price'); if (el) { el.value = ${estCp}; el.dataset.autoCalculated = 'true'; } calculateUnitProfitBadge();">Apply Default C.P.</span>
             </div>
         `;
         return;
@@ -6132,7 +6162,7 @@ async function autoFillDefaultCPForAll() {
         } else if (p.category === 'whoop' || (p.id && p.id.includes('whoop'))) {
             cp = 7000;
         } else if (p.category === 'pendants' || (p.id && p.id.includes('pendant'))) {
-            cp = 10000;
+            cp = 30000;
         } else {
             cp = Math.round((p.price || 0) * 0.6);
         }
@@ -8107,6 +8137,14 @@ function autoCalculateJewelRate() {
     if (priceInput) priceInput.value = baseMRP;
     if (origPriceInput) origPriceInput.value = Math.round(baseMRP * 1.6);
     if (weightSpecInput) weightSpecInput.value = `${weightVal} grams`;
+
+    // Auto-calculate benchmark Cost Price (C.P) if empty or marked auto-calculated
+    const cpInput = document.getElementById("new-prod-cost-price");
+    const calcCp = Math.round(baseMRP * 0.6);
+    if (cpInput && (!cpInput.value || cpInput.dataset.autoCalculated === "true")) {
+        cpInput.value = calcCp;
+        cpInput.dataset.autoCalculated = "true";
+    }
     calculateUnitProfitBadge();
     
     if (breakdownDiv) {
@@ -8116,6 +8154,7 @@ function autoCalculateJewelRate() {
             • Metal Cost (${weightVal}g @ ₹${liveRate.toFixed(2)}/g for ${marketBase === 'gold' ? '24K Gold Purity' : (marketBase === 'fine' ? '999 Fine Purity' : '925 Sterling Purity')}): ₹${metalCost.toFixed(2)}<br>
             • ${makingText}<br>
             • <strong>Base MRP (Excl. GST): ₹${baseMRP}</strong><br>
+            • <strong>Auto-Calculated Cost Price (C.P): ₹${calcCp}</strong> (Est. Net Income: ₹${baseMRP - calcCp} / unit)<br>
             • 3% GST (Added at checkout): ₹${gstCost.toFixed(2)}<br>
             • Est. Checkout Price (MRP + GST): ₹${Math.round(baseMRP + gstCost)}
         `;
@@ -8214,6 +8253,14 @@ function runManualGstCalculation() {
     if (origPriceInput && (!origPriceInput.value || parseFloat(origPriceInput.value) <= baseMRP)) {
         origPriceInput.value = Math.round(baseMRP * 1.6);
     }
+
+    // Auto-calculate benchmark Cost Price (C.P) if empty or marked auto-calculated
+    const cpInput = document.getElementById("new-prod-cost-price");
+    const calcCp = Math.round(baseMRP * 0.6);
+    if (cpInput && (!cpInput.value || cpInput.dataset.autoCalculated === "true")) {
+        cpInput.value = calcCp;
+        cpInput.dataset.autoCalculated = "true";
+    }
     calculateUnitProfitBadge();
     
     if (breakdownDiv) {
@@ -8224,6 +8271,7 @@ function runManualGstCalculation() {
         breakdownDiv.innerHTML = `
             <strong>Manual Price Breakdown (MRP Excl. GST):</strong><br>
             • <strong>Base MRP (Listing Price): ₹${baseMRP.toLocaleString("en-IN")}</strong><br>
+            • <strong>Auto-Calculated Cost Price (C.P): ₹${calcCp.toLocaleString("en-IN")}</strong> (Est. Net Income: ₹${(baseMRP - calcCp).toLocaleString("en-IN")} / unit)<br>
             • 3% GST (Added at checkout): ₹${gstCost.toFixed(2)}<br>
             • Est. Checkout Price (MRP + GST): ₹${estTotalWithGst.toLocaleString("en-IN")}
         `;
@@ -8322,7 +8370,10 @@ function editProduct(prodId) {
     // Cost Price (C.P) & Unit Profit Badge
     const cpVal = getProductCostPrice(p);
     const cpInp = document.getElementById("new-prod-cost-price");
-    if (cpInp) cpInp.value = cpVal || "";
+    if (cpInp) {
+        cpInp.value = cpVal || "";
+        cpInp.dataset.autoCalculated = "false";
+    }
     calculateUnitProfitBadge();
 
     // Infer market purity base from specs.metal
@@ -8628,7 +8679,10 @@ function cancelEditProduct() {
     document.getElementById("new-prod-price").value = "";
     document.getElementById("new-prod-orig").value = "";
     const cpInp = document.getElementById("new-prod-cost-price");
-    if (cpInp) cpInp.value = "";
+    if (cpInp) {
+        cpInp.value = "";
+        delete cpInp.dataset.autoCalculated;
+    }
     const profitBadge = document.getElementById("unit-profit-badge");
     if (profitBadge) {
         profitBadge.innerHTML = "";
@@ -9573,7 +9627,7 @@ function downloadOrderInvoicePdf(orderId) {
                         <div class="brand-title">LIAMORO JEWELS</div>
                         <div class="brand-sub">Pure Silver Jewellery</div>
                         <div style="font-size: 0.8rem; color: #4A5568; margin-top: 8px; line-height: 1.6;">
-                            <strong>Legal Name:</strong> RAMCHAND SURESH KUMAR<br>
+                            <strong>Legal Name:</strong> Unnat Jain<br>
                             <strong>Trade Name:</strong> LIAMORO JEWELS<br>
                             <strong>GSTIN:</strong> 33AAKPS5130M1ZG<br>
                             Adishiv, Shree Santkabir Houseing Society Ltd, Pedak Rd, behind Bombay Super Height, Patel Nagar, Arya Nagar, Rajkot, Gujarat 360003<br>
@@ -9601,7 +9655,7 @@ function downloadOrderInvoicePdf(orderId) {
                         <div class="box-title">Seller Details</div>
                         <div class="box-content">
                             <strong>LIAMORO JEWELS</strong><br>
-                            Legal Name: RAMCHAND SURESH KUMAR<br>
+                            Legal Name: Unnat Jain<br>
                             GSTIN: 33AAKPS5130M1ZG<br>
                             Adishiv, Shree Santkabir Houseing Society Ltd, Pedak Rd, behind Bombay Super Height, Patel Nagar, Arya Nagar, Rajkot, Gujarat 360003<br>
                             Rajkot, Gujarat - 360003
