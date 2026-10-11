@@ -4407,84 +4407,22 @@ function selectDetailFinish(finish) {
 function triggerBuyNow() {
     if (STATE.selectedProduct) {
         const qtyVal = document.getElementById("qty-val");
-        const count = qtyVal ? parseInt(qtyVal.textContent) : 1;
+        const count = (qtyVal && parseInt(qtyVal.textContent) > 0) ? parseInt(qtyVal.textContent) : 1;
         
-        const prod = STATE.selectedProduct;
-        if (!prod || !prod.inStock) return;
+        // Add product to cart with all currently selected variants, finish & gift box options
+        addToCart(STATE.selectedProduct.id, count);
         
-        const giftWrapCheck = document.getElementById("detail-gift-wrap");
-        const giftMessageEl = document.getElementById("detail-gift-message");
-        const hasGiftWrap = giftWrapCheck && giftWrapCheck.checked;
+        // Close any cart drawer so the customer goes straight to the checkout modal
+        const cartDrawer = document.getElementById('cart-drawer');
+        const drawerOverlay = document.getElementById('drawer-overlay');
+        if (cartDrawer) cartDrawer.classList.remove('drawer-open');
+        if (drawerOverlay) drawerOverlay.classList.remove('overlay-open');
         
-        let wrapSuffix = "";
-        if (hasGiftWrap) {
-            wrapSuffix = " + Gift Box";
-            const msg = giftMessageEl ? giftMessageEl.value.trim().substring(0, 300) : "";
-            if (msg) wrapSuffix += ` [Msg: ${msg}]`;
-        }
-        
-        const isCharm = (prod.category || "").toLowerCase() === "charms" || 
-                        (prod.id && prod.id.toLowerCase().includes("charm")) || 
-                        prod.title.toLowerCase().includes("charm");
-        const isWhoop = prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'));
-        const isPendant = (prod.category || "").toLowerCase() === "pendants" || 
-                          (prod.id && prod.id.toLowerCase().includes("pendant")) || 
-                          prod.title.toLowerCase().includes("pendant");
-        const isToeRing = prod.title.toLowerCase().includes("toe");
-        const isEarring = (prod.category || "").toLowerCase() === "earrings" || prod.title.toLowerCase().includes("earring");
-        const isChain = (prod.category || "").toLowerCase().includes("chain");
-        const isKada = (prod.category || "").toLowerCase() === "kada" || prod.title.toLowerCase().includes("kada");
-        const isBracelet = (prod.category || "").toLowerCase() === "bracelet" || prod.title.toLowerCase().includes("bracelet");
-        const isRing = !isCharm && !isWhoop && !isToeRing && !isEarring && !isChain && !isKada && !isBracelet && !isPendant &&
-                       ((prod.category || "").toLowerCase() === "rings" || 
-                        prod.title.toLowerCase().includes("ring") || 
-                        prod.title.toLowerCase().includes("band"));
-        
-        let size = isCharm ? null : STATE.selectedSize;
-        if (!size && !isCharm) {
-            if (prod.specs && prod.specs.available_sizes) {
-                const parts = prod.specs.available_sizes.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                if (parts.length > 0) {
-                    size = parts[0];
-                }
-            }
-            if (!size) {
-                if (isToeRing) size = "Adjustable";
-                else if (isRing) size = "13";
-                else if (isChain) size = "18 Inches";
-                else if (isKada) size = "2.4";
-                else if (isBracelet) size = "7 Inches";
-            }
-        }
-        
-        const basePrice = prod.price;
-
-        const finishLabel = STATE.selectedFinish ? (STATE.selectedFinish === 'golden' ? 'Golden' : (STATE.selectedFinish === 'rosegold' ? 'Rosegold' : 'Silver')) : 'Silver';
-        const finishSuffix = (isWhoop || isPendant || isEarring) ? ` [${finishLabel}]` : "";
-        
-        const sizeSuffix = size ? ` (Size: ${size})` : "";
-        const cartTitle = `${prod.title}${finishSuffix}${sizeSuffix}${wrapSuffix}`;
-        
-        const unitPrice = basePrice + (hasGiftWrap ? 1000 : 0);
-        
-        const existing = STATE.cart.find(item => item.title === cartTitle);
-        if (existing) {
-            existing.qty = count;
-        } else {
-            STATE.cart.push({
-                id: prod.id,
-                title: cartTitle,
-                price: unitPrice,
-                image: prod.image,
-                qty: count,
-                metal: 'Solid 92.5% Sterling Silver',
-                finish: finishLabel
-            });
-        }
-        saveCart();
-        checkoutCart();
+        // Open the Secure Checkout modal directly
+        openCheckoutModal();
     }
 }
+window.triggerBuyNow = triggerBuyNow;
 
 
 
@@ -4613,19 +4551,17 @@ function applyCouponCode() {
 }
 
 function checkoutCart() {
-    if (STATE.cart.length === 0) return;
-    if (!STATE.user) {
-        alert("Please login to proceed with checkout.");
-        const cartDrawer = document.getElementById('cart-drawer');
-        const drawerOverlay = document.getElementById('drawer-overlay');
-        if (cartDrawer) cartDrawer.classList.remove('drawer-open');
-        if (drawerOverlay) drawerOverlay.classList.remove('overlay-open');
-        document.getElementById('auth-overlay').style.display = 'block';
-        document.getElementById('auth-modal').style.display = 'block';
+    if (STATE.cart.length === 0) {
+        alert("Your shopping cart is empty!");
         return;
     }
+    const cartDrawer = document.getElementById('cart-drawer');
+    const drawerOverlay = document.getElementById('drawer-overlay');
+    if (cartDrawer) cartDrawer.classList.remove('drawer-open');
+    if (drawerOverlay) drawerOverlay.classList.remove('overlay-open');
     openCheckoutModal();
 }
+window.checkoutCart = checkoutCart;
 
 function openCheckoutModal() {
     const modal = document.getElementById("checkout-modal");
