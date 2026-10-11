@@ -1564,14 +1564,22 @@
                             <input type="text" id="new-prod-weight" class="custom-input" placeholder="e.g. 5.2 grams" readonly style="background-color: #f1f5f9;">
                         </div>
                         
-                        <!-- Upload Photo from Device -->
+                        <!-- Primary Product Photo -->
                         <div class="custom-form-group">
-                            <label class="custom-form-label">Upload Photo from Device</label>
+                            <label class="custom-form-label">Primary Product Photo (Main Catalog Cover)</label>
                             <input type="file" id="new-prod-img-file" class="custom-input" accept="image/*" onchange="previewUploadedImage(this)">
                             <input type="hidden" id="new-prod-img-base64">
-                            <div id="new-prod-img-preview-wrap" style="display: none; margin-top: 10px;">
-                                <img id="new-prod-img-preview" src="" style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--border-radius-sm); border: 1px solid var(--color-silver-mid);" alt="Preview">
+                            <div id="new-prod-img-preview-wrap" style="display: none; margin-top: 10px; align-items: center; gap: 10px;">
+                                <img id="new-prod-img-preview" src="" style="width: 75px; height: 75px; object-fit: cover; border-radius: var(--border-radius-sm); border: 1.5px solid var(--color-silver-mid);" alt="Primary Preview">
+                                <span style="font-size: 0.75rem; color: #059669; font-weight: 600;">✓ Primary Photo Selected</span>
                             </div>
+                        </div>
+
+                        <!-- Additional Gallery Photos (Multiple) -->
+                        <div class="custom-form-group">
+                            <label class="custom-form-label">Additional Gallery Photos (Side Angles / Views)</label>
+                            <input type="file" id="new-prod-gallery-files" class="custom-input" accept="image/*" multiple onchange="previewGalleryImages(this)">
+                            <div id="new-prod-gallery-previews" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;"></div>
                         </div>
                         <!-- Toggle Auto-Rate Option -->
                         <div class="custom-form-group" style="grid-column: 1/-1; display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
@@ -3297,13 +3305,13 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <!-- Main Application Logic -->
-    <script src="app.js?v=81"></script>
+    <script src="app.js?v=82"></script>
 
     <!-- Progressive Web App (PWA) Service Worker & Install Prompt -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js?v=30')
+            navigator.serviceWorker.register('./sw.js?v=31')
                 .then(reg => {
                     reg.update();
                     console.log('LIAMORO PWA Service Worker registered:', reg.scope);

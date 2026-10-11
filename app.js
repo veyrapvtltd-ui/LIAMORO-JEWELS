@@ -146,32 +146,45 @@ function normalizeProductData(p, index) {
         p.specs.metal = p.specs.metal || 'Solid 92.5% Sterling Silver / 18K Gold Plated';
         p.specs.disable_auto_rate = true;
         p.specs.cost_price = 3500;
-    } else {
+    } else if (p.category === 'whoop' || (p.id && p.id.includes('whoop'))) {
         // All Whoop Cases: Cost 7000, Price 21000, 100% Solid 92.5 Sterling Silver
-        p.price = 21000;
-        p.costPrice = 7000;
-        p.cost_price = 7000;
-        p.originalPrice = 21000;
-        p.original_price = 21000;
+        p.price = p.price || 21000;
+        p.costPrice = p.costPrice || p.cost_price || 7000;
+        p.cost_price = p.costPrice;
+        p.originalPrice = p.original_price || p.price;
+        p.original_price = p.originalPrice;
         p.category = 'whoop';
         if (!p.specs) p.specs = {};
-        p.specs.weight = '20.0g';
-        p.specs.metal = 'Solid 92.5% Sterling Silver';
+        p.specs.weight = p.specs.weight || '20.0g';
+        p.specs.metal = p.specs.metal || 'Solid 92.5% Sterling Silver';
         p.specs.disable_auto_rate = true;
-        p.specs.cost_price = 7000;
+        p.specs.cost_price = p.costPrice;
         // Item #01 and Item #03 flagged as Best Sellers
         if (p.id === 'prod-whoop-1-custom-crest-gem-set-whoop-case-batman' || p.id === 'prod-whoop-3-custom-crest-gem-set-whoop-case-plain-classic') {
             p.is_bestseller = true;
             p.isBestseller = true;
             p.specs.is_bestseller = true;
         }
+    } else {
+        // Custom Admin Products (Rings, Chains, Kada, etc.)
+        p.price = p.price || 1299;
+        p.costPrice = p.costPrice || p.cost_price || Math.round(p.price * 0.6);
+        p.cost_price = p.costPrice;
+        p.originalPrice = p.original_price || p.price;
+        p.original_price = p.originalPrice;
+        if (!p.specs) p.specs = {};
+        p.specs.metal = p.specs.metal || 'Solid 92.5% Sterling Silver';
+        p.specs.cost_price = p.costPrice;
     }
     
     let imgs = [];
-    if (Array.isArray(p.specs.images) && p.specs.images.length > 0) {
-        imgs = [...p.specs.images];
-    } else if (p.image) {
-        imgs = [p.image];
+    if (p.image) {
+        imgs.push(p.image);
+    }
+    if (Array.isArray(p.specs.images)) {
+        p.specs.images.forEach(img => {
+            if (img && !imgs.includes(img)) imgs.push(img);
+        });
     }
     while (imgs.length < 2) {
         const fallback = isBestsellerProd ? (p.image || 'assets/best_sellers/cross_pendant_1.jpeg') : (isEarring ? 'assets/men_earrings/earring_1_2.webp' : (isPendant ? 'assets/divine_pendants/pendant_1_1.webp' : (isCharm ? 'assets/charms/charm_1_1.jpeg' : 'assets/whoop/whoop_1_1.webp')));
@@ -2626,31 +2639,87 @@ function initRawSupaClient() {
 }
 initRawSupaClient();
 
+// --- SMART CLIENT-SIDE IMAGE COMPRESSION ---
+// Compresses heavy phone/desktop images down to ~80KB-200KB WebP for lightning-fast uploads
+async function compressImageFile(file, maxWidth = 1200, maxHeight = 1200, quality = 0.85) {
+    if (!file) return file;
+    if (file.type === 'image/svg+xml') return file;
+
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onerror = () => resolve(file);
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onerror = () => resolve(file);
+            img.onload = () => {
+                let { width, height } = img;
+                if (width > maxWidth || height > maxHeight) {
+                    if (width / height > maxWidth / maxHeight) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    } else {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    if (!blob) return resolve(file);
+                    const baseName = (file.name || 'image').replace(/\.[^/.]+$/, "");
+                    const compressedFile = new File([blob], `${baseName}.webp`, { type: 'image/webp' });
+                    resolve(compressedFile);
+                }, 'image/webp', quality);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 // Resilient Hybrid Supabase Client (uses real rawSupaClient when connected, with LocalStorage fallback)
 const supaClient = {
     storage: {
         from: (bucket) => ({
-            upload: async (fileName, file, options) => {
+            upload: async (fileName, file, options = {}) => {
+                let fileToUpload = file;
+                if (file && (file instanceof Blob || file instanceof File)) {
+                    try {
+                        fileToUpload = await compressImageFile(file);
+                    } catch (e) {
+                        console.warn("Auto-compression fallback:", e);
+                    }
+                }
+
+                const uploadOptions = {
+                    upsert: true,
+                    contentType: fileToUpload.type || 'image/webp',
+                    cacheControl: '3600',
+                    ...(options || {})
+                };
+
                 if (rawSupaClient && rawSupaClient.storage) {
                     try {
-                        const res = await rawSupaClient.storage.from(bucket).upload(fileName, file, options || {});
+                        const res = await rawSupaClient.storage.from(bucket).upload(fileName, fileToUpload, uploadOptions);
                         if (!res.error) return res;
                         console.warn("Supabase storage upload error:", res.error);
                     } catch(e) {
                         console.warn("Supabase storage upload exception:", e);
                     }
                 }
-                // Resilient fallback (e.g. offline)
+                // Resilient fallback (safe compressed data URL ~100KB, never crashes browser quota)
                 return new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        try {
-                            localStorage.setItem('local_storage_' + bucket + '_' + fileName, e.target.result);
-                        } catch(err) {}
                         resolve({ data: { path: fileName, localUrl: e.target.result }, error: null });
                     };
                     reader.onerror = () => resolve({ data: null, error: new Error("File read error") });
-                    reader.readAsDataURL(file);
+                    reader.readAsDataURL(fileToUpload);
                 });
             },
             getPublicUrl: (fileName) => {
@@ -2660,8 +2729,8 @@ const supaClient = {
                         if (res && res.data && res.data.publicUrl) return res;
                     } catch(e) {}
                 }
-                const stored = localStorage.getItem('local_storage_' + bucket + '_' + fileName);
-                return { data: { publicUrl: stored || 'logo.png' } };
+                const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${encodeURIComponent(fileName)}`;
+                return { data: { publicUrl } };
             },
             list: async (path, options) => {
                 if (rawSupaClient && rawSupaClient.storage) {
@@ -2906,8 +2975,20 @@ async function initState() {
         supaClient.from('settings').select('value').eq('key', 'metal_rates').maybeSingle()
     ]);
 
-    // Products - 95 catalog designs with sequential Item Numbers #01-#95 and 1 No. default stock
-    STATE.products = ALL_PRODUCTS_SEED.map((p, idx) => normalizeProductData(p, idx));
+    // Products - 95 catalog designs merged with custom products from Supabase Cloud
+    let productsList = ALL_PRODUCTS_SEED.map((p, idx) => normalizeProductData(p, idx));
+    if (productsResult.status === 'fulfilled' && !productsResult.value.error && Array.isArray(productsResult.value.data) && productsResult.value.data.length > 0) {
+        productsResult.value.data.forEach(cp => {
+            const normalized = normalizeProductData(cp);
+            const existingIdx = productsList.findIndex(p => p.id === cp.id);
+            if (existingIdx !== -1) {
+                productsList[existingIdx] = { ...productsList[existingIdx], ...normalized };
+            } else {
+                productsList.push(normalized);
+            }
+        });
+    }
+    STATE.products = productsList;
 
     // Coupons
     if (couponsResult.status === 'fulfilled' && !couponsResult.value.error) {
@@ -3700,8 +3781,8 @@ function createProductCardHtml(p, idx = 0) {
                 <svg width="16" height="16" fill="${isWished ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
             </button>
             <div class="product-img-wrap" onclick="viewProductDetail('${p.id}')">
-                <img class="product-img primary-img" src="${p.image}" alt="${p.title}" loading="lazy">
-                ${secondImg !== p.image ? `<img class="product-img secondary-img" src="${secondImg}" alt="${p.title} - View" loading="lazy">` : ''}
+                <img class="product-img primary-img" src="${p.image}" alt="${p.title}" loading="lazy" onerror="this.onerror=null; this.src='logo.png';">
+                ${secondImg !== p.image ? `<img class="product-img secondary-img" src="${secondImg}" alt="${p.title} - View" loading="lazy" onerror="this.onerror=null; this.src='logo.png';">` : ''}
             </div>
             <div class="product-info">
                 <div class="product-tags-row">
@@ -4400,7 +4481,7 @@ function renderCartDrawer() {
     
     cartContainer.innerHTML = STATE.cart.map((item, idx) => `
         <div class="drawer-item" style="animation-delay: ${idx * 0.05}s;">
-            <img class="drawer-item-img" src="${item.image}" alt="">
+            <img class="drawer-item-img" src="${item.image}" alt="" onerror="this.onerror=null; this.src='logo.png';">
             <div class="drawer-item-details">
                 <div class="drawer-item-title">${item.title}</div>
                 <div class="drawer-item-price-row">
@@ -5047,7 +5128,7 @@ function renderWishlistDrawer() {
         
         return `
             <div class="drawer-item" style="align-items: center;">
-                <img class="drawer-item-img" src="${p.image}" alt="">
+                <img class="drawer-item-img" src="${p.image}" alt="" onerror="this.onerror=null; this.src='logo.png';">
                 <div class="drawer-item-details">
                     <div class="drawer-item-title" style="margin-bottom:2px;">${p.title}</div>
                     <span class="drawer-item-price">₹${p.price.toLocaleString("en-IN")}</span>
@@ -6724,7 +6805,7 @@ function renderAdminInventoryList() {
                     ${itemNoStr}
                 </span>
             </td>
-            <td><img src="${p.image}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;" alt=""></td>
+            <td><img src="${p.image}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;" alt="" onerror="this.onerror=null; this.src='logo.png';"></td>
             <td style="font-weight:600;">${p.title}</td>
             <td style="text-transform:uppercase;font-size:0.75rem;">${formatCategoryName(p.category)}</td>
             <td style="font-weight:600; color:#B45309;">₹${cp.toLocaleString("en-IN")}</td>
@@ -6813,28 +6894,42 @@ async function addNewProduct() {
         return;
     }
     
-    // Process Supabase Storage Upload
+    // Process Supabase Storage Upload for Primary Photo
     const fileInput = document.getElementById("new-prod-img-file");
     if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
+        const cleanName = `prod_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
         
         const { data: uploadData, error: uploadError } = await supaClient.storage
             .from('product-images')
-            .upload(fileName, file, { contentType: file.type });
+            .upload(cleanName, file);
             
-        if (uploadError) {
-            console.error("Storage upload error", uploadError);
-            alert("Failed to upload image. Using default.");
-        } else if (uploadData) {
-            const { data: publicUrlData } = supaClient.storage.from('product-images').getPublicUrl(fileName);
-            image = publicUrlData.publicUrl;
+        if (uploadData && uploadData.localUrl) {
+            image = uploadData.localUrl;
+        } else {
+            const { data: publicUrlData } = supaClient.storage.from('product-images').getPublicUrl(cleanName);
+            if (publicUrlData && publicUrlData.publicUrl) image = publicUrlData.publicUrl;
         }
     } else {
-        // Fallback to base64 if someone manually pasted an image (not recommended anymore but keeping it so it doesn't break)
         const base64 = document.getElementById("new-prod-img-base64").value;
         if (base64) image = base64;
+    }
+    
+    // Process Additional Gallery Photos if selected
+    let galleryImages = [image];
+    const galleryInput = document.getElementById("new-prod-gallery-files");
+    if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
+        for (let i = 0; i < galleryInput.files.length; i++) {
+            const gFile = galleryInput.files[i];
+            const gName = `gallery_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 7)}.webp`;
+            const { data: gData } = await supaClient.storage.from('product-images').upload(gName, gFile);
+            if (gData && gData.localUrl) {
+                galleryImages.push(gData.localUrl);
+            } else {
+                const { data: gUrlData } = supaClient.storage.from('product-images').getPublicUrl(gName);
+                if (gUrlData && gUrlData.publicUrl) galleryImages.push(gUrlData.publicUrl);
+            }
+        }
     }
     
     const newId = `prod-${STATE.products.length + 1}-${Date.now().toString().slice(-4)}`;
@@ -6860,6 +6955,7 @@ async function addNewProduct() {
             metal: document.getElementById("new-prod-market-base").value === "gold" ? "24K Gold" : (document.getElementById("new-prod-market-base").value === "fine" ? "999 Fine Silver" : "925 Sterling Silver"),
             weight: weight,
             width: width,
+            images: galleryImages,
             authenticity: document.getElementById("new-prod-market-base").value === "gold" ? "NABL Lab-Certified Gold Assay Card Included" : (document.getElementById("new-prod-market-base").value === "fine" ? "NABL Lab-Tested Certificate Included" : "92.5 Hallmark Certificate Included"),
             calc_weight: parseFloat(document.getElementById("new-prod-calc-weight").value),
             calc_making: parseFloat(document.getElementById("new-prod-calc-making").value) || 0,
@@ -6882,10 +6978,8 @@ async function addNewProduct() {
         id: product.id,
         title: product.title,
         category: product.category,
-        is_bestseller: isBestsellerChecked,
         price: product.price,
         original_price: product.originalPrice,
-        cost_price: product.costPrice,
         rating: product.rating,
         reviews_count: product.reviewsCount,
         plating: product.plating,
@@ -6914,6 +7008,9 @@ async function addNewProduct() {
     }
     document.getElementById("new-prod-img-file").value = "";
     document.getElementById("new-prod-img-base64").value = "";
+    const galleryInp = document.getElementById("new-prod-gallery-files");
+    if (galleryInp) galleryInp.value = "";
+    renderGalleryThumbnailsPreview([]);
     document.getElementById("new-prod-finish").value = "silver";
     document.getElementById("new-prod-stock").value = "true";
     document.getElementById("new-prod-qty").value = "10";
@@ -7359,17 +7456,28 @@ async function handleBannerUpload(event, slot) {
     document.body.appendChild(toastEl);
 
     try {
-        // Upload to Supabase Storage bucket "banners"
-        const fileName = `banner_${slot}_${Date.now()}.${file.name.split('.').pop()}`;
+        // Compress banner (max 1600x1200, 0.82 quality)
+        let compressedFile = file;
+        try {
+            compressedFile = await compressImageFile(file, 1600, 1200, 0.82);
+        } catch (compErr) {
+            console.warn("Banner auto-compression notice:", compErr);
+        }
+
+        const fileName = `banner_${slot}_${Date.now()}.webp`;
         const { data: uploadData, error: uploadError } = await supaClient.storage
             .from('banners')
-            .upload(fileName, file, { upsert: true, contentType: file.type });
+            .upload(fileName, compressedFile, { upsert: true, contentType: 'image/webp' });
 
-        if (uploadError) throw uploadError;
+        let publicUrl = '';
+        if (uploadData && uploadData.localUrl) {
+            publicUrl = uploadData.localUrl;
+        } else {
+            const { data: urlData } = supaClient.storage.from('banners').getPublicUrl(fileName);
+            if (urlData && urlData.publicUrl) publicUrl = urlData.publicUrl;
+        }
 
-        // Get public URL
-        const { data: urlData } = supaClient.storage.from('banners').getPublicUrl(fileName);
-        const publicUrl = urlData.publicUrl;
+        if (!publicUrl) throw new Error("Could not determine public URL for banner");
 
         // Save to settings table
         await supaClient.from('settings').upsert(
@@ -7388,26 +7496,33 @@ async function handleBannerUpload(event, slot) {
         toastEl.style.background = '#065F46';
         toastEl.style.color = '#fff';
     } catch (err) {
-        // Fallback: use base64 via FileReader if Supabase storage not available
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const dataUrl = e.target.result;
-            // Save as base64 in settings table
-            await supaClient.from('settings').upsert(
-                { key: `banner_${slot}`, value: dataUrl },
-                { onConflict: 'key' }
-            );
-            applyBannerSlot(slot, dataUrl);
-            const preview = document.getElementById(`banner-preview-${slot}`);
-            if (preview) preview.src = dataUrl;
-            toastEl.textContent = `✅ ${slot.charAt(0).toUpperCase() + slot.slice(1)} image updated!`;
-            toastEl.style.background = '#065F46';
+        console.error("Banner upload error:", err);
+        // Fallback: use compressed base64 via FileReader
+        try {
+            const compFile = await compressImageFile(file, 1200, 900, 0.75);
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const dataUrl = e.target.result;
+                await supaClient.from('settings').upsert(
+                    { key: `banner_${slot}`, value: dataUrl },
+                    { onConflict: 'key' }
+                );
+                applyBannerSlot(slot, dataUrl);
+                const preview = document.getElementById(`banner-preview-${slot}`);
+                if (preview) preview.src = dataUrl;
+                toastEl.textContent = `✅ ${slot.charAt(0).toUpperCase() + slot.slice(1)} image updated!`;
+                toastEl.style.background = '#065F46';
+                toastEl.style.color = '#fff';
+            };
+            reader.readAsDataURL(compFile);
+        } catch (fbErr) {
+            toastEl.textContent = `❌ Upload failed: ${err.message || 'Error'}`;
+            toastEl.style.background = '#991B1B';
             toastEl.style.color = '#fff';
-        };
-        reader.readAsDataURL(file);
+        }
     }
 
-    setTimeout(() => toastEl.remove(), 3000);
+    setTimeout(() => toastEl.remove(), 3500);
 }
 
 // Reset banner back to default
@@ -7424,7 +7539,14 @@ async function resetBannerImage(slot) {
 
 // Apply a banner URL to the actual live page elements
 function applyBannerSlot(slot, url) {
+    if (!url) return;
     if (slot === 'hero') {
+        const heroSlider = document.querySelector('.hero-slider');
+        if (heroSlider) {
+            heroSlider.style.backgroundImage = `url("${url}")`;
+            heroSlider.style.backgroundSize = 'cover';
+            heroSlider.style.backgroundPosition = 'center';
+        }
         const heroBg = document.getElementById('hero-bg-desktop') || document.querySelector('.hero-slide-bg');
         if (heroBg) heroBg.src = url;
         return;
@@ -7466,14 +7588,15 @@ function applyBannerSlot(slot, url) {
     const catMap = {
         rings: 'rings', earrings: 'earrings', pendants: 'pendants',
         bracelets: 'bracelets', anklets: 'anklets', chains: 'chains',
-        gold: 'gold', kids: 'kids', customised: 'customisation'
+        gold: 'gold', kids: 'kids', customised: 'customisation',
+        bestseller: 'bestseller', whoop: 'whoop'
     };
     if (catMap[slot]) {
         // Find by onclick attribute containing the category name
         const items = document.querySelectorAll('.cat-circle-item');
         items.forEach(item => {
             const onclick = item.getAttribute('onclick') || '';
-            if (onclick.includes(`'${catMap[slot]}'`)) {
+            if (onclick.includes(`'${catMap[slot]}'`) || onclick.includes(`"${catMap[slot]}"`)) {
                 const img = item.querySelector('.cat-circle-img-wrap img');
                 if (img) img.src = url;
             }
@@ -8107,9 +8230,11 @@ function runManualGstCalculation() {
     }
 }
 
-// --- FILE LOADER BASE64 CONVERTER ---
+// --- FILE LOADER BASE64 CONVERTER & GALLERY PREVIEWS ---
+let CURRENT_EDIT_GALLERY_IMAGES = [];
+
 function previewUploadedImage(input) {
-    const file = input.files[0];
+    const file = input && input.files ? input.files[0] : null;
     const previewWrap = document.getElementById("new-prod-img-preview-wrap");
     const previewImg = document.getElementById("new-prod-img-preview");
     const base64Input = document.getElementById("new-prod-img-base64");
@@ -8118,7 +8243,7 @@ function previewUploadedImage(input) {
         const reader = new FileReader();
         reader.onload = function(e) {
             if (previewImg) previewImg.src = e.target.result;
-            if (previewWrap) previewWrap.style.display = "block";
+            if (previewWrap) previewWrap.style.display = "flex";
             if (base64Input) base64Input.value = e.target.result;
         };
         reader.readAsDataURL(file);
@@ -8126,6 +8251,52 @@ function previewUploadedImage(input) {
         if (previewImg) previewImg.src = "";
         if (previewWrap) previewWrap.style.display = "none";
         if (base64Input) base64Input.value = "";
+    }
+}
+
+function previewGalleryImages(input) {
+    if (!input || !input.files) return;
+    const container = document.getElementById("new-prod-gallery-previews");
+    if (!container) return;
+    
+    Array.from(input.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const wrap = document.createElement("div");
+            wrap.style.cssText = "position: relative; width: 65px; height: 65px; border-radius: 6px; overflow: hidden; border: 1.5px solid #059669; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);";
+            wrap.innerHTML = `
+                <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='logo.png'">
+                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,150,105,0.85); color: #fff; font-size: 9px; text-align: center; font-weight: 600; line-height: 14px;">NEW</span>
+            `;
+            container.appendChild(wrap);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function renderGalleryThumbnailsPreview(imagesList) {
+    const container = document.getElementById("new-prod-gallery-previews");
+    if (!container) return;
+    if (Array.isArray(imagesList)) {
+        CURRENT_EDIT_GALLERY_IMAGES = [...imagesList];
+    }
+    container.innerHTML = "";
+    CURRENT_EDIT_GALLERY_IMAGES.forEach((url, idx) => {
+        if (!url) return;
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "position: relative; width: 65px; height: 65px; border-radius: 6px; overflow: hidden; border: 1.5px solid var(--color-silver-mid); flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);";
+        wrap.innerHTML = `
+            <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='logo.png'">
+            <button type="button" onclick="removeGalleryThumbnail(${idx})" title="Remove photo" style="position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; border: none; font-size: 11px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">&times;</button>
+        `;
+        container.appendChild(wrap);
+    });
+}
+
+function removeGalleryThumbnail(idx) {
+    if (idx >= 0 && idx < CURRENT_EDIT_GALLERY_IMAGES.length) {
+        CURRENT_EDIT_GALLERY_IMAGES.splice(idx, 1);
+        renderGalleryThumbnailsPreview();
     }
 }
 
@@ -8172,18 +8343,26 @@ function editProduct(prodId) {
     }
     document.getElementById("new-prod-desc").value = p.description || "";
     
-    // Image base64 and preview
+    // Primary Image base64 and preview
     document.getElementById("new-prod-img-base64").value = p.image || "";
     const previewWrap = document.getElementById("new-prod-img-preview-wrap");
     const previewImg = document.getElementById("new-prod-img-preview");
     if (p.image) {
         if (previewImg) previewImg.src = p.image;
-        if (previewWrap) previewWrap.style.display = "block";
+        if (previewWrap) previewWrap.style.display = "flex";
     } else {
         if (previewImg) previewImg.src = "";
         if (previewWrap) previewWrap.style.display = "none";
     }
     
+    // Gallery Thumbnails Preview
+    const initialGallery = (p.specs && Array.isArray(p.specs.images) && p.specs.images.length > 0)
+        ? [...p.specs.images]
+        : (p.image ? [p.image] : []);
+    renderGalleryThumbnailsPreview(initialGallery);
+    const galleryFileInput = document.getElementById("new-prod-gallery-files");
+    if (galleryFileInput) galleryFileInput.value = "";
+
     // Weight spec and calculator weight
     let weightVal = 0;
     if (p.specs && p.specs.calc_weight !== undefined) {
@@ -8317,28 +8496,50 @@ async function updateExistingProduct() {
     const cpVal = parseFloat(cpInp ? cpInp.value : "");
     const costPrice = (!isNaN(cpVal) && cpVal > 0) ? cpVal : (STATE.products[idx].costPrice || Math.round(price * 0.6));
 
-    // Process Supabase Storage Upload for edit
+    // Process Supabase Storage Upload for Primary Photo (if newly chosen)
     const fileInput = document.getElementById("new-prod-img-file");
     if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
+        const cleanName = `prod_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
         
         const { data: uploadData, error: uploadError } = await supaClient.storage
             .from('product-images')
-            .upload(fileName, file, { contentType: file.type });
+            .upload(cleanName, file);
             
-        if (uploadError) {
-            console.error("Storage upload error", uploadError);
-            alert("Failed to upload new image. Retaining current image.");
-            image = STATE.products[idx].image;
-        } else if (uploadData) {
-            const { data: publicUrlData } = supaClient.storage.from('product-images').getPublicUrl(fileName);
-            image = publicUrlData.publicUrl;
+        if (uploadData && uploadData.localUrl) {
+            image = uploadData.localUrl;
+        } else {
+            const { data: publicUrlData } = supaClient.storage.from('product-images').getPublicUrl(cleanName);
+            if (publicUrlData && publicUrlData.publicUrl) image = publicUrlData.publicUrl;
         }
     } else {
-        if (!image || image === "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=600&q=80") {
+        const base64 = document.getElementById("new-prod-img-base64").value;
+        if (base64) {
+            image = base64;
+        } else if (STATE.products[idx].image) {
             image = STATE.products[idx].image;
+        }
+    }
+
+    // Process Gallery Images: start with CURRENT_EDIT_GALLERY_IMAGES
+    let galleryImages = [...CURRENT_EDIT_GALLERY_IMAGES];
+    if (image && !galleryImages.includes(image)) {
+        galleryImages.unshift(image);
+    }
+
+    // Process Additional Gallery Photos if selected during edit
+    const galleryInput = document.getElementById("new-prod-gallery-files");
+    if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
+        for (let i = 0; i < galleryInput.files.length; i++) {
+            const gFile = galleryInput.files[i];
+            const gName = `gallery_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 7)}.webp`;
+            const { data: gData } = await supaClient.storage.from('product-images').upload(gName, gFile);
+            if (gData && gData.localUrl) {
+                galleryImages.push(gData.localUrl);
+            } else {
+                const { data: gUrlData } = supaClient.storage.from('product-images').getPublicUrl(gName);
+                if (gUrlData && gUrlData.publicUrl) galleryImages.push(gUrlData.publicUrl);
+            }
         }
     }
     
@@ -8362,6 +8563,7 @@ async function updateExistingProduct() {
         description: desc,
         specs: {
             ...existingProduct.specs,
+            images: galleryImages,
             metal: document.getElementById("new-prod-market-base").value === "gold" ? "24K Gold" : (document.getElementById("new-prod-market-base").value === "fine" ? "999 Fine Silver" : "925 Sterling Silver"),
             weight: weight,
             width: width,
@@ -8386,10 +8588,8 @@ async function updateExistingProduct() {
         id: updatedProduct.id,
         title: updatedProduct.title,
         category: updatedProduct.category,
-        is_bestseller: isBestsellerChecked,
         price: updatedProduct.price,
         original_price: updatedProduct.originalPrice,
-        cost_price: updatedProduct.costPrice,
         rating: updatedProduct.rating,
         reviews_count: updatedProduct.reviewsCount,
         plating: updatedProduct.plating,
@@ -8420,6 +8620,7 @@ async function updateExistingProduct() {
 function cancelEditProduct() {
     // Reset state ID
     STATE.editingProductId = null;
+    CURRENT_EDIT_GALLERY_IMAGES = [];
     
     // Clear forms
     document.getElementById("new-prod-title").value = "";
@@ -8435,6 +8636,11 @@ function cancelEditProduct() {
     }
     document.getElementById("new-prod-img-file").value = "";
     document.getElementById("new-prod-img-base64").value = "";
+    const galleryInp = document.getElementById("new-prod-gallery-files");
+    if (galleryInp) galleryInp.value = "";
+    const galleryPreviews = document.getElementById("new-prod-gallery-previews");
+    if (galleryPreviews) galleryPreviews.innerHTML = "";
+
     document.getElementById("new-prod-finish").value = "silver";
     document.getElementById("new-prod-stock").value = "true";
     document.getElementById("new-prod-qty").value = "10";
