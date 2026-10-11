@@ -889,6 +889,9 @@
                     <span class="detail-original-price" id="detail-orig-price" style="display: none;"></span>
                     <span class="detail-discount" id="detail-discount-percent" style="display: none;"></span>
                 </div>
+                <div class="detail-tax-note" style="font-size: 0.8rem; color: var(--color-silver-dark); margin-top: -6px; margin-bottom: 12px; font-weight: 500;">
+                    MRP (3% GST extra · calculated at checkout)
+                </div>
                 
                 <p class="detail-desc" id="detail-desc">Beautiful pure rhodium sterling silver master ring handcrafted using best-in-market diamonds-equivalent cubic zirconia jewels. Hypoallergenic design ensuring all-day safety.</p>
                 
@@ -2364,12 +2367,16 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
         
         <div class="drawer-footer">
             <div class="drawer-summary-row">
-                <span>Subtotal:</span>
+                <span>Subtotal (MRP):</span>
                 <span id="cart-subtotal">₹0</span>
             </div>
             <div class="drawer-summary-row" id="cart-discount-row" style="display:none; color: #10B981;">
                 <span>Discount applied:</span>
                 <span id="cart-discount">-₹0</span>
+            </div>
+            <div class="drawer-summary-row" id="cart-gst-row" style="color: var(--color-silver-dark); font-size: 0.9rem;">
+                <span>GST (3% Extra):</span>
+                <span id="cart-gst">+₹0</span>
             </div>
             <div class="drawer-summary-row drawer-summary-total">
                 <span>Total bill Amount:</span>
@@ -2866,7 +2873,7 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
                 <!-- Pricing Breakdown -->
                 <div style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--color-silver-mid); padding-top: 12px; font-size: 0.88rem;">
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--color-silver-dark);">Subtotal:</span>
+                        <span style="color: var(--color-silver-dark);">Subtotal (MRP):</span>
                         <span id="checkout-summary-subtotal" style="font-weight: 600;">₹0</span>
                     </div>
                     <div id="checkout-summary-discount-row" style="display: none; justify-content: space-between; color: #10B981;">
@@ -2874,7 +2881,7 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
                         <span id="checkout-summary-discount">-₹0</span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span id="checkout-summary-gst-label" style="color: var(--color-silver-dark);">GST (3% Included):</span>
+                        <span id="checkout-summary-gst-label" style="color: var(--color-silver-dark);">GST (3% Extra):</span>
                         <span id="checkout-summary-gst" style="font-weight: 500;">₹0</span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
@@ -3290,13 +3297,13 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <!-- Main Application Logic -->
-    <script src="app.js?v=80"></script>
+    <script src="app.js?v=81"></script>
 
     <!-- Progressive Web App (PWA) Service Worker & Install Prompt -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js?v=29')
+            navigator.serviceWorker.register('./sw.js?v=30')
                 .then(reg => {
                     reg.update();
                     console.log('LIAMORO PWA Service Worker registered:', reg.scope);

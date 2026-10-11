@@ -3716,6 +3716,7 @@ function createProductCardHtml(p, idx = 0) {
                     ${(p.originalPrice && p.originalPrice > p.price) ? `<span class="product-original-price">₹${p.originalPrice.toLocaleString("en-IN")}</span>` : ""}
                     ${discountPercent > 0 ? `<span class="product-discount">${discountPercent}% OFF</span>` : ""}
                 </div>
+                <div class="product-tax-note" style="font-size: 0.72rem; color: #64748B; margin-top: 2px; margin-bottom: 8px; font-weight: 500;">+ 3% GST Extra</div>
                 <button class="product-btn-add" onclick="addToCart('${p.id}')" ${!p.inStock ? 'disabled style="background:#E2E8F0;color:#94A3B8;cursor:not-allowed;"' : ''}>
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline-block; vertical-align:-2px; margin-right:5px;"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     ${p.inStock ? 'Add to Cart' : 'Sold Out'}
@@ -4443,8 +4444,12 @@ function renderCartDrawer() {
         if (summaryDiscountRow) summaryDiscountRow.style.display = "none";
     }
     
-    const total = subtotal - discount;
+    const taxableBase = Math.max(0, subtotal - discount);
+    const cartGst = Math.round(taxableBase * 0.03);
+    const total = taxableBase + cartGst;
     
+    const summaryGst = document.getElementById("cart-gst");
+    if (summaryGst) summaryGst.textContent = `+₹${cartGst.toLocaleString("en-IN")}`;
     if (summarySubtotal) summarySubtotal.textContent = `₹${subtotal.toLocaleString("en-IN")}`;
     if (summaryTotal) summaryTotal.textContent = `₹${total.toLocaleString("en-IN")}`;
 }
@@ -4583,26 +4588,14 @@ function openCheckoutModal() {
         
         const hasPhysicalItems = physicalSubtotal > 0;
         const shippingFee = hasPhysicalItems ? 150 : 0;
-        
-        // Digi Silver: 3% GST is EXTRA (added on top)
-        // Physical items: 3% GST is INCLUDED in price
-        const digiGst = Math.round(digiSubtotal * 0.03);
-        const physicalGst = Math.round((physicalSubtotal - Math.min(discount, physicalSubtotal)) * 0.03);
-        const total = subtotal - discount + shippingFee + digiGst;
+        const taxableBase = Math.max(0, subtotal - discount);
+        const gstTotal = Math.round(taxableBase * 0.03);
+        const total = taxableBase + shippingFee + gstTotal;
         
         const gstLabel = document.getElementById("checkout-summary-gst-label");
         if (gstLabel) {
-            if (digiSubtotal > 0 && physicalSubtotal === 0) {
-                gstLabel.textContent = "GST (3% Extra):";
-            } else if (digiSubtotal > 0 && physicalSubtotal > 0) {
-                gstLabel.textContent = "GST (3% Extra on Digi):";
-            } else {
-                gstLabel.textContent = "GST (3% Included):";
-            }
+            gstLabel.textContent = "GST (3% Extra):";
         }
-        
-        // Display: for digi-only show digiGst, for physical-only show physicalGst, for mixed show digiGst (extra part)
-        const displayGst = digiSubtotal > 0 ? digiGst : physicalGst;
         
         const shippingEl = document.getElementById("checkout-summary-shipping");
         if (shippingEl) {
@@ -4614,7 +4607,7 @@ function openCheckoutModal() {
         }
         
         if (summarySubtotal) summarySubtotal.textContent = `₹${subtotal.toLocaleString("en-IN")}`;
-        if (summaryGst) summaryGst.textContent = `₹${Math.round(displayGst).toLocaleString("en-IN")}`;
+        if (summaryGst) summaryGst.textContent = `+₹${gstTotal.toLocaleString("en-IN")}`;
         if (summaryTotal) summaryTotal.textContent = `₹${Math.round(total).toLocaleString("en-IN")}`;
 
         const upiAppBtn = document.getElementById("checkout-upi-app-btn");
@@ -4812,8 +4805,9 @@ function submitCheckoutOrder() {
     
     const hasPhysicalItems = physicalSubtotal > 0;
     const shippingFee = hasPhysicalItems ? 150 : 0;
-    const digiGst = Math.round(digiSubtotal * 0.03);
-    const total = subtotal - discount + shippingFee + digiGst;
+    const taxableBase = Math.max(0, subtotal - discount);
+    const gstTotal = Math.round(taxableBase * 0.03);
+    const total = taxableBase + shippingFee + gstTotal;
     
     // WhatsApp orders go straight to placed; UPI orders need admin approval
     const orderStatus = paymentMethod === "WhatsApp" ? "placed" : "awaiting_approval";
@@ -4836,7 +4830,7 @@ function submitCheckoutOrder() {
         subtotal: subtotal,
         discount: discount,
         total: total,
-        gst_amount: digiGst,
+        gst_amount: gstTotal,
         shipping: shippingFee,
         digi_subtotal: digiSubtotal,
         status: orderStatus,
@@ -6793,7 +6787,7 @@ async function addNewProduct() {
     let price = basePrice;
     let manualBasePrice = undefined;
     if (isManual) {
-        manualBasePrice = Math.round(basePrice * 100 / (100 + gstVal));
+        manualBasePrice = basePrice;
         price = basePrice;
     }
     const origPrice = parseFloat(document.getElementById("new-prod-orig").value) || price * 2;
@@ -7984,23 +7978,23 @@ function autoCalculateJewelRate() {
     }
     
     const subtotal = metalCost + makingCost;
-    const gstCost = subtotal * (gstVal / 100);
-    const totalCost = Math.round(subtotal + gstCost);
+    const baseMRP = Math.round(subtotal);
+    const gstCost = baseMRP * (gstVal / 100);
     
-    if (priceInput) priceInput.value = totalCost;
-    if (origPriceInput) origPriceInput.value = totalCost;
+    if (priceInput) priceInput.value = baseMRP;
+    if (origPriceInput) origPriceInput.value = Math.round(baseMRP * 1.6);
     if (weightSpecInput) weightSpecInput.value = `${weightVal} grams`;
     calculateUnitProfitBadge();
     
     if (breakdownDiv) {
         breakdownDiv.style.display = "block";
         breakdownDiv.innerHTML = `
-            <strong>Auto-Calculation Breakdown:</strong><br>
+            <strong>Auto-Calculation Breakdown (MRP Excl. GST):</strong><br>
             • Metal Cost (${weightVal}g @ ₹${liveRate.toFixed(2)}/g for ${marketBase === 'gold' ? '24K Gold Purity' : (marketBase === 'fine' ? '999 Fine Purity' : '925 Sterling Purity')}): ₹${metalCost.toFixed(2)}<br>
             • ${makingText}<br>
-            • Subtotal: ₹${subtotal.toFixed(2)}<br>
-            • GST (${gstVal}%): ₹${gstCost.toFixed(2)}<br>
-            • <strong>Final Calculated Price: ₹${totalCost}</strong> (Original Price set to ₹${totalCost})
+            • <strong>Base MRP (Excl. GST): ₹${baseMRP}</strong><br>
+            • 3% GST (Added at checkout): ₹${gstCost.toFixed(2)}<br>
+            • Est. Checkout Price (MRP + GST): ₹${Math.round(baseMRP + gstCost)}
         `;
     }
 }
@@ -8088,13 +8082,15 @@ function runManualGstCalculation() {
         return;
     }
     
-    const finalPrice = basePrice;
-    const gstCost = finalPrice * (gstVal / (100 + gstVal));
-    const baseBeforeGst = finalPrice - gstCost;
+    const baseMRP = basePrice;
+    const gstCost = baseMRP * (gstVal / 100);
+    const estTotalWithGst = Math.round(baseMRP + gstCost);
     
-    // Auto update the original price preview to finalPrice * 2
+    // Auto update the original price preview to baseMRP * 1.6 if empty or less than baseMRP
     const origPriceInput = document.getElementById("new-prod-orig");
-    if (origPriceInput) origPriceInput.value = finalPrice;
+    if (origPriceInput && (!origPriceInput.value || parseFloat(origPriceInput.value) <= baseMRP)) {
+        origPriceInput.value = Math.round(baseMRP * 1.6);
+    }
     calculateUnitProfitBadge();
     
     if (breakdownDiv) {
@@ -8103,11 +8099,10 @@ function runManualGstCalculation() {
         breakdownDiv.style.borderLeft = "4px solid var(--color-accent-pink)";
         breakdownDiv.style.color = "var(--color-primary)";
         breakdownDiv.innerHTML = `
-            <strong>Manual Price (GST Included) Breakdown:</strong><br>
-            • <strong>Final Stored Price (GST Inclusive): ₹${finalPrice.toLocaleString("en-IN")}</strong><br>
-            • Taxable Base Price (Before GST): ₹${Math.round(baseBeforeGst).toLocaleString("en-IN")}<br>
-            • GST (${gstVal}%): ₹${gstCost.toFixed(2)}<br>
-            • Original Price: ₹${finalPrice.toLocaleString("en-IN")}
+            <strong>Manual Price Breakdown (MRP Excl. GST):</strong><br>
+            • <strong>Base MRP (Listing Price): ₹${baseMRP.toLocaleString("en-IN")}</strong><br>
+            • 3% GST (Added at checkout): ₹${gstCost.toFixed(2)}<br>
+            • Est. Checkout Price (MRP + GST): ₹${estTotalWithGst.toLocaleString("en-IN")}
         `;
     }
 }
@@ -8226,12 +8221,7 @@ function editProduct(prodId) {
     
     // Prices
     if (p.specs && p.specs.disable_auto_rate) {
-        let basePrice = p.specs.manual_base_price;
-        if (basePrice === undefined) {
-            const gstVal = parseFloat(p.specs.calc_gst) || 3;
-            basePrice = Math.round(p.price / (1 + gstVal / 100));
-        }
-        document.getElementById("new-prod-price").value = basePrice || "";
+        document.getElementById("new-prod-price").value = p.price || "";
         document.getElementById("new-prod-orig").value = p.originalPrice || "";
         runManualGstCalculation();
     } else {
@@ -8293,7 +8283,7 @@ async function updateExistingProduct() {
     let price = basePrice;
     let manualBasePrice = undefined;
     if (isManual) {
-        manualBasePrice = Math.round(basePrice * 100 / (100 + gstVal));
+        manualBasePrice = basePrice;
         price = basePrice;
     }
     const origPrice = parseFloat(document.getElementById("new-prod-orig").value) || price * 2;
@@ -8660,26 +8650,26 @@ function calculateOrderGstAndShipping(o) {
     const discount = parseFloat(o.discount) || 0;
     const total = parseFloat(o.total) || 0;
     
-    // Digi GST is 3% added extra on the price
-    const digiGst = Math.round(digiSubtotal * 0.03);
+    // MRP DOES NOT INCLUDE GST: All items treat product price as taxable base, 3% GST added on top
+    const taxableSubtotal = Math.max(0, (physicalSubtotal + digiSubtotal) - discount);
     
-    // Physical GST is 3% inclusive in the price (after discount)
-    const physicalTaxableBase = Math.max(0, physicalSubtotal - discount);
-    const physicalGst = Math.round(physicalTaxableBase * 3 / 103);
+    let gstTotal = 0;
+    if (o.gst_amount !== undefined && o.gst_amount !== null && !isNaN(parseFloat(o.gst_amount)) && parseFloat(o.gst_amount) > 0) {
+        gstTotal = Math.round(parseFloat(o.gst_amount));
+    } else {
+        gstTotal = Math.round(taxableSubtotal * 0.03);
+    }
     
-    const gstTotal = physicalGst + digiGst;
-    
-    const expectedTotalWithoutShipping = physicalTaxableBase + digiSubtotal + digiGst;
     let shippingFee = 0;
-    if (physicalSubtotal > 0) {
-        if (Math.abs(total - expectedTotalWithoutShipping - 150) < 5) {
-            shippingFee = 150;
-        }
+    if (o.shipping !== undefined && o.shipping !== null && !isNaN(parseFloat(o.shipping))) {
+        shippingFee = parseFloat(o.shipping);
+    } else if (physicalSubtotal > 0) {
+        shippingFee = (Math.abs(total - (taxableSubtotal + gstTotal) - 150) < 5 || (total >= taxableSubtotal + gstTotal + 100)) ? 150 : 0;
     }
     
     const cgst = (gstTotal / 2).toFixed(2);
     const sgst = (gstTotal / 2).toFixed(2);
-    const taxableAmount = ((physicalTaxableBase - physicalGst) + digiSubtotal).toFixed(2);
+    const taxableAmount = taxableSubtotal.toFixed(2);
     
     return {
         gstTotal,
@@ -8756,7 +8746,8 @@ function renderAdminGstPortal() {
     const tableHtml = filtered.map(o => {
         const taxDetails = calculateOrderGstAndShipping(o);
         const gst = taxDetails.gstTotal;
-        grossSum += (o.total - gst);
+        const taxableVal = parseFloat(taxDetails.taxableAmount) || 0;
+        grossSum += taxableVal;
         taxSum += gst;
         
         const customerName = getCustomerName(o.customer);
@@ -8766,7 +8757,7 @@ function renderAdminGstPortal() {
                 <td style="font-weight:600;">${o.date}</td>
                 <td style="font-family:monospace;font-size:0.85rem;">${o.id}</td>
                 <td>${customerName}</td>
-                <td>₹${(o.total - gst).toLocaleString("en-IN")}</td>
+                <td>₹${taxableVal.toLocaleString("en-IN")}</td>
                 <td style="color:var(--color-accent-pink);font-weight:600;">₹${gst.toLocaleString("en-IN")}</td>
                 <td style="font-size:0.75rem;text-transform:uppercase;">${o.paymentMethod || o.payment_method || 'COD'}</td>
                 <td style="text-align: center;">
@@ -8817,7 +8808,7 @@ function downloadGstReportCsv() {
     filteredOrders.forEach(o => {
         const taxDetails = calculateOrderGstAndShipping(o);
         const gst = taxDetails.gstTotal;
-        const taxable = o.total - gst;
+        const taxable = parseFloat(taxDetails.taxableAmount) || 0;
         const customerName = getCustomerName(o.customer);
         const cleanCustomer = String(customerName).replace(/"/g, '""');
         csvContent += `"${o.id}","${o.date}","${cleanCustomer}","${o.phone}","${o.paymentMethod || o.payment_method || 'COD'}",${o.total},${gst},${taxable}\r\n`;
