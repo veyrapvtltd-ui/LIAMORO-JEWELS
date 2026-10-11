@@ -2780,11 +2780,15 @@ const supaClient = {
                 }
                 return { data: items, error: null };
             },
-            upsert: async (arr) => {
+            upsert: async (arr, options) => {
                 const items = Array.isArray(arr) ? arr : [arr];
                 let data = getTableData();
                 items.forEach(item => {
-                    const idx = data.findIndex(x => (item.id && x.id === item.id) || (item.key && x.key === item.key));
+                    const idx = data.findIndex(x => 
+                        (item.id && x.id === item.id) || 
+                        (item.key && x.key === item.key) ||
+                        (item.email && x.email && x.email.toLowerCase() === item.email.toLowerCase())
+                    );
                     if (idx >= 0) data[idx] = { ...data[idx], ...item };
                     else data.push(item);
                 });
@@ -2792,7 +2796,7 @@ const supaClient = {
 
                 if (rawSupaClient) {
                     try {
-                        const res = await rawSupaClient.from(table).upsert(items);
+                        const res = await rawSupaClient.from(table).upsert(items, options || {});
                         if (!res.error) return res;
                     } catch(e) {}
                 }
@@ -4487,6 +4491,7 @@ function openCheckoutModal() {
     if (modal && overlay) {
         // Pre-fill fields if we have stored values
         const nameInp = document.getElementById("checkout-name");
+        const emailInp = document.getElementById("checkout-email");
         const phoneInp = document.getElementById("checkout-phone");
         
         const flatInp = document.getElementById("checkout-flat");
@@ -4496,8 +4501,9 @@ function openCheckoutModal() {
         const stateInp = document.getElementById("checkout-state");
         const pincodeInp = document.getElementById("checkout-pincode");
         
-        if (nameInp) nameInp.value = localStorage.getItem("mrt_checkout_name") || "";
-        if (phoneInp) phoneInp.value = localStorage.getItem("mrt_checkout_phone") || "";
+        if (nameInp) nameInp.value = (STATE.user && STATE.user.name) ? STATE.user.name : (localStorage.getItem("mrt_checkout_name") || "");
+        if (emailInp) emailInp.value = (STATE.user && STATE.user.email) ? STATE.user.email : (localStorage.getItem("mrt_checkout_email") || "");
+        if (phoneInp) phoneInp.value = (STATE.user && STATE.user.phone) ? STATE.user.phone : (localStorage.getItem("mrt_checkout_phone") || "");
         if (flatInp) flatInp.value = localStorage.getItem("mrt_checkout_flat") || "";
         if (streetInp) streetInp.value = localStorage.getItem("mrt_checkout_street") || "";
         if (landmarkInp) landmarkInp.value = localStorage.getItem("mrt_checkout_landmark") || "";
@@ -4680,6 +4686,7 @@ function submitCheckoutOrder() {
         return;
     }
     const nameInp = document.getElementById("checkout-name");
+    const emailInp = document.getElementById("checkout-email");
     const phoneInp = document.getElementById("checkout-phone");
     
     const flatInp = document.getElementById("checkout-flat");
@@ -4692,6 +4699,7 @@ function submitCheckoutOrder() {
     if (!nameInp || !phoneInp || !flatInp || !streetInp || !landmarkInp || !cityInp || !stateInp || !pincodeInp) return;
     
     const name = nameInp.value.trim();
+    const email = emailInp ? emailInp.value.trim().toLowerCase() : ((STATE.user && STATE.user.email) ? STATE.user.email : "");
     const phone = phoneInp.value.trim();
     const flat = flatInp.value.trim();
     const street = streetInp.value.trim();
@@ -4703,6 +4711,17 @@ function submitCheckoutOrder() {
     if (!name || name.length < 3) {
         alert("Please enter your full name (minimum 3 characters).");
         nameInp.focus();
+        return;
+    }
+    if (!email) {
+        alert("Please enter your email address for order confirmation & dispatch alerts.");
+        if (emailInp) emailInp.focus();
+        return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        if (emailInp) emailInp.focus();
         return;
     }
     const phoneRegex = /^(?:\+91|0)?[6-9]\d{9}$/;
@@ -4748,6 +4767,7 @@ function submitCheckoutOrder() {
     
     // Save to localStorage for future pre-filling
     localStorage.setItem("mrt_checkout_name", name);
+    localStorage.setItem("mrt_checkout_email", email);
     localStorage.setItem("mrt_checkout_phone", phone);
     localStorage.setItem("mrt_checkout_flat", flat);
     localStorage.setItem("mrt_checkout_street", street);
@@ -4800,7 +4820,8 @@ function submitCheckoutOrder() {
     
     const customerData = {
         name: name,
-        email: STATE.user ? STATE.user.email : null,
+        email: email,
+        phone: phone,
         token: STATE.user ? STATE.user.token : null
     };
     
@@ -4886,6 +4907,19 @@ function finalizeOrderPlacement(newOrder, orderId) {
     };
     STATE.orders.push(mappedOrder);
     saveOrders(newOrder);
+    
+    // Automatically capture/upsert customer in normal database 'users' table (not auth)
+    const custEmail = (mappedOrder.customer && mappedOrder.customer.email ? mappedOrder.customer.email : '').trim().toLowerCase();
+    if (custEmail) {
+        dbSaveUser({
+            id: (STATE.user && STATE.user.id) ? STATE.user.id : ('usr_' + Date.now().toString(36)),
+            name: (mappedOrder.customer && mappedOrder.customer.name) ? mappedOrder.customer.name : 'Customer',
+            email: custEmail,
+            phone: mappedOrder.phone || '',
+            address: mappedOrder.address || '',
+            created_at: new Date().toISOString()
+        }).catch(err => console.warn("Notice recording customer in users table:", err));
+    }
     
     // Decrement stock for purchased items
     if (Array.isArray(mappedOrder.items)) {
@@ -9712,7 +9746,26 @@ async function dbGetUserByEmail(email) {
     if (!email) return null;
     const cleanEmail = email.trim().toLowerCase();
     
-    // 1. Primary: query normal 'users' table
+    // 1. Primary: query live normal 'users' table directly in Supabase Cloud
+    if (rawSupaClient) {
+        try {
+            const { data, error } = await rawSupaClient
+                .from('users')
+                .select('*')
+                .eq('email', cleanEmail)
+                .maybeSingle();
+            if (data && !error) {
+                return {
+                    ...data,
+                    ...(data.metadata || {})
+                };
+            }
+        } catch(e) {
+            console.warn('Live users table query notice:', e);
+        }
+    }
+
+    // 2. Query through supaClient
     try {
         const { data, error } = await supaClient
             .from('users')
@@ -9729,7 +9782,7 @@ async function dbGetUserByEmail(email) {
         console.warn('Normal users table query notice:', e);
     }
 
-    // 2. Secondary fallback: settings table (user_<email>)
+    // 3. Secondary fallback: settings table (user_<email>)
     try {
         const { data: sData } = await supaClient
             .from('settings')
@@ -9744,7 +9797,7 @@ async function dbGetUserByEmail(email) {
         }
     } catch (e) {}
 
-    // 3. LocalStorage fallback
+    // 4. LocalStorage fallback
     const localUser = localStorage.getItem('mrt_user_profile_' + cleanEmail);
     if (localUser) {
         try { return JSON.parse(localUser); } catch(e) {}
@@ -9767,7 +9820,7 @@ async function dbSaveUser(userData) {
         name: userData.name || cleanEmail.split('@')[0],
         password: userData.password || '',
         phone: userData.phone || '',
-        token: userData.token || '',
+        token: userData.token || ('UVR-USER-' + Date.now().toString(36)),
         digi_silver_balance: parseFloat(userData.digi_silver_balance) || 0,
         referral_code: userData.referral_code || null,
         referred_by: userData.referred_by || null,
@@ -9775,15 +9828,25 @@ async function dbSaveUser(userData) {
         created_at: userData.created_at || new Date().toISOString()
     };
 
+    if (rawSupaClient) {
+        try {
+            const { error } = await rawSupaClient
+                .from('users')
+                .upsert([dbRecord], { onConflict: 'email' });
+            if (error) {
+                console.warn("Direct Supabase users table upsert notice:", error.message);
+            }
+        } catch(e) {
+            console.warn("Exception saving directly to users table:", e);
+        }
+    }
+
     try {
-        const { error } = await supaClient
+        await supaClient
             .from('users')
             .upsert([dbRecord], { onConflict: 'email' });
-        if (error) {
-            console.warn("Notice saving to users table:", error.message);
-        }
     } catch (e) {
-        console.warn("Exception saving to users table:", e);
+        console.warn("Exception saving to local users table:", e);
     }
 
     // 2. Guaranteed fallback persistence via settings table
@@ -9799,16 +9862,30 @@ async function dbSaveUser(userData) {
 
 async function dbGetAllUsers() {
     let usersList = [];
-    // 1. Fetch from normal 'users' table
-    try {
-        const { data, error } = await supaClient.from('users').select('*');
-        if (data && !error && data.length > 0) {
-            usersList = data.map(u => ({
-                ...u,
-                ...(u.metadata || {})
-            }));
-        }
-    } catch(e) {}
+    // 1. Fetch from live Supabase 'users' table directly
+    if (rawSupaClient) {
+        try {
+            const { data, error } = await rawSupaClient.from('users').select('*');
+            if (data && !error && data.length > 0) {
+                usersList = data.map(u => ({
+                    ...u,
+                    ...(u.metadata || {})
+                }));
+            }
+        } catch(e) {}
+    }
+
+    if (usersList.length === 0) {
+        try {
+            const { data, error } = await supaClient.from('users').select('*');
+            if (data && !error && data.length > 0) {
+                usersList = data.map(u => ({
+                    ...u,
+                    ...(u.metadata || {})
+                }));
+            }
+        } catch(e) {}
+    }
 
     // 2. Merge from settings backup
     try {
