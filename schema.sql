@@ -1,5 +1,5 @@
 -- ========================================================
--- UVIRA JEWELS - SUPABASE DATABASE SCHEMA SETUP
+-- LIAMORO JEWELS - SUPABASE DATABASE SCHEMA SETUP
 -- Run this SQL in your Supabase SQL Editor:
 -- Dashboard -> SQL Editor -> New Query -> Run
 -- ========================================================
