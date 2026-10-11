@@ -2993,6 +2993,22 @@ function getCustomerName(customer) {
     return "Guest";
 }
 
+function getOrderItemsArray(o) {
+    if (!o) return [];
+    let items = o.items !== undefined ? o.items : o;
+    if (!items) return [];
+    for (let depth = 0; depth < 3; depth++) {
+        if (typeof items === 'string') {
+            try {
+                items = JSON.parse(items);
+            } catch (e) {
+                break;
+            }
+        }
+    }
+    return Array.isArray(items) ? items : [];
+}
+
 // --- INITIALIZE APPLICATION STATE ---
 async function initState() {
     initAuthListener();
@@ -3123,7 +3139,7 @@ async function initState() {
                 discount: parseFloat(o.discount) || 0,
                 total: parseFloat(o.total) || 0,
                 status: o.status,
-                items: typeof o.items === 'string' ? safeJSONParse(o.items, []) : (o.items || []),
+                items: getOrderItemsArray(o),
                 payment_screenshot: o.payment_screenshot
             }));
         }
@@ -3134,6 +3150,10 @@ async function initState() {
                 try {
                     const parsed = JSON.parse(row.value);
                     if (parsed && parsed.id && !loadedOrders.some(x => x.id === parsed.id)) {
+                        parsed.items = getOrderItemsArray(parsed);
+                        if (typeof parsed.customer === 'string' && parsed.customer.startsWith('{')) {
+                            parsed.customer = safeJSONParse(parsed.customer, { name: parsed.customer });
+                        }
                         loadedOrders.push(parsed);
                     }
                 } catch(e) {}
@@ -3143,6 +3163,11 @@ async function initState() {
         if (loadedOrders.length > 0) {
             STATE.orders = loadedOrders;
             updateHeaderCounters();
+            if (STATE.currentView === 'admin') {
+                renderAdminDashboard();
+                if (STATE.activeAdminTab === 'orders') renderAdminOrders();
+                if (STATE.activeAdminTab === 'income') renderAdminIncomeTab();
+            }
         }
     }).catch(err => console.error("Error loading orders:", err));
 
@@ -4969,7 +4994,7 @@ function finalizeOrderPlacement(newOrder, orderId) {
         discount: parseFloat(newOrder.discount) || 0,
         total: parseFloat(newOrder.total) || 0,
         status: newOrder.status,
-        items: typeof newOrder.items === 'string' ? safeJSONParse(newOrder.items, []) : (newOrder.items || []),
+        items: getOrderItemsArray(newOrder),
         payment_screenshot: newOrder.payment_screenshot
     };
     STATE.orders.push(mappedOrder);
@@ -4989,10 +5014,10 @@ function finalizeOrderPlacement(newOrder, orderId) {
     }
     
     // Decrement stock for purchased items
-    if (Array.isArray(mappedOrder.items)) {
-        mappedOrder.items.forEach(async (cartItem) => {
-            if (!cartItem || !cartItem.id) return;
-            const pIdx = STATE.products.findIndex(p => p.id === cartItem.id);
+    const purchasedItems = getOrderItemsArray(mappedOrder);
+    purchasedItems.forEach(async (cartItem) => {
+        if (!cartItem || !cartItem.id) return;
+        const pIdx = STATE.products.findIndex(p => p.id === cartItem.id);
             if (pIdx !== -1) {
                 const prod = STATE.products[pIdx];
                 let currentQty = (prod.specs && prod.specs.stock_qty !== undefined) ? prod.specs.stock_qty : 10;
@@ -5029,7 +5054,6 @@ function finalizeOrderPlacement(newOrder, orderId) {
                 }
             }
         });
-    }
     
     // Mark coupon as used if single use
     if (STATE.activeCoupon) {
@@ -5085,15 +5109,17 @@ function finalizeOrderPlacement(newOrder, orderId) {
     }
     
     // Redirect to WhatsApp if WhatsApp Order method was selected
-    if (newOrder.paymentMethod.startsWith("WhatsApp Order")) {
+    if (newOrder.paymentMethod && newOrder.paymentMethod.startsWith("WhatsApp Order")) {
         let itemsText = "";
-        newOrder.items.forEach((item, idx) => {
+        const orderItems = getOrderItemsArray(newOrder);
+        orderItems.forEach((item, idx) => {
             const isBase64 = item.image && item.image.startsWith("data:");
             const photoUrl = isBase64 ? "[Custom Design Uploaded]" : item.image;
-            itemsText += `${idx + 1}. *Product:* ${item.title}\n   *Price:* ₹${item.price.toLocaleString("en-IN")}\n   *Quantity:* ${item.qty}\n   *Product Photo:* ${photoUrl}\n\n`;
+            itemsText += `${idx + 1}. *Product:* ${item.title}\n   *Price:* ₹${(parseFloat(item.price) || 0).toLocaleString("en-IN")}\n   *Quantity:* ${item.qty || 1}\n   *Product Photo:* ${photoUrl}\n\n`;
         });
         
-        const text = encodeURIComponent(`Hello LIAMORO JEWELS! I have placed an order and uploaded my payment screenshot:\n\n*Order ID:* ${orderId}\n*Customer Name:* ${newOrder.customer}\n*Phone:* ${newOrder.phone}\n*Shipping Address:* ${newOrder.address}\n\n*Order Items:*\n${itemsText}*Shipping Fee:* ₹150\n*Grand Total:* ₹${newOrder.total.toLocaleString("en-IN")}\n\nPlease verify my payment screenshot and confirm my order!`);
+        const customerDisplayName = getCustomerName(newOrder.customer);
+        const text = encodeURIComponent(`Hello LIAMORO JEWELS! I have placed an order and uploaded my payment screenshot:\n\n*Order ID:* ${orderId}\n*Customer Name:* ${customerDisplayName}\n*Phone:* ${newOrder.phone || ''}\n*Shipping Address:* ${newOrder.address || ''}\n\n*Order Items:*\n${itemsText}*Shipping Fee:* ₹150\n*Grand Total:* ₹${(parseFloat(newOrder.total) || 0).toLocaleString("en-IN")}\n\nPlease verify my payment screenshot and confirm my order!`);
         
         window.open(`https://api.whatsapp.com/send?phone=916289974877&text=${text}`, "_blank");
     }
@@ -5538,7 +5564,7 @@ async function downloadUserData(email) {
                     doc.rect(0, 0, 210, 4, 'F');
                     y = 20;
                 }
-                const itemsArr = Array.isArray(o.items) ? o.items : (typeof o.items === 'string' ? JSON.parse(o.items || "[]") : []);
+                const itemsArr = getOrderItemsArray(o);
                 const itemsDesc = itemsArr.map(item => `${item.title} (x${item.qty})`).join(', ');
 
                 doc.text(String(o.date), 17, y);
@@ -5610,12 +5636,16 @@ function getProductCostPrice(prod) {
     const studPricing = getStudFolderPricing(prod.id);
     if (studPricing) return studPricing.cp;
 
-    // Exact category costs
-    if (prod.category === 'charms' || (prod.id && prod.id.includes('charm'))) return 3500;
-    if (prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'))) return 7000;
-    if (prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'))) {
-        if (typeof prod.costPrice === "number" && prod.costPrice > 0 && prod.costPrice !== 30000) return prod.costPrice;
-        if (typeof prod.cost_price === "number" && prod.cost_price > 0 && prod.cost_price !== 30000) return prod.cost_price;
+    // Exact category or title/id costs
+    const cat = (prod.category || '').toLowerCase();
+    const id = (prod.id || '').toLowerCase();
+    const title = (prod.title || '').toLowerCase();
+
+    if (cat === 'charms' || id.includes('charm') || title.includes('charm')) return 3500;
+    if (cat === 'whoop' || id.includes('whoop') || title.includes('whoop')) return 7000;
+    if (cat === 'pendants' || id.includes('pendant') || title.includes('pendant')) {
+        const cpVal = parseFloat(prod.costPrice || prod.cost_price);
+        if (!isNaN(cpVal) && cpVal > 0 && cpVal !== 30000) return cpVal;
         return 20000;
     }
 
@@ -5624,7 +5654,7 @@ function getProductCostPrice(prod) {
     if (prod.specs && typeof prod.specs.cost_price === "number" && !isNaN(prod.specs.cost_price) && prod.specs.cost_price > 0) return prod.specs.cost_price;
     if (prod.specs && typeof prod.specs.costPrice === "number" && !isNaN(prod.specs.costPrice) && prod.specs.costPrice > 0) return prod.specs.costPrice;
 
-    const sp = prod.price || 0;
+    const sp = parseFloat(prod.price) || 0;
     return Math.round(sp * 0.6);
 }
 
@@ -5697,10 +5727,10 @@ function renderAdminDashboard() {
     
     let totalCost = 0;
     validOrders.forEach(o => {
-        const items = Array.isArray(o.items) ? o.items : [];
+        const items = getOrderItemsArray(o);
         items.forEach(item => {
             const prod = STATE.products.find(p => p.id === item.id);
-            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            const cp = prod ? getProductCostPrice(prod) : getProductCostPrice(item);
             totalCost += cp * (item.qty || 1);
         });
     });
@@ -5786,10 +5816,10 @@ function renderIncomeKPIs() {
 
     validOrders.forEach(o => {
         totalRevenue += (o.total || 0);
-        const items = Array.isArray(o.items) ? o.items : [];
+        const items = getOrderItemsArray(o);
         items.forEach(item => {
             const prod = STATE.products.find(p => p.id === item.id);
-            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            const cp = prod ? getProductCostPrice(prod) : getProductCostPrice(item);
             totalCost += cp * (item.qty || 1);
         });
     });
@@ -6176,11 +6206,11 @@ function renderOrdersIncomeLedger() {
     }
 
     tbody.innerHTML = STATE.orders.map(o => {
-        const safeItems = Array.isArray(o.items) ? o.items : [];
+        const safeItems = getOrderItemsArray(o);
         let orderCost = 0;
         const itemDescriptions = safeItems.map(item => {
             const prod = STATE.products.find(p => p.id === item.id);
-            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            const cp = prod ? getProductCostPrice(prod) : getProductCostPrice(item);
             orderCost += cp * (item.qty || 1);
             return `${item.title || 'Item'} (x${item.qty || 1} @ ₹${item.price})`;
         }).join(", ");
@@ -6265,10 +6295,10 @@ function exportIncomeReportCSV() {
 
     (STATE.orders || []).forEach(o => {
         let orderCost = 0;
-        const safeItems = Array.isArray(o.items) ? o.items : [];
+        const safeItems = getOrderItemsArray(o);
         safeItems.forEach(item => {
             const prod = STATE.products.find(p => p.id === item.id);
-            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            const cp = prod ? getProductCostPrice(prod) : getProductCostPrice(item);
             orderCost += cp * (item.qty || 1);
         });
         const revenue = o.total || 0;
@@ -6374,12 +6404,12 @@ function renderAdminOrders() {
     }
     
     ordersTbody.innerHTML = STATE.orders.map(o => {
-        const safeItems = Array.isArray(o.items) ? o.items : [];
+        const safeItems = getOrderItemsArray(o);
         let orderCost = 0;
         const itemTitles = safeItems.map(item => `${item.title} (x${item.qty})`).join(", ");
         const itemsListHtml = safeItems.map(item => {
             const prod = STATE.products.find(p => p.id === item.id);
-            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            const cp = prod ? getProductCostPrice(prod) : getProductCostPrice(item);
             orderCost += cp * (item.qty || 1);
             return `
             <div style="font-size:0.8rem; margin-bottom:2px; display:flex; justify-content:space-between; gap:12px;">
@@ -6501,10 +6531,14 @@ async function deleteInvalidOrder(orderId) {
         // Update UI immediately
         STATE.orders = STATE.orders.filter(o => o.id !== orderId);
         renderAdminOrders();
+        renderAdminDashboard();
+        if (STATE.activeAdminTab === 'income') renderAdminIncomeTab();
         
         try {
-            const { error } = await supaClient.from('orders').delete().eq('id', orderId);
-            if (error) throw error;
+            await Promise.allSettled([
+                supaClient.from('orders').delete().eq('id', orderId),
+                supaClient.from('settings').delete().eq('key', 'order_' + orderId)
+            ]);
         } catch (e) {
             console.error("Error deleting order:", e);
             alert("Failed to delete order from database: " + e.message);
@@ -6582,7 +6616,7 @@ function changeOrderStatus(orderId, newStatus) {
 
 async function creditDigiSilverForOrder(order) {
     let digiGrams = 0;
-    const itemsArr = typeof order.items === 'string' ? safeJSONParse(order.items, []) : (order.items || []);
+    const itemsArr = getOrderItemsArray(order);
     itemsArr.forEach(item => {
         const isDigi = item.isDigiSilver || (item.title && item.title.toLowerCase().includes('digi silver'));
         if (isDigi && item.grams) digiGrams += parseFloat(item.grams);
@@ -6645,7 +6679,7 @@ async function creditReferralCommissionForOrder(order) {
         const referrer = users.find(u => u.referral_code === referrerCode);
         if (!referrer) return;
         
-        const itemsArr = typeof order.items === 'string' ? safeJSONParse(order.items, []) : (order.items || []);
+        const itemsArr = getOrderItemsArray(order);
         const discount = parseFloat(order.discount) || 0;
         const orderSubtotal = itemsArr.reduce((sum, it) => sum + (parseFloat(it.price) * (it.qty || 1)), 0);
         const discountProportion = orderSubtotal > 0 ? (discount / orderSubtotal) : 0;
@@ -8914,16 +8948,18 @@ function estimateDeliveryTime() {
 // --- GST CALCULATOR PORTAL FUNCTIONS ---
 
 function calculateOrderGstAndShipping(o) {
-    const itemsArr = typeof o.items === 'string' ? safeJSONParse(o.items, []) : (o.items || []);
+    const itemsArr = getOrderItemsArray(o);
     let digiSubtotal = 0;
     let physicalSubtotal = 0;
     
     itemsArr.forEach(item => {
         const isDigi = item.isDigiSilver || (item.title && item.title.toLowerCase().includes('digi silver'));
+        const price = parseFloat(item.price) || 0;
+        const qty = parseInt(item.qty, 10) || 1;
         if (isDigi) {
-            digiSubtotal += (item.price * (item.qty || 1));
+            digiSubtotal += (price * qty);
         } else {
-            physicalSubtotal += (item.price * (item.qty || 1));
+            physicalSubtotal += (price * qty);
         }
     });
     
@@ -9435,28 +9471,26 @@ function shareTryOnWhatsapp() {
 
 function downloadOrderInvoicePdf(orderId) {
     const o = STATE.orders.find(order => order.id === orderId);
-    if (!o) return;
-    
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-        alert("Pop-up blocker prevented opening the invoice. Please allow pop-ups for this site.");
+    if (!o) {
+        alert("Order not found: " + orderId);
         return;
     }
     
     // Calculate values
     const taxDetails = calculateOrderGstAndShipping(o);
-    const subtotal = o.subtotal;
-    const discount = o.discount || 0;
-    const total = o.total;
+    const subtotal = parseFloat(o.subtotal) || (taxDetails.taxableAmount + (parseFloat(o.discount) || 0));
+    const discount = parseFloat(o.discount) || 0;
+    const total = parseFloat(o.total) || (subtotal - discount + taxDetails.gstTotal + taxDetails.shippingFee);
     const shippingFee = taxDetails.shippingFee;
     const gstTotal = taxDetails.gstTotal;
     const cgst = taxDetails.cgst;
     const sgst = taxDetails.sgst;
     const taxableAmount = taxDetails.taxableAmount;
     const customerName = getCustomerName(o.customer);
+    const items = getOrderItemsArray(o);
     
-    const itemsRows = o.items.map((item, idx) => {
-        let displayTitle = item.title;
+    const itemsRows = items.map((item, idx) => {
+        let displayTitle = item.title || "Custom Silver Jewellery";
         const prod = STATE.products.find(p => p.id === item.id);
         if (prod && prod.category) {
             const catLower = prod.category.toLowerCase();
@@ -9467,15 +9501,18 @@ function downloadOrderInvoicePdf(orderId) {
             }
         }
         
+        const price = parseFloat(item.price) || 0;
+        const qty = parseInt(item.qty, 10) || 1;
+        
         return `
             <tr>
                 <td style="padding: 10px; border-bottom: 1px solid #E2E8F0; text-align: center;">${idx + 1}</td>
                 <td style="padding: 10px; border-bottom: 1px solid #E2E8F0;">
                     <div style="font-weight: 600;">${displayTitle}</div>
                 </td>
-                <td style="padding: 10px; border-bottom: 1px solid #E2E8F0; text-align: right;">₹${item.price.toLocaleString("en-IN")}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #E2E8F0; text-align: center;">${item.qty}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #E2E8F0; text-align: right; font-weight: 600;">₹${(item.price * item.qty).toLocaleString("en-IN")}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #E2E8F0; text-align: right;">₹${price.toLocaleString("en-IN")}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #E2E8F0; text-align: center;">${qty}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #E2E8F0; text-align: right; font-weight: 600;">₹${(price * qty).toLocaleString("en-IN")}</td>
             </tr>
         `;
     }).join("");
@@ -9748,9 +9785,43 @@ function downloadOrderInvoicePdf(orderId) {
         </html>
     `;
     
-    printWindow.document.open();
-    printWindow.document.write(invoiceHtml);
-    printWindow.document.close();
+    let printWindow = null;
+    try {
+        printWindow = window.open("", "_blank");
+    } catch (e) {
+        console.warn("window.open blocked:", e);
+    }
+    
+    if (printWindow) {
+        printWindow.document.open();
+        printWindow.document.write(invoiceHtml);
+        printWindow.document.close();
+    } else {
+        const iframe = document.createElement("iframe");
+        iframe.style.position = "fixed";
+        iframe.style.right = "0";
+        iframe.style.bottom = "0";
+        iframe.style.width = "0";
+        iframe.style.height = "0";
+        iframe.style.border = "0";
+        document.body.appendChild(iframe);
+        const doc = iframe.contentWindow || iframe.contentDocument;
+        const iDoc = doc.document || doc;
+        iDoc.open();
+        iDoc.write(invoiceHtml);
+        iDoc.close();
+        setTimeout(() => {
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            } catch (e) {
+                alert("Please allow pop-ups for this site to view the PDF invoice.");
+            }
+            setTimeout(() => {
+                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+            }, 60000);
+        }, 500);
+    }
 }
 
 // --- RING SIZE GUIDE & HELPER FUNCTIONS ---
@@ -10253,7 +10324,7 @@ function updateProfileUI() {
         userOrders.forEach(o => {
             const isPending = o.status === 'awaiting_approval' || o.status === 'processing';
             if (isPending) {
-                const itemsArr = Array.isArray(o.items) ? o.items : (typeof o.items === 'string' ? safeJSONParse(o.items, []) : []);
+                const itemsArr = getOrderItemsArray(o);
                 itemsArr.forEach(item => {
                     const isDigi = item.isDigiSilver || (item.title && item.title.toLowerCase().includes('digi silver'));
                     if (isDigi && item.grams) {
@@ -10270,7 +10341,7 @@ function updateProfileUI() {
             ordersList.innerHTML = '<p style="color: var(--color-silver-dark);">You have no orders yet.</p>';
         } else {
             ordersList.innerHTML = userOrders.map(o => {
-                const itemsArr = Array.isArray(o.items) ? o.items : (typeof o.items === 'string' ? safeJSONParse(o.items, []) : []);
+                const itemsArr = getOrderItemsArray(o);
                 const itemsList = itemsArr.map(item => `
                     <div style="font-size: 0.85rem; color: var(--color-silver-dark); margin-top: 4px; display: flex; justify-content: space-between;">
                         <span>• ${item.title} (x${item.qty})</span>
