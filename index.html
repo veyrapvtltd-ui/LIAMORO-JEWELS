@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>LIAMORO JEWELS | Premium 925 Sterling Silver Jewellery</title>
-    <meta name="description" content="Explore pure 92.5 Sterling Silver & Gold jewellery at LIAMORO JEWELS. From classic chains to custom designs, experience premium quality.">
+    <title>Liamoro Jewels | Premium 925 Sterling Silver Jewellery</title>
+    <meta name="description" content="Explore pure 92.5 Sterling Silver & Gold jewellery at Liamoro Jewels. From classic chains to custom designs, experience premium quality.">
     
     <!-- Web App & Favicon Icons -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -16,9 +16,9 @@
     <meta name="theme-color" content="#024824">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="LIAMORO JEWELS">
+    <meta name="apple-mobile-web-app-title" content="Liamoro Jewels">
     
-    <link rel="stylesheet" href="style.css?v=36">
+    <link rel="stylesheet" href="style.css?v=37">
 </head>
 <body>
 
@@ -26,9 +26,9 @@
     <div id="pwa-install-banner" class="pwa-top-bar" style="display: none;">
         <div class="pwa-top-bar-container">
             <div class="pwa-top-bar-left">
-                <img src="icon-192.png" alt="LIAMORO Jewels" class="pwa-top-bar-icon" style="border-radius: 8px;">
+                <img src="icon-192.png" alt="Liamoro Jewels" class="pwa-top-bar-icon" style="border-radius: 8px;">
                 <div class="pwa-top-bar-info">
-                    <span class="pwa-top-bar-title">Install LIAMORO Jewels App</span>
+                    <span class="pwa-top-bar-title">Install Liamoro Jewels App</span>
                     <span class="pwa-top-bar-subtitle">Fast, secure luxury jewellery shopping &amp; order tracking</span>
                 </div>
             </div>
@@ -2676,13 +2676,13 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <!-- Main Application Logic -->
-    <script src="app.js?v=70"></script>
+    <script src="app.js?v=71"></script>
 
     <!-- Progressive Web App (PWA) Service Worker & Install Prompt -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js?v=19')
+            navigator.serviceWorker.register('./sw.js?v=20')
                 .then(reg => {
                     reg.update();
                     console.log('LIAMORO PWA Service Worker registered:', reg.scope);
