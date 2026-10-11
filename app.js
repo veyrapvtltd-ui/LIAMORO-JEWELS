@@ -3089,7 +3089,7 @@ function renderRatesTicker() {
 
     const singleSet = `
         <div class="ticker-item">${announcementText}</div>
-        <div class="ticker-item">🔴 LIVE METAL RATES: 925 Sterling Silver: <span class="ticker-rate">₹${sterlingStr}/g</span> <span class="${trendClass}">${trendIcon}</span> | 625 Silver: <span class="ticker-rate">₹${fineStr}/g</span> | 24K Gold: <span class="ticker-rate">₹${goldStr}/g</span></div>
+        <div class="ticker-item">🔴 LIVE METAL RATES: 925 Sterling Silver: <span class="ticker-rate">₹${sterlingStr}/g</span> <span class="${trendClass}">${trendIcon}</span> | 24K Gold: <span class="ticker-rate">₹${goldStr}/g</span></div>
         <div class="ticker-item">💍 100% NICKEL-FREE & LEAD-FREE HYPOALLERGENIC SILVER PIECES</div>
         <div class="ticker-item">🛍️ OVER ${totalOrders.toLocaleString('en-IN')} HAPPY ORDERS DELIVERED TILL DATE! 🛍️</div>
         <div class="ticker-item">⭐ FAST SECURE SHIPPING PAN INDIA ON ALL ORDERS!</div>
