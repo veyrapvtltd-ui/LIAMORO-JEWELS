@@ -50,7 +50,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Liamoro Jewels">
     
-    <link rel="stylesheet" href="style.css?v=39">
+    <link rel="stylesheet" href="style.css?v=40">
 
     <!-- Structured Data (JSON-LD): JewelryStore / Organization / Merchant Policy -->
     <script type="application/ld+json">
@@ -3305,13 +3305,13 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <!-- Main Application Logic -->
-    <script src="app.js?v=84"></script>
+    <script src="app.js?v=85"></script>
 
     <!-- Progressive Web App (PWA) Service Worker & Install Prompt -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js?v=33')
+            navigator.serviceWorker.register('./sw.js?v=34')
                 .then(reg => {
                     reg.update();
                     console.log('LIAMORO PWA Service Worker registered:', reg.scope);

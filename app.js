@@ -3859,14 +3859,27 @@ function addToCart(prodId, count = 1) {
     
     // Determine the size to add
     let size = null;
+    const isCharm = (prod.category || "").toLowerCase() === "charms" || 
+                    (prod.id && prod.id.toLowerCase().includes("charm")) || 
+                    prod.title.toLowerCase().includes("charm");
+    const isWhoop = (prod.category || "").toLowerCase() === "whoop" || 
+                    (prod.id && prod.id.toLowerCase().includes("whoop")) || 
+                    prod.title.toLowerCase().includes("whoop");
     const isToeRing = prod.title.toLowerCase().includes("toe");
     const isEarring = (prod.category || "").toLowerCase() === "earrings" || prod.title.toLowerCase().includes("earring");
-    const isRing = ((prod.category || "").toLowerCase() === "rings" || prod.title.toLowerCase().includes("ring") || prod.title.toLowerCase().includes("band")) && !isToeRing && !isEarring;
     const isChain = (prod.category || "").toLowerCase().includes("chain");
     const isKada = (prod.category || "").toLowerCase() === "kada" || prod.title.toLowerCase().includes("kada");
     const isBracelet = (prod.category || "").toLowerCase() === "bracelet" || prod.title.toLowerCase().includes("bracelet");
+    const isPendant = (prod.category || "").toLowerCase() === "pendants" || prod.title.toLowerCase().includes("pendant");
+    const isRing = !isCharm && !isWhoop && !isToeRing && !isEarring && !isChain && !isKada && !isBracelet && !isPendant &&
+                   ((prod.category || "").toLowerCase() === "rings" || 
+                    prod.title.toLowerCase().includes("ring") || 
+                    prod.title.toLowerCase().includes("band"));
     
-    if (STATE.selectedProduct && STATE.selectedProduct.id === prod.id && STATE.selectedSize) {
+    if (isCharm) {
+        // Whoop Band Charms have a universal fixed slide-on fit for Whoop 4.0 & 5.0 bands - no size selection
+        size = null;
+    } else if (STATE.selectedProduct && STATE.selectedProduct.id === prod.id && STATE.selectedSize) {
         // If we are adding the product that is currently viewed in detail, use the selected size!
         size = STATE.selectedSize;
     } else {
@@ -3905,11 +3918,9 @@ function addToCart(prodId, count = 1) {
     }
     
     const isDetailView = STATE.selectedProduct && STATE.selectedProduct.id === prod.id;
-    const isPendant = prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'));
     const basePrice = prod.price;
 
     const finishLabel = isDetailView && STATE.selectedFinish ? (STATE.selectedFinish === 'golden' ? 'Golden' : (STATE.selectedFinish === 'rosegold' ? 'Rosegold' : 'Silver')) : 'Silver';
-    const isWhoop = prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'));
     const finishSuffix = (isDetailView && (isWhoop || isPendant || isEarring)) ? ` [${finishLabel}]` : "";
     
     const sizeSuffix = size ? ` (Size: ${size})` : "";
@@ -4061,17 +4072,23 @@ function viewProductDetail(prodId, isPopstate = false) {
     }
     
     // Ring, Toe Ring, and Chain Size rendering
+    const isCharm = (prod.category || "").toLowerCase() === "charms" || 
+                    (prod.id && prod.id.toLowerCase().includes("charm")) || 
+                    prod.title.toLowerCase().includes("charm");
     const isToeRing = prod.title.toLowerCase().includes("toe");
-    const isRing = ((prod.category || "").toLowerCase() === "rings" || prod.title.toLowerCase().includes("ring") || prod.title.toLowerCase().includes("band")) && !isToeRing && !isEarring;
     const isChain = (prod.category || "").toLowerCase().includes("chain");
     const isKada = (prod.category || "").toLowerCase() === "kada" || prod.title.toLowerCase().includes("kada");
     const isBracelet = (prod.category || "").toLowerCase() === "bracelet" || prod.title.toLowerCase().includes("bracelet");
+    const isRing = !isCharm && !isWhoop && !isToeRing && !isEarring && !isChain && !isKada && !isBracelet && !isPendant &&
+                   ((prod.category || "").toLowerCase() === "rings" || 
+                    prod.title.toLowerCase().includes("ring") || 
+                    prod.title.toLowerCase().includes("band"));
     
     const sizeSection = document.getElementById("detail-size-section");
     const sizeLabel = sizeSection ? sizeSection.querySelector(".custom-form-label") : null;
     
     if (sizeSection) {
-        if (isRing || isToeRing || isChain || isKada) {
+        if (!isCharm && (isRing || isToeRing || isChain || isKada || isBracelet)) {
             sizeSection.style.display = "block";
             let sizes = [];
             let labelText = "Select Size";
@@ -4165,8 +4182,8 @@ function viewProductDetail(prodId, isPopstate = false) {
     
     // Bind Specs
     if (specMetal) specMetal.textContent = prod.specs.metal || "925 Sterling Silver";
-    if (specCraft) specCraft.textContent = "Artisan Handcrafted";
-    if (specAuth) specAuth.textContent = prod.specs.authenticity || "92.5 Hallmark Certificate Included";
+    if (specCraft) specCraft.textContent = isCharm ? "Universal Slide-On Fit" : "Artisan Handcrafted";
+    if (specAuth) specAuth.textContent = isCharm ? "Whoop 4.0 & 5.0 Compatible" : (prod.specs.authenticity || "92.5 Hallmark Certificate Included");
     if (specGender) specGender.textContent = prod.gender === "him" ? "Men" : (prod.gender === "her" ? "Women" : (prod.gender === "kids" ? "Kids" : "Unisex"));
     
     // Thumbnail strip (Render ALL product gallery images: studio shot, wrist shot, etc.)
@@ -4406,15 +4423,25 @@ function triggerBuyNow() {
             if (msg) wrapSuffix += ` [Msg: ${msg}]`;
         }
         
+        const isCharm = (prod.category || "").toLowerCase() === "charms" || 
+                        (prod.id && prod.id.toLowerCase().includes("charm")) || 
+                        prod.title.toLowerCase().includes("charm");
+        const isWhoop = prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'));
+        const isPendant = (prod.category || "").toLowerCase() === "pendants" || 
+                          (prod.id && prod.id.toLowerCase().includes("pendant")) || 
+                          prod.title.toLowerCase().includes("pendant");
         const isToeRing = prod.title.toLowerCase().includes("toe");
         const isEarring = (prod.category || "").toLowerCase() === "earrings" || prod.title.toLowerCase().includes("earring");
-        const isRing = ((prod.category || "").toLowerCase() === "rings" || prod.title.toLowerCase().includes("ring") || prod.title.toLowerCase().includes("band")) && !isToeRing && !isEarring;
         const isChain = (prod.category || "").toLowerCase().includes("chain");
         const isKada = (prod.category || "").toLowerCase() === "kada" || prod.title.toLowerCase().includes("kada");
         const isBracelet = (prod.category || "").toLowerCase() === "bracelet" || prod.title.toLowerCase().includes("bracelet");
+        const isRing = !isCharm && !isWhoop && !isToeRing && !isEarring && !isChain && !isKada && !isBracelet && !isPendant &&
+                       ((prod.category || "").toLowerCase() === "rings" || 
+                        prod.title.toLowerCase().includes("ring") || 
+                        prod.title.toLowerCase().includes("band"));
         
-        let size = STATE.selectedSize;
-        if (!size) {
+        let size = isCharm ? null : STATE.selectedSize;
+        if (!size && !isCharm) {
             if (prod.specs && prod.specs.available_sizes) {
                 const parts = prod.specs.available_sizes.split(',').map(s => s.trim()).filter(s => s.length > 0);
                 if (parts.length > 0) {
@@ -4433,7 +4460,6 @@ function triggerBuyNow() {
         const basePrice = prod.price;
 
         const finishLabel = STATE.selectedFinish ? (STATE.selectedFinish === 'golden' ? 'Golden' : (STATE.selectedFinish === 'rosegold' ? 'Rosegold' : 'Silver')) : 'Silver';
-        const isWhoop = prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'));
         const finishSuffix = (isWhoop || isPendant || isEarring) ? ` [${finishLabel}]` : "";
         
         const sizeSuffix = size ? ` (Size: ${size})` : "";
