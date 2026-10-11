@@ -4,7 +4,7 @@
   "description": "Premium 925 Sterling Silver E-Commerce Web Application",
   "main": "index.html",
   "scripts": {
-    "dev": "npx -y http-server -c-1 -p 3000"
+    "dev": "node server.js"
   },
   "keywords": [
     "silver",

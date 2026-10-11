@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>UVIRA JEWELS | Premium 925 Sterling Silver Jewellery</title>
-    <meta name="description" content="Explore pure 92.5 Sterling Silver & Gold jewellery at UVIRA JEWELS. From classic chains to custom designs, experience premium quality.">
+    <title>LIAMORO JEWELS | Premium 925 Sterling Silver Jewellery</title>
+    <meta name="description" content="Explore pure 92.5 Sterling Silver & Gold jewellery at LIAMORO JEWELS. From classic chains to custom designs, experience premium quality.">
     
     <!-- Web App & Favicon Icons -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -13,12 +13,12 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1C334E">
+    <meta name="theme-color" content="#024824">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="UVIRA JEWELS">
+    <meta name="apple-mobile-web-app-title" content="LIAMORO JEWELS">
     
-    <link rel="stylesheet" href="style.css?v=29">
+    <link rel="stylesheet" href="style.css?v=36">
 </head>
 <body>
 
@@ -26,9 +26,9 @@
     <div id="pwa-install-banner" class="pwa-top-bar" style="display: none;">
         <div class="pwa-top-bar-container">
             <div class="pwa-top-bar-left">
-                <img src="icon-192.png" alt="UVIRA Jewels" class="pwa-top-bar-icon">
+                <img src="icon-192.png" alt="LIAMORO Jewels" class="pwa-top-bar-icon" style="border-radius: 8px;">
                 <div class="pwa-top-bar-info">
-                    <span class="pwa-top-bar-title">Install UVIRA Jewels App</span>
+                    <span class="pwa-top-bar-title">Install LIAMORO Jewels App</span>
                     <span class="pwa-top-bar-subtitle">Fast, secure luxury jewellery shopping &amp; order tracking</span>
                 </div>
             </div>
@@ -59,23 +59,54 @@
     <header>
         <div class="container header-container">
             <!-- Logo Section -->
-            <a href="javascript:void(0)" class="logo" onclick="navigateTo('home')" style="display: flex; flex-direction: row; align-items: center; gap: 12px; text-decoration: none; justify-content: center;">
-                <img src="logo.png" alt="UVIRA Logo" style="height: 65px; width: auto; object-fit: contain;">
-                <div style="display: flex; flex-direction: column;">
-                    <span class="logo-main" style="font-size: 1.4rem; letter-spacing: 2px;">UVIRA JEWELS</span>
-                    <span class="logo-sub" style="font-size: 0.75rem; letter-spacing: 3px;">Pure Silver Jewellery</span>
+            <a href="javascript:void(0)" class="logo" onclick="navigateTo('home')">
+                <img src="logo.png" alt="LIAMORO Logo" class="logo-img">
+                <div class="logo-text-wrap">
+                    <span class="logo-main">LIAMORO JEWELS</span>
+                    <span class="logo-sub">Pure Silver Jewellery</span>
                 </div>
             </a>
             <!-- Navigation Links -->
             <nav class="nav-menu">
-                <a href="javascript:void(0)" class="nav-link" data-view="shop" onclick="navigateTo('shop')">All Collections</a>
-                <a href="javascript:void(0)" class="nav-link" onclick="navigateTo('shop', 'pendants')">Divine Pendants</a>
-                <a href="javascript:void(0)" class="nav-link" onclick="navigateTo('shop', 'whoop')">Whoop Cases</a>
+                <!-- All Collections Dropdown Navigation -->
+                <div class="nav-item-dropdown">
+                    <a href="javascript:void(0)" class="nav-link nav-link--collections" data-view="shop" onclick="navigateTo('shop')">
+                        <span>All Collections</span>
+                        <svg class="dropdown-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </a>
+                    <div class="collections-dropdown-menu">
+                        <a href="javascript:void(0)" class="dropdown-header-link" onclick="navigateTo('shop')">
+                            <span>✨ View All Jewellery</span>
+                            <span style="font-size: 0.72rem; color: #047857; font-weight: 600;">Full Catalog &rarr;</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" onclick="navigateTo('shop', 'bestseller')" style="background: rgba(4, 120, 87, 0.08);">
+                            <span style="font-weight: 700; color: #047857;">🔥 Best Selling Collection</span>
+                            <span class="dropdown-item-badge" style="background: linear-gradient(135deg, #059669 0%, #024824 100%); color: #FFFFFF; font-weight: 700;">Top Choice</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" onclick="navigateTo('shop', 'earrings')">
+                            <span>Men Earrings &amp; Studs</span>
+                            <span class="dropdown-item-badge dropdown-badge-new">New</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" onclick="navigateTo('shop', 'pendants')">
+                            <span>Divine Pendants</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" onclick="navigateTo('shop', 'whoop')">
+                            <span>Custom Whoop Cases</span>
+                            <span class="dropdown-item-badge dropdown-badge-hot">Hot</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" onclick="navigateTo('shop', 'charms')">
+                            <span>Band Charms Collection</span>
+                            <span class="dropdown-item-badge dropdown-badge-new">New</span>
+                        </a>
+                    </div>
+                </div>
+
                 <a href="javascript:void(0)" class="nav-link nav-link--customise" data-view="customisation" onclick="navigateTo('customisation')">Customisation ✦</a>
                 <a href="javascript:void(0)" class="nav-link" data-view="track" onclick="navigateTo('track')">Track Order</a>
                 <a href="javascript:void(0)" class="nav-link nav-link--pwa" onclick="triggerPwaInstall()" style="color: var(--color-accent-pink); font-weight: 700;">
                     <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 5px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18l4.5-4.5m0 0l-4.5-4.5m4.5 4.5H3m15-9h3a2 2 0 012 2v14a2 2 0 01-2 2h-3"/></svg>
-                    Install UVIRA App
+                    Install App
                 </a>
             </nav>
 
@@ -138,17 +169,17 @@
                 
                 <!-- Hero Content -->
                 <div class="hd-hero-content-wrapper">
-                    <span class="hd-hero-badge">BESPOKE 925 STERLING SILVER WHOOP COLLECTION</span>
+                    <span class="hd-hero-badge">BESPOKE 925 STERLING SILVER COLLECTIONS</span>
                     <h1 class="hd-hero-title">EMBODY THE ELEGANCE OF STERLING SILVER</h1>
-                    <p class="hd-hero-subtitle">Handcrafted 925 Hallmark Certified Creations &amp; Exclusive Custom Whoop Silver Accessories</p>
+                    <p class="hd-hero-subtitle">Handcrafted 925 Hallmark Certified Creations, Men's Luxury Studs &amp; Exclusive Custom Whoop Cases</p>
                     
                     <div class="hd-hero-actions">
-                        <button class="btn-hd-hero-primary" onclick="navigateTo('shop', 'whoop')">
-                            <span>Explore Whoop Cases</span>
+                        <button class="btn-hd-hero-primary" onclick="navigateTo('shop', 'earrings')">
+                            <span>Explore Men Earrings</span>
                             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                         </button>
                         <button class="btn-hd-hero-secondary" onclick="navigateTo('shop')">
-                            <span>Shop Entire Collection</span>
+                            <span>Shop All 95 Designs</span>
                         </button>
                     </div>
                 </div>
@@ -191,15 +222,27 @@
         </section>
 
 
-        <!-- 4. Featured Collections Slider -->
-        <section class="container" style="margin-bottom: 50px;">
-            <h2 class="section-title text-center">Our Collections</h2>
+        <!-- 4. BEST SELLING COLLECTION (FEATURED SHOWCASE) -->
+        <section class="container bestseller-showcase-section" style="margin-bottom: 60px;">
+            <div class="bestseller-header-card" style="text-align: center; margin-bottom: 32px; padding: 24px 20px 28px; background: linear-gradient(180deg, rgba(4, 120, 87, 0.06) 0%, rgba(255, 255, 255, 0) 100%); border-radius: 16px; border: 1px solid rgba(4, 120, 87, 0.2);">
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #059669 0%, #024824 100%); color: #FFFFFF; font-size: 0.78rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 16px; border-radius: 30px; box-shadow: 0 4px 12px rgba(2, 72, 36, 0.25); margin-bottom: 12px;">
+                    <span>🔥 HIGH DEMAND &amp; TRENDING</span>
+                </div>
+                <h2 class="section-title text-center" style="margin-bottom: 8px; font-size: 2.2rem; letter-spacing: 1px;">BEST SELLING COLLECTION</h2>
+                <p style="color: var(--color-silver-dark); font-size: 0.95rem; max-width: 580px; margin: 0 auto; line-height: 1.5;">Liamoro’s most iconic, handcrafted 925 Sterling Silver masterpieces — loved, trusted, and celebrated for unmatched luster and purity.</p>
+            </div>
+            
             <div id="best-sellers-grid" class="products-grid">
                 <!-- Loaded by app.js renderHomeProducts -->
             </div>
-            <div class="explore-more-wrap" style="text-align: center; margin-top: 36px;">
-                <button class="btn-explore-more" onclick="navigateTo('shop')">
-                    <span>Explore All 45 Pieces</span>
+            
+            <div class="explore-more-wrap" style="text-align: center; margin-top: 36px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+                <button class="btn-explore-more" onclick="navigateTo('shop', 'bestseller')" style="background: linear-gradient(135deg, #059669 0%, #024824 100%); color: #FFFFFF; border: none; box-shadow: 0 4px 16px rgba(2, 72, 36, 0.3);">
+                    <span>🔥 Shop Best Selling Collection</span>
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                </button>
+                <button class="btn-explore-more" onclick="navigateTo('shop')" style="background: #FFFFFF; color: var(--color-primary); border: 1.5px solid var(--color-silver-mid);">
+                    <span>Explore All 70 Pieces</span>
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                 </button>
             </div>
@@ -209,7 +252,7 @@
         
         <!-- Flash Sale Banner -->
         <section class="container">
-            <div class="flash-sale-banner" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: linear-gradient(rgba(28, 51, 78, 0.9), rgba(28, 51, 78, 0.85)), url('https://images.unsplash.com/photo-1599643478524-fb66f70a00ea?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; padding: 70px 20px;">
+            <div class="flash-sale-banner" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: linear-gradient(rgba(13, 62, 47, 0.92), rgba(13, 62, 47, 0.88)), url('https://images.unsplash.com/photo-1599643478524-fb66f70a00ea?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; padding: 70px 20px;">
                 <div class="flash-sale-content" style="max-width: 700px; display: flex; flex-direction: column; align-items: center;">
                     <div class="flash-sale-tag" style="background-color: var(--color-accent-pink); color: #FFFFFF; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 4px; margin-bottom: 20px; animation: pulse 1.5s infinite; display: inline-block;">⚡ FESTIVE SPECIAL ⚡</div>
                     
@@ -286,14 +329,17 @@
                 <button class="mobile-filter-trigger-btn" onclick="toggleShopFilters()">
                     <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                     <span>Filter &amp; Refine</span>
-                    <span class="filter-count-badge" id="mobile-filter-badge">45</span>
+                    <span class="filter-count-badge" id="mobile-filter-badge">60</span>
                 </button>
             </div>
             <!-- Quick Chips on Mobile -->
             <div class="mobile-quick-chips">
-                <button class="quick-chip active" id="chip-all" onclick="filterByQuickChip('all')">All Designs (45)</button>
-                <button class="quick-chip" id="chip-pendants" onclick="filterByQuickChip('pendants')">Divine Pendants (10)</button>
+                <button class="quick-chip active" id="chip-all" onclick="filterByQuickChip('all')">All Designs (95)</button>
+                <button class="quick-chip" id="chip-bestseller" onclick="filterByQuickChip('bestseller')" style="font-weight: 700; color: #047857; border-color: rgba(4, 120, 87, 0.35); background: rgba(4, 120, 87, 0.08);">🔥 Best Sellers (12)</button>
+                <button class="quick-chip" id="chip-charms" onclick="filterByQuickChip('charms')">Band Charms (25)</button>
                 <button class="quick-chip" id="chip-whoop" onclick="filterByQuickChip('whoop')">Whoop Cases (35)</button>
+                <button class="quick-chip" id="chip-earrings" onclick="filterByQuickChip('earrings')">Men Earrings (15)</button>
+                <button class="quick-chip" id="chip-pendants" onclick="filterByQuickChip('pendants')">Divine Pendants (10)</button>
                 <button class="quick-chip" id="chip-instock" onclick="filterByQuickChip('instock')">In Stock</button>
             </div>
         </div>
@@ -308,7 +354,7 @@
                 <div class="mobile-filter-header">
                     <div>
                         <h3 class="mobile-filter-title">Filter Products</h3>
-                        <span class="mobile-filter-subtitle">45 Handcrafted Pure Silver Pieces</span>
+                        <span class="mobile-filter-subtitle">95 Handcrafted Pure Silver Pieces</span>
                     </div>
                     <button class="mobile-filter-close-btn" onclick="toggleShopFilters()" aria-label="Close Filters">&times;</button>
                 </div>
@@ -323,13 +369,25 @@
                 
                 <div class="filter-section-block">
                     <h4 class="filter-block-title">Collection Category</h4>
+                    <label class="filter-checkbox-row" style="margin-bottom: 8px; color: #047857; font-weight: 700;">
+                        <input type="checkbox" id="filter-type-bestseller" onchange="renderShopCatalog()">
+                        <span>🔥 Best Sellers Collection (12)</span>
+                    </label>
                     <label class="filter-checkbox-row">
+                        <input type="checkbox" id="filter-type-earrings" onchange="renderShopCatalog()" checked>
+                        <span>Men Earrings (15)</span>
+                    </label>
+                    <label class="filter-checkbox-row" style="margin-top: 8px;">
                         <input type="checkbox" id="filter-type-pendants" onchange="renderShopCatalog()" checked>
                         <span>Divine Pendants (10)</span>
                     </label>
                     <label class="filter-checkbox-row" style="margin-top: 8px;">
                         <input type="checkbox" id="filter-type-whoop" onchange="renderShopCatalog()" checked>
                         <span>Whoop 5.0 Cases (35)</span>
+                    </label>
+                    <label class="filter-checkbox-row" style="margin-top: 8px;">
+                        <input type="checkbox" id="filter-type-charms" onchange="renderShopCatalog()" checked>
+                        <span>Band Charms (25)</span>
                     </label>
                 </div>
 
@@ -338,7 +396,7 @@
                         <h4 class="filter-block-title" style="margin: 0;">Max Price</h4>
                         <span class="filter-price-indicator">₹<span id="filter-price-val">50,000</span></span>
                     </div>
-                    <input type="range" id="filter-price-max" min="10000" max="50000" step="1000" value="50000" class="filter-range-control" oninput="document.getElementById('filter-price-val').innerText = parseInt(this.value).toLocaleString('en-IN'); renderShopCatalog();" onchange="renderShopCatalog()">
+                    <input type="range" id="filter-price-max" min="5000" max="50000" step="1000" value="50000" class="filter-range-control" oninput="document.getElementById('filter-price-val').innerText = parseInt(this.value).toLocaleString('en-IN'); renderShopCatalog();" onchange="renderShopCatalog()">
                 </div>
 
                 <div class="filter-section-block">
@@ -420,25 +478,17 @@
                     </div>
                 </div>
 
-                <!-- Metal Selection Option (Solid 92.5 Sterling Silver vs Jewellery Brass) -->
+                <!-- Metal Selection Option (Solid 92.5 Sterling Silver Guaranteed) -->
                 <div id="detail-metal-section" style="margin-top: 15px; margin-bottom: 20px;">
-                    <label class="custom-form-label" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: #1f2937; display: block;">Select Metal Purity</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <label class="custom-form-label" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: #1f2937; display: block;">Metal Purity Guarantee</label>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
                         <div id="metal-opt-silver" class="metal-option-card active-metal" onclick="selectDetailMetal('silver')" style="border: 2px solid var(--color-primary); background: #F8FAFC; padding: 12px 14px; border-radius: var(--border-radius-sm); cursor: pointer; transition: all 0.2s ease; position: relative;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <span style="font-weight: 700; font-size: 0.88rem; color: var(--color-primary);">925 Sterling Silver</span>
-                                <span style="font-size: 0.7rem; background: var(--color-primary); color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Default</span>
+                                <span style="font-weight: 700; font-size: 0.88rem; color: var(--color-primary);">Solid 92.5 Sterling Silver</span>
+                                <span style="font-size: 0.7rem; background: var(--color-primary); color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: 700;">100% Pure Hallmarked</span>
                             </div>
-                            <div id="metal-opt-silver-price" style="font-size: 0.95rem; color: var(--color-primary); font-weight: 800;">₹15,000</div>
-                            <div style="font-size: 0.72rem; color: var(--color-silver-dark); margin-top: 2px;">92.5 Hallmark Stamp</div>
-                        </div>
-                        <div id="metal-opt-brass" class="metal-option-card" onclick="selectDetailMetal('brass')" style="border: 1px solid var(--color-silver-mid); background: #FFFFFF; padding: 12px 14px; border-radius: var(--border-radius-sm); cursor: pointer; transition: all 0.2s ease; position: relative;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <span style="font-weight: 700; font-size: 0.88rem; color: #334155;">Jewellery Brass</span>
-                                <span style="font-size: 0.7rem; background: #DCFCE7; color: #166534; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Save ₹9,000</span>
-                            </div>
-                            <div style="font-size: 0.95rem; color: #059669; font-weight: 800;">₹6,000</div>
-                            <div style="font-size: 0.72rem; color: var(--color-silver-dark); margin-top: 2px;">Gold/Rhodium Coated</div>
+                            <div id="metal-opt-silver-price" style="font-size: 0.95rem; color: var(--color-primary); font-weight: 800;">₹21,000</div>
+                            <div style="font-size: 0.72rem; color: var(--color-silver-dark); margin-top: 2px;">Authentic 92.5 Hallmark Stamp • Hypoallergenic &amp; Nickel-Free</div>
                         </div>
                     </div>
                 </div>
@@ -666,14 +716,14 @@
                             
                             <!-- Mark 4: Sponsor/Jeweller -->
                             <div class="stamp-mark" data-mark="jeweller" onmouseover="showStampDetail('jeweller')" onclick="showStampDetail('jeweller')">
-                                <span style="font-size: 1.1rem; font-weight: 700; font-family: var(--font-cursive); color: var(--color-accent-pink);">UVIRA</span>
+                                <span style="font-size: 1.1rem; font-weight: 700; font-family: var(--font-cursive); color: var(--color-accent-pink);">LIAMORO</span>
                             </div>
                         </div>
                     </div>
                     
                     <div id="stamp-detail-box" class="stamp-detail-box">
                         <h4 id="stamp-detail-title">Tap or hover over any stamp mark above</h4>
-                        <p id="stamp-detail-desc">Every genuine sterling silver piece from UVIRA Palace bears this hallmark imprint laser-engraved on the inner side or clasp of the jewelry.</p>
+                        <p id="stamp-detail-desc">Every genuine sterling silver piece from LIAMORO bears this hallmark imprint laser-engraved on the inner side or clasp of the jewelry.</p>
                     </div>
                 </div>
             </div>
@@ -757,7 +807,7 @@
                 </div>
                 
                 <div class="comparison-panel positive">
-                    <h4 style="margin-bottom: 15px; color: #047857;">✨ UVIRA JEWELS</h4>
+                    <h4 style="margin-bottom: 15px; color: #047857;">✨ LIAMORO JEWELS</h4>
                     <ul class="comparison-list">
                         <li>Strictly 100% Nickel-Free, eliminating skin rashes entirely.</li>
                         <li>Certified Lead-Free & Cadmium-Free for total body safety.</li>
@@ -821,7 +871,7 @@
                 <div class="info-card">
                     <div class="info-card-icon">🎁</div>
                     <h4>Luxury Packaging</h4>
-                    <p>Your jewelry arrives inside a signature UVIRA royal blue rigid drawer box, velvet padded inserts, authenticity certificate, and polishing cloth.</p>
+                    <p>Your jewelry arrives inside a signature LIAMORO emerald green rigid drawer box, velvet padded inserts, authenticity certificate, and polishing cloth.</p>
                 </div>
                 
                 <div class="info-card">
@@ -857,6 +907,10 @@
                 <div class="admin-side-menu-item" data-tab="orders" onclick="navigateAdminTab('orders')">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 00-2 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                     <span>Incoming Orders</span>
+                </div>
+                <div class="admin-side-menu-item" data-tab="income" onclick="navigateAdminTab('income')">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Income (C.P vs S.P)</span>
                 </div>
                 <div class="admin-side-menu-item" data-tab="inventory" onclick="navigateAdminTab('inventory')">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
@@ -896,24 +950,39 @@
             <main class="admin-content">
                 <!-- 1. Dashboard -->
                 <div class="admin-tab-view active-tab" id="admin-tab-dashboard">
-                    <h3 class="admin-tab-title">Sales Analytics Overview</h3>
+                    <h3 class="admin-tab-title">Sales &amp; Income Analytics Overview</h3>
                     <div class="admin-stats-grid">
                         <div class="admin-stat-card">
-                            <span class="admin-stat-label">Total Revenue</span>
-                            <span class="admin-stat-val" id="admin-stat-sales">₹1,169</span>
+                            <span class="admin-stat-label">Total Revenue (S.P)</span>
+                            <span class="admin-stat-val" id="admin-stat-sales">₹0</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-label">Total Cost Price (C.P)</span>
+                            <span class="admin-stat-val" id="admin-stat-cost">₹0</span>
+                        </div>
+                        <div class="admin-stat-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.2) 100%); border: 1.5px solid #10B981;">
+                            <span class="admin-stat-label" style="color: #065F46; font-weight: 700;">Net Income (S.P - C.P)</span>
+                            <span class="admin-stat-val" id="admin-stat-income" style="color: #047857; font-weight: 800;">₹0</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-label">Net Profit Margin</span>
+                            <span class="admin-stat-val" id="admin-stat-margin" style="color: #059669;">0%</span>
                         </div>
                         <div class="admin-stat-card">
                             <span class="admin-stat-label">Total Orders</span>
-                            <span class="admin-stat-val" id="admin-stat-orders">1</span>
+                            <span class="admin-stat-val" id="admin-stat-orders">0</span>
                         </div>
                         <div class="admin-stat-card">
                             <span class="admin-stat-label">Active Catalog Items</span>
-                            <span class="admin-stat-val" id="admin-stat-catalog">11</span>
+                            <span class="admin-stat-val" id="admin-stat-catalog">60</span>
                         </div>
                     </div>
-                    <div style="background-color: var(--color-silver-light); padding:20px; border-radius:var(--border-radius-md); border:1px solid var(--color-silver-mid);">
-                        <h4 style="margin-bottom:8px; font-weight:600;">System Integrity Verification Logs:</h4>
-                        <p style="font-size:0.82rem; color:var(--color-silver-dark); line-height:1.5;">This administrative interface is completely connected to client state via standard localStorage mechanisms. Any updates made here reflect instantly across customer-facing views in real time.</p>
+                    <div style="background-color: var(--color-silver-light); padding: 22px; border-radius: var(--border-radius-md); border: 1px solid var(--color-silver-mid); display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+                        <div>
+                            <h4 style="margin-bottom: 6px; font-weight: 600; color: var(--color-primary);">💼 Profitability Quick Action</h4>
+                            <p style="font-size: 0.82rem; color: var(--color-silver-dark); line-height: 1.5; margin: 0;">Net Income is calculated dynamically by subtracting Cost Price (C.P.) from Selling Price (S.P.) across all catalog products and client orders.</p>
+                        </div>
+                        <button class="custom-btn" onclick="navigateAdminTab('income')" style="padding: 10px 22px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">Open C.P vs S.P Calculator &rarr;</button>
                     </div>
                 </div>
                 
@@ -948,9 +1017,11 @@
                                     <th>Date</th>
                                     <th>Customer info</th>
                                     <th>Purchased Items</th>
-                                    <th>Total bill</th>
+                                    <th>Revenue (S.P)</th>
+                                    <th>Cost (C.P)</th>
+                                    <th>Net Income (S.P - C.P)</th>
                                     <th>Tracking Status</th>
-                                    <th>Invoice Copy</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="admin-orders-tbody">
@@ -969,15 +1040,11 @@
                                 <label style="font-size: 0.82rem; font-weight: 600; color: var(--color-silver-dark); margin: 0;">Filter Category:</label>
                                 <select id="admin-inventory-filter-category" onchange="renderAdminInventoryList()" style="padding: 6px 12px; border: 1px solid var(--color-silver-mid); border-radius: var(--border-radius-sm); font-size: 0.82rem; outline: none; background: #FFFFFF; font-weight: 500; cursor: pointer; color: var(--color-primary);">
                                     <option value="all">All Categories</option>
-                                    <option value="rings">Rings</option>
-                                    <option value="earrings">Earrings</option>
-                                    <option value="pendants">Pendants</option>
-                                    <option value="anklets">Anklets & Toe Rings</option>
-                                    <option value="chains">Chains</option>
-                                    <option value="chain_pendant">Chain with Pendant</option>
+                                    <option value="bestseller">🔥 Best Selling Collection</option>
+                                    <option value="earrings">Men Earrings &amp; Studs</option>
+                                    <option value="pendants">Divine Pendants</option>
+                                    <option value="whoop">Custom Whoop Cases</option>
                                     <option value="customised">Customised</option>
-                                    <option value="kada">Kadas</option>
-                                    <option value="bracelet">Bracelets</option>
                                 </select>
                             </div>
                         </div>
@@ -990,10 +1057,13 @@
                         <table class="admin-table">
                             <thead>
                                 <tr>
+                                    <th style="width: 85px;">Item No.</th>
                                     <th>Image</th>
                                     <th>Title</th>
                                     <th>Category</th>
-                                    <th>Base Price</th>
+                                    <th>Cost Price (C.P)</th>
+                                    <th>Selling Price (S.P)</th>
+                                    <th>1-Item NOI (S.P - C.P)</th>
                                     <th>Stock State</th>
                                     <th>Fulfillment Action</th>
                                 </tr>
@@ -1011,22 +1081,21 @@
                     <div class="admin-form-grid">
                         <div class="custom-form-group">
                             <label class="custom-form-label">Product Name / Title</label>
-                            <input type="text" id="new-prod-title" class="custom-input" placeholder="e.g. Vintage Silver Ear Studs">
+                            <input type="text" id="new-prod-title" class="custom-input" placeholder="e.g. Imperial Silver Stud / Royal Case">
                         </div>
                         <div class="custom-form-group">
                             <label class="custom-form-label">Category</label>
                             <select id="new-prod-cat" class="custom-input" onchange="autoCalculateJewelRate()">
-                                <option value="rings">Rings</option>
-                                <option value="earrings">Earrings</option>
-                                <option value="pendants">Pendants</option>
-                                <option value="anklets">Anklets & Toe Rings</option>
-                                <option value="chains">Chains</option>
-                                <option value="chain_pendant">Chain with Pendant</option>
-
+                                <option value="bestseller">🔥 Best Selling Collection</option>
+                                <option value="earrings">Men Earrings &amp; Studs</option>
+                                <option value="pendants">Divine Pendants</option>
+                                <option value="whoop">Custom Whoop Cases</option>
                                 <option value="customised">Customised</option>
-                                <option value="kada">Kadas</option>
-                                <option value="bracelet">Bracelets</option>
                             </select>
+                        </div>
+                        <div class="custom-form-group" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(4, 120, 87, 0.08); border: 1px solid rgba(4, 120, 87, 0.25); border-radius: 8px;">
+                            <input type="checkbox" id="new-prod-is-bestseller" style="width: 18px; height: 18px; accent-color: #047857; cursor: pointer;">
+                            <label for="new-prod-is-bestseller" class="custom-form-label" style="margin: 0; cursor: pointer; font-weight: 700; color: #047857; font-size: 0.85rem;">🔥 Highlight in Best Selling Collection (Showcase on Home &amp; Shop)</label>
                         </div>
                         <div class="custom-form-group">
                             <label class="custom-form-label">Gender (Him/Her)</label>
@@ -1107,12 +1176,18 @@
 
 
                         <div class="custom-form-group">
-                            <label class="custom-form-label">Price (₹ INR)</label>
-                            <input type="number" id="new-prod-price" class="custom-input" placeholder="Price (calculated or manual)" readonly style="background-color: #f1f5f9;">
+                            <label class="custom-form-label">Cost Price / C.P. (₹ INR)</label>
+                            <input type="number" id="new-prod-cost-price" class="custom-input" placeholder="e.g. 4500 (Manufacturing Cost)" step="1" oninput="calculateUnitProfitBadge()">
+                        </div>
+                        <div class="custom-form-group">
+                            <label class="custom-form-label">Selling Price / S.P. (₹ INR)</label>
+                            <input type="number" id="new-prod-price" class="custom-input" placeholder="Price (calculated or manual)" readonly style="background-color: #f1f5f9;" oninput="calculateUnitProfitBadge()">
                         </div>
                         <div class="custom-form-group">
                             <label class="custom-form-label">Original Price (for Crossed Sale tag)</label>
                             <input type="number" id="new-prod-orig" class="custom-input" placeholder="Original price (calculated or manual)" readonly style="background-color: #f1f5f9;">
+                        </div>
+                        <div id="unit-profit-badge" style="grid-column: 1/-1; display: none; padding: 12px 18px; border-radius: var(--border-radius-sm); font-size: 0.88rem; font-weight: 600; line-height: 1.5; border: 1.5px solid #10B981; background: #ECFDF5; color: #065F46;">
                         </div>
                         <div class="custom-form-group">
                             <label class="custom-form-label">Stock Status</label>
@@ -1141,7 +1216,7 @@
                     <h3 class="admin-tab-title">Generate Discount Promo Codes</h3>
                     <div class="admin-form-grid" style="margin-bottom: 24px;">
                         <div class="custom-form-group">
-                            <label class="custom-form-label">Coupon Code (e.g. UVIRAFESTIVE)</label>
+                            <label class="custom-form-label">Coupon Code (e.g. LIAMOROFESTIVE)</label>
                             <input type="text" id="admin-coupon-code" class="custom-input" style="text-transform:uppercase;">
                         </div>
                         <div class="custom-form-group">
@@ -1201,9 +1276,9 @@
                     <p style="font-size:0.85rem; color:var(--color-silver-dark); line-height:1.5; margin-bottom: 16px;">
                         Connect your live Supabase project to sync registered users, orders, and products to the cloud. If paused, restore your project on supabase.com.
                     </p>
-                    <div id="cloud-db-status" style="margin-bottom: 18px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 8px; background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D;">
-                        <span id="cloud-db-status-dot">⚠️</span>
-                        <span id="cloud-db-status-text">Checking Supabase Cloud status...</span>
+                    <div id="cloud-db-status" style="margin-bottom: 18px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 8px; background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1;">
+                        <span id="cloud-db-status-dot">🔌</span>
+                        <span id="cloud-db-status-text">Disconnected — Running in Local Storage Mode (Offline Database).</span>
                     </div>
                     <div class="admin-form-grid" style="margin-bottom: 24px; max-width: 650px; grid-template-columns: 1fr;">
                         <div class="custom-form-group">
@@ -1218,8 +1293,7 @@
                     <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
                         <button class="admin-btn-submit" onclick="saveCloudDbConfig()" style="background: var(--color-primary); color: #fff; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Save &amp; Connect Cloud</button>
                         <button onclick="testCloudDbConnection(true)" style="background: transparent; border: 1px solid var(--color-silver-mid); padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--color-primary);">Test Connection</button>
-                        <button onclick="syncProductsToCloudDb()" style="background: #2563EB; color: #fff; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Push 35 Products to Cloud</button>
-                        <button onclick="syncLocalToCloudDb()" style="background: #059669; color: #fff; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Sync Orders &amp; Users</button>
+                        <button onclick="disconnectCloudDb()" style="background: #DC2626; color: #fff; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Disconnect Supabase</button>
                     </div>
 
                     <div style="background: #F1F5F9; border-left: 4px solid #2563EB; padding: 14px 18px; border-radius: 6px; margin-top: 20px; font-size: 0.82rem; color: #334155;">
@@ -1419,21 +1493,21 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
                     </div>
 
                     <!-- Category Images -->
-                    <h4 style="color: var(--color-primary); margin-bottom: 16px; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase;">📂 Category Circle Images</h4>
+                    <h4 style="color: var(--color-primary); margin-bottom: 16px; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase;">📂 Category Banner Images</h4>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
 
-                        <!-- Rings -->
-                        <div style="background: var(--color-silver-light); border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center;">
-                            <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 3px solid var(--color-accent-pink); flex-shrink: 0;">
-                                <img id="banner-preview-rings" src="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='ring.jpeg'">
+                        <!-- Best Selling Collection -->
+                        <div style="background: var(--color-silver-light); border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center; border: 1.5px solid #047857;">
+                            <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 3px solid #047857; flex-shrink: 0;">
+                                <img id="banner-preview-bestseller" src="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='hero_banner_new.jpg'">
                             </div>
                             <div style="flex:1;">
-                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">💍 Rings</div>
-                                <label style="display: inline-flex; align-items: center; gap: 6px; background: var(--color-primary); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600;">
+                                <div style="font-weight: 700; color: #047857; margin-bottom: 8px; font-size: 0.95rem;">🔥 Best Selling Banner</div>
+                                <label style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #059669 0%, #024824 100%); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600;">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Upload
-                                    <input type="file" accept="image/*" style="display:none" onchange="handleBannerUpload(event, 'rings')">
+                                    <input type="file" accept="image/*" style="display:none" onchange="handleBannerUpload(event, 'bestseller')">
                                 </label>
-                                <button onclick="resetBannerImage('rings')" style="margin-left: 6px; background: transparent; border: 1px solid var(--color-silver-mid); color: var(--color-silver-dark); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 0.75rem;">Reset</button>
+                                <button onclick="resetBannerImage('bestseller')" style="margin-left: 6px; background: transparent; border: 1px solid var(--color-silver-mid); color: var(--color-silver-dark); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 0.75rem;">Reset</button>
                             </div>
                         </div>
 
@@ -1443,7 +1517,7 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
                                 <img id="banner-preview-earrings" src="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='earring.jpeg'">
                             </div>
                             <div style="flex:1;">
-                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">👂 Earrings</div>
+                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">👂 Men Earrings &amp; Studs</div>
                                 <label style="display: inline-flex; align-items: center; gap: 6px; background: var(--color-primary); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600;">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Upload
                                     <input type="file" accept="image/*" style="display:none" onchange="handleBannerUpload(event, 'earrings')">
@@ -1458,7 +1532,7 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
                                 <img id="banner-preview-pendants" src="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='pendant.jpeg'">
                             </div>
                             <div style="flex:1;">
-                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">📿 Pendants</div>
+                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">📿 Divine Pendants</div>
                                 <label style="display: inline-flex; align-items: center; gap: 6px; background: var(--color-primary); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600;">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Upload
                                     <input type="file" accept="image/*" style="display:none" onchange="handleBannerUpload(event, 'pendants')">
@@ -1467,63 +1541,18 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
                             </div>
                         </div>
 
-                        <!-- Bracelets -->
+                        <!-- Whoop -->
                         <div style="background: var(--color-silver-light); border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center;">
                             <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 3px solid var(--color-accent-pink); flex-shrink: 0;">
-                                <img id="banner-preview-bracelets" src="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='bracelet.jpeg'">
+                                <img id="banner-preview-whoop" src="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='assets/whoop/whoop_1_1.webp'">
                             </div>
                             <div style="flex:1;">
-                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">⌚ Bracelets</div>
+                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">⌚ Custom Whoop Cases</div>
                                 <label style="display: inline-flex; align-items: center; gap: 6px; background: var(--color-primary); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600;">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Upload
-                                    <input type="file" accept="image/*" style="display:none" onchange="handleBannerUpload(event, 'bracelets')">
+                                    <input type="file" accept="image/*" style="display:none" onchange="handleBannerUpload(event, 'whoop')">
                                 </label>
-                                <button onclick="resetBannerImage('bracelets')" style="margin-left: 6px; background: transparent; border: 1px solid var(--color-silver-mid); color: var(--color-silver-dark); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 0.75rem;">Reset</button>
-                            </div>
-                        </div>
-
-                        <!-- Anklets -->
-                        <div style="background: var(--color-silver-light); border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center;">
-                            <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 3px solid var(--color-accent-pink); flex-shrink: 0;">
-                                <img id="banner-preview-anklets" src="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='anklets.jpeg'">
-                            </div>
-                            <div style="flex:1;">
-                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">🦶 Anklets</div>
-                                <label style="display: inline-flex; align-items: center; gap: 6px; background: var(--color-primary); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600;">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Upload
-                                    <input type="file" accept="image/*" style="display:none" onchange="handleBannerUpload(event, 'anklets')">
-                                </label>
-                                <button onclick="resetBannerImage('anklets')" style="margin-left: 6px; background: transparent; border: 1px solid var(--color-silver-mid); color: var(--color-silver-dark); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 0.75rem;">Reset</button>
-                            </div>
-                        </div>
-
-                        <!-- Chains -->
-                        <div style="background: var(--color-silver-light); border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center;">
-                            <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 3px solid var(--color-accent-pink); flex-shrink: 0;">
-                                <img id="banner-preview-chains" src="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='chains.jpeg'">
-                            </div>
-                            <div style="flex:1;">
-                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">🔗 Chains</div>
-                                <label style="display: inline-flex; align-items: center; gap: 6px; background: var(--color-primary); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600;">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Upload
-                                    <input type="file" accept="image/*" style="display:none" onchange="handleBannerUpload(event, 'chains')">
-                                </label>
-                                <button onclick="resetBannerImage('chains')" style="margin-left: 6px; background: transparent; border: 1px solid var(--color-silver-mid); color: var(--color-silver-dark); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 0.75rem;">Reset</button>
-                            </div>
-                        </div>
-
-                        <!-- Chain with Pendant -->
-                        <div style="background: var(--color-silver-light); border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center;">
-                            <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 3px solid var(--color-accent-pink); flex-shrink: 0;">
-                                <img id="banner-preview-chain_pendant" src="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='chains.jpeg'">
-                            </div>
-                            <div style="flex:1;">
-                                <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 8px; font-size: 0.95rem;">🔗 Chain with Pendant</div>
-                                <label style="display: inline-flex; align-items: center; gap: 6px; background: var(--color-primary); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600;">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Upload
-                                    <input type="file" accept="image/*" style="display:none" onchange="handleBannerUpload(event, 'chain_pendant')">
-                                </label>
-                                <button onclick="resetBannerImage('chain_pendant')" style="margin-left: 6px; background: transparent; border: 1px solid var(--color-silver-mid); color: var(--color-silver-dark); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 0.75rem;">Reset</button>
+                                <button onclick="resetBannerImage('whoop')" style="margin-left: 6px; background: transparent; border: 1px solid var(--color-silver-mid); color: var(--color-silver-dark); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 0.75rem;">Reset</button>
                             </div>
                         </div>
 
@@ -1625,6 +1654,259 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
                     </div>
                 </div>
 
+                <!-- Income (C.P vs S.P) Intelligence Portal -->
+                <div class="admin-tab-view" id="admin-tab-income">
+                    <div class="admin-tab-header">
+                        <div class="admin-tab-header-main">
+                            <h3 class="admin-tab-title">Income &amp; Profit Intelligence Portal</h3>
+                            <p class="admin-tab-subtitle">Calculate and analyze net earnings in real time by subtracting Cost Price (C.P.) from Selling Price (S.P.).</p>
+                        </div>
+                        <div class="admin-tab-header-actions">
+                            <button class="custom-btn" onclick="exportIncomeReportCSV()" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.84rem; font-weight: 600; white-space: nowrap;">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                Export Income Statement (CSV)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 1. Total Stock Inventory Valuation & Profitability Section -->
+                    <div style="background-color: var(--color-card-bg); border: 1.5px solid #10B981; border-radius: var(--border-radius-md); padding: 20px; box-shadow: var(--shadow-subtle); margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 1.3rem;">📦</span>
+                                <div>
+                                    <h4 style="font-family: var(--font-heading); color: var(--color-primary); font-size: 1.1rem; margin: 0; font-weight: 700;">
+                                        Total Stock Inventory Valuation &amp; Profit Margin
+                                    </h4>
+                                    <p style="font-size: 0.78rem; color: var(--color-silver-dark); margin: 2px 0 0 0;">
+                                        Aggregated Cost Price (C.P.), Selling Price (S.P.), and profit margin across all current physical stock.
+                                    </p>
+                                </div>
+                            </div>
+                            <span id="stock-kpi-summary-badge" style="background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">
+                                60 Designs • 600 Pcs in Stock
+                            </span>
+                        </div>
+
+                        <div class="income-kpi-grid" style="margin-bottom: 0;">
+                            <div class="income-kpi-card" style="border-left: 4px solid #F59E0B; background: #FFFBEB;">
+                                <span class="admin-stat-label" style="color: #92400E; font-weight: 700;">Total Stock C.P. (Cost Value)</span>
+                                <span class="admin-stat-val" id="stock-kpi-cp" style="color: #B45309; font-weight: 800;">₹0</span>
+                                <span class="income-kpi-note" style="color: #78350F;">Total capital invested in inventory</span>
+                            </div>
+                            <div class="income-kpi-card" style="border-left: 4px solid #3B82F6; background: #EFF6FF;">
+                                <span class="admin-stat-label" style="color: #1E40AF; font-weight: 700;">Total Stock S.P. (Retail Value)</span>
+                                <span class="admin-stat-val" id="stock-kpi-sp" style="color: #1D4ED8; font-weight: 800;">₹0</span>
+                                <span class="income-kpi-note" style="color: #1E3A8A;">Total retail selling value of inventory</span>
+                            </div>
+                            <div class="income-kpi-card income-kpi-hero" style="border-left: 4px solid #10B981; background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%) !important;">
+                                <span class="admin-stat-label" style="color: #065F46; font-weight: 700;">Total Stock Profit (S.P - C.P)</span>
+                                <span class="admin-stat-val" id="stock-kpi-profit" style="color: #047857; font-weight: 800;">+₹0</span>
+                                <span class="income-kpi-note" style="color: #047857; font-weight: 600;">Net income upon 100% stock clearance</span>
+                            </div>
+                            <div class="income-kpi-card" style="border-left: 4px solid #8B5CF6; background: #F5F3FF;">
+                                <span class="admin-stat-label" style="color: #5B21B6; font-weight: 700;">Total Stock Profit Margin %</span>
+                                <span class="admin-stat-val" id="stock-kpi-margin" style="color: #6D28D9; font-weight: 800;">0.0%</span>
+                                <span class="income-kpi-note" style="color: #4C1D95;">(Total Profit ÷ Total S.P.) × 100</span>
+                            </div>
+                            <div class="income-kpi-card" style="border-left: 4px solid #06B6D4; background: #ECFEFF;">
+                                <span class="admin-stat-label" style="color: #155E75; font-weight: 700;">Total Stock Markup %</span>
+                                <span class="admin-stat-val" id="stock-kpi-markup" style="color: #0E7490; font-weight: 800;">0.0%</span>
+                                <span class="income-kpi-note" style="color: #164E63;">(Total Profit ÷ Total C.P.) × 100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Realized Orders Income Overview -->
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="font-family: var(--font-heading); color: var(--color-primary); font-size: 0.98rem; margin: 0 0 10px 0; font-weight: 700;">
+                            💰 Realized Orders Income Overview (Sold Customer Orders)
+                        </h4>
+                        <div class="income-kpi-grid">
+                            <div class="income-kpi-card" style="border-left: 4px solid #3B82F6;">
+                                <span class="admin-stat-label">Total Realized Revenue (S.P)</span>
+                                <span class="admin-stat-val" id="income-kpi-revenue">₹0</span>
+                                <span class="income-kpi-note">From confirmed customer orders</span>
+                            </div>
+                            <div class="income-kpi-card" style="border-left: 4px solid #F59E0B;">
+                                <span class="admin-stat-label">Total Realized Cost (C.P)</span>
+                                <span class="admin-stat-val" id="income-kpi-cost">₹0</span>
+                                <span class="income-kpi-note">Procurement for sold items</span>
+                            </div>
+                            <div class="income-kpi-card income-kpi-hero" style="border-left: 4px solid #10B981;">
+                                <span class="admin-stat-label" style="color: #065F46; font-weight: 700;">Realized Net Income (S.P - C.P)</span>
+                                <span class="admin-stat-val" id="income-kpi-profit" style="color: #047857; font-weight: 800;">₹0</span>
+                                <span class="income-kpi-note" style="color: #047857; font-weight: 600;">Pure Take-Home Earnings</span>
+                            </div>
+                            <div class="income-kpi-card" style="border-left: 4px solid #8B5CF6;">
+                                <span class="admin-stat-label">Realized Profit Margin</span>
+                                <span class="admin-stat-val" id="income-kpi-margin" style="color: #6D28D9;">0%</span>
+                                <span class="income-kpi-note">(Net Profit / S.P) × 100</span>
+                            </div>
+                            <div class="income-kpi-card" style="border-left: 4px solid #06B6D4;">
+                                <span class="admin-stat-label">Total Realized Orders</span>
+                                <span class="admin-stat-val" id="income-kpi-potential">0</span>
+                                <span class="income-kpi-note">Confirmed customer orders</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 1. Live Interactive Calculator Card -->
+                    <div style="background-color: var(--color-card-bg); border: 1.5px solid var(--color-silver-mid); border-radius: var(--border-radius-md); padding: 22px; box-shadow: var(--shadow-subtle); margin-bottom: 26px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+                            <h4 style="font-family: var(--font-heading); color: var(--color-primary); font-size: 1.12rem; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                🧮 Interactive Income Calculator (S.P - C.P)
+                            </h4>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-silver-dark); margin: 0; white-space: nowrap;">Quick Catalog Preset:</label>
+                                <select id="income-calc-product-select" onchange="loadProductIntoIncomeCalc(this.value)" style="padding: 6px 12px; border: 1px solid var(--color-silver-mid); border-radius: var(--border-radius-sm); font-size: 0.82rem; outline: none; background: #FFFFFF; font-weight: 500; cursor: pointer; color: var(--color-primary); max-width: 250px;">
+                                    <option value="">-- Choose Product to Autofill --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px;">
+                            <div class="custom-form-group" style="margin-bottom: 0;">
+                                <label class="custom-form-label" style="font-weight: 700; font-size: 0.8rem;">Cost Price / C.P (₹ INR)</label>
+                                <input type="number" id="income-calc-cp" class="custom-input" placeholder="e.g. 5000" step="1" value="4500" oninput="runLiveIncomeCalculation()">
+                                <small style="font-size: 0.72rem; color: var(--color-silver-dark); display: block; margin-top: 3px;">Procurement / Raw metal + Making</small>
+                            </div>
+                            <div class="custom-form-group" style="margin-bottom: 0;">
+                                <label class="custom-form-label" style="font-weight: 700; font-size: 0.8rem;">Selling Price / S.P (₹ INR)</label>
+                                <input type="number" id="income-calc-sp" class="custom-input" placeholder="e.g. 7500" step="1" value="7999" oninput="runLiveIncomeCalculation()">
+                                <small style="font-size: 0.72rem; color: var(--color-silver-dark); display: block; margin-top: 3px;">Retail price charged to buyer</small>
+                            </div>
+                            <div class="custom-form-group" style="margin-bottom: 0;">
+                                <label class="custom-form-label" style="font-weight: 700; font-size: 0.8rem;">Quantity Sold (Units)</label>
+                                <input type="number" id="income-calc-qty" class="custom-input" placeholder="e.g. 1" min="1" value="1" oninput="runLiveIncomeCalculation()">
+                                <small style="font-size: 0.72rem; color: var(--color-silver-dark); display: block; margin-top: 3px;">Number of pieces sold</small>
+                            </div>
+                            <div class="custom-form-group" style="margin-bottom: 0;">
+                                <label class="custom-form-label" style="font-weight: 700; font-size: 0.8rem;">Packaging / Delivery (₹)</label>
+                                <input type="number" id="income-calc-expenses" class="custom-input" placeholder="e.g. 150" min="0" value="0" oninput="runLiveIncomeCalculation()">
+                                <small style="font-size: 0.72rem; color: var(--color-silver-dark); display: block; margin-top: 3px;">Boxes, pouches, or shipping</small>
+                            </div>
+                        </div>
+
+                        <!-- Live Calculation Output Result Display -->
+                        <div id="income-calc-result-box" style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border: 2px solid #10B981; border-radius: var(--border-radius-md); padding: 20px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; text-align: center;">
+                                <div>
+                                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-silver-dark); font-weight: 700; letter-spacing: 0.5px;">Gross Revenue (S.P × Qty)</div>
+                                    <div id="income-res-revenue" style="font-size: 1.35rem; font-weight: 700; color: var(--color-primary); margin-top: 4px;">₹7,999</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-silver-dark); font-weight: 700; letter-spacing: 0.5px;">Total Cost (C.P × Qty + Exp)</div>
+                                    <div id="income-res-cost" style="font-size: 1.35rem; font-weight: 700; color: #B45309; margin-top: 4px;">₹4,500</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; text-transform: uppercase; color: #047857; font-weight: 800; letter-spacing: 0.5px;">⭐ Net Income (S.P - C.P)</div>
+                                    <div id="income-res-profit" style="font-size: 1.55rem; font-weight: 800; color: #047857; margin-top: 4px;">+₹3,499</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-silver-dark); font-weight: 700; letter-spacing: 0.5px;">Profit Margin</div>
+                                    <div id="income-res-margin" style="font-size: 1.35rem; font-weight: 700; color: #059669; margin-top: 4px;">43.7%</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-silver-dark); font-weight: 700; letter-spacing: 0.5px;">Markup %</div>
+                                    <div id="income-res-markup" style="font-size: 1.35rem; font-weight: 700; color: #2563EB; margin-top: 4px;">77.8%</div>
+                                </div>
+                            </div>
+                            <div id="income-res-status-bar" style="margin-top: 14px; text-align: center; font-size: 0.85rem; font-weight: 700; color: #065F46;">
+                                ✅ Highly Profitable: You earn ₹3,499 pure income on each sale!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Product Catalog Profitability Matrix -->
+                    <div style="background-color: var(--color-card-bg); border: 1px solid var(--color-silver-mid); border-radius: var(--border-radius-md); padding: 24px; box-shadow: var(--shadow-medium); margin-bottom: 30px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <h4 style="font-family: var(--font-heading); color: var(--color-primary); font-size: 1.15rem; margin-bottom: 4px;">
+                                    💎 Product Catalog Profitability Matrix
+                                </h4>
+                                <p style="font-size: 0.82rem; color: var(--color-silver-dark); margin: 0;">Click on any Cost Price (C.P.) to quickly edit and recalculate margin.</p>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <input type="text" id="income-matrix-search" placeholder="Search jewelry name..." oninput="renderCatalogProfitMatrix()" style="padding: 7px 12px; border: 1px solid var(--color-silver-mid); border-radius: var(--border-radius-sm); font-size: 0.82rem; outline: none;">
+                                <select id="income-matrix-category" onchange="renderCatalogProfitMatrix()" style="padding: 7px 12px; border: 1px solid var(--color-silver-mid); border-radius: var(--border-radius-sm); font-size: 0.82rem; outline: none; background: #fff;">
+                                    <option value="all">All Categories</option>
+                                    <option value="earrings">Men Earrings</option>
+                                    <option value="pendants">Divine Pendants</option>
+                                    <option value="whoop">Whoop Cases</option>
+                                    <option value="rings">Rings</option>
+                                    <option value="chains">Chains</option>
+                                    <option value="bracelet">Bracelets</option>
+                                    <option value="kada">Kadas</option>
+                                </select>
+                                <button onclick="autoFillDefaultCPForAll()" class="custom-btn" style="padding: 7px 12px; font-size: 0.78rem; font-weight: 600; background: var(--color-secondary);">
+                                    ⚡ Auto-Set 60% C.P. for Unset
+                                </button>
+                                <button onclick="setAllStockToOneNo()" class="custom-btn" style="padding: 7px 12px; font-size: 0.78rem; font-weight: 600; background: #4F46E5;" title="Set 1 item stock quantity for each product">
+                                    📦 Set 1 No. Stock Each
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="admin-table-wrap">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 85px;">Item No.</th>
+                                        <th>Jewel</th>
+                                        <th>Category</th>
+                                        <th>Cost Price (C.P.)</th>
+                                        <th>Selling Price (S.P.)</th>
+                                        <th>1-Item NOI (S.P - C.P)</th>
+                                        <th>Margin %</th>
+                                        <th>Stock Qty (Nos.)</th>
+                                        <th>Potential Profit</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="income-matrix-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                                <tfoot id="income-matrix-tfoot">
+                                    <!-- Total Stock Inventory C.P, S.P & Margin Summary dynamically populated -->
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. Customer Orders Profit Realization Ledger -->
+                    <div style="background-color: var(--color-card-bg); border: 1px solid var(--color-silver-mid); border-radius: var(--border-radius-md); padding: 24px; box-shadow: var(--shadow-medium);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <h4 style="font-family: var(--font-heading); color: var(--color-primary); font-size: 1.15rem; margin-bottom: 4px;">
+                                    📦 Customer Orders Profit Realization Ledger
+                                </h4>
+                                <p style="font-size: 0.82rem; color: var(--color-silver-dark); margin: 0;">Exact income generated on fulfilled and confirmed orders.</p>
+                            </div>
+                        </div>
+
+                        <div class="admin-table-wrap">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID &amp; Date</th>
+                                        <th>Customer</th>
+                                        <th>Items Ordered</th>
+                                        <th>Revenue (S.P.)</th>
+                                        <th>Cost Price (C.P.)</th>
+                                        <th>Net Income (S.P - C.P)</th>
+                                        <th>Margin %</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="income-orders-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
@@ -1692,9 +1974,9 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
             <!-- Brand Column -->
             <div class="footer-brand-col">
                 <div class="footer-logo" style="display: flex; flex-direction: row; align-items: center; gap: 12px; justify-content: flex-start;">
-                    <img src="logo_footer.png" alt="UVIRA Logo" style="height: 60px; width: auto; object-fit: contain; border-radius: 50%;">
+                    <img src="logo_footer.png" alt="LIAMORO Logo" style="height: 54px; width: 54px; object-fit: cover; border-radius: 50%; border: 2px solid #D8AD69; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);">
                     <div style="display: flex; flex-direction: column;">
-                        <span class="footer-logo-main">UVIRA JEWELS</span>
+                        <span class="footer-logo-main">LIAMORO JEWELS</span>
                         <span class="footer-logo-tagline">Pure Silver Jewellery</span>
                     </div>
                 </div>
@@ -1768,7 +2050,7 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
                 <p class="footer-about-text">Subscribe for flash sale alerts, new arrivals &amp; silver rate updates.</p>
                 <div class="footer-subscribe-form">
                     <input type="email" class="footer-subscribe-input" placeholder="Your email address...">
-                    <button class="btn-subscribe" onclick="alert('Thank you for subscribing to UVIRA JEWELS news alerts!')">
+                    <button class="btn-subscribe" onclick="alert('Thank you for subscribing to LIAMORO JEWELS news alerts!')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
                 </div>
@@ -1791,7 +2073,7 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
 
         <!-- Bottom Bar -->
         <div class="container footer-bottom">
-            <span>© 2026 UVIRA JEWELS · All Rights Reserved. · <a href="#" id="admin-toggle" onclick="toggleAdminMode()" style="color: inherit; opacity: 0.35; text-decoration: none;">Admin Area</a></span>
+            <span>© 2026 LIAMORO JEWELS · All Rights Reserved. · <a href="#" id="admin-toggle" onclick="toggleAdminMode()" style="color: inherit; opacity: 0.35; text-decoration: none;">Admin Area</a></span>
             <div class="footer-bottom-right">
                 <span class="footer-payment-label">Payments:</span>
                 <span class="footer-pay-badge">UPI</span>
@@ -2234,7 +2516,7 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
     <div class="drawer-overlay" id="auth-overlay" style="z-index: 400; display: none; background-color: rgba(18, 18, 20, 0.75);" onclick="closeAuthModal()"></div>
     <div id="auth-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 410; width: 92%; max-width: 390px; background-color: #FFFFFF; border-radius: 16px; padding: 28px 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-            <h3 id="auth-title" style="margin: 0; color: var(--color-primary); font-family: var(--font-heading); font-size: 1.3rem;">Login to UVIRA</h3>
+            <h3 id="auth-title" style="margin: 0; color: var(--color-primary); font-family: var(--font-heading); font-size: 1.3rem;">Login to LIAMORO</h3>
             <button onclick="closeAuthModal()" style="background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: var(--color-silver-dark); padding: 4px;">&times;</button>
         </div>
 
@@ -2386,22 +2668,25 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
             100% { transform: rotate(360deg); }
         }
     </style>
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS SDK (Disconnected) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
 
     
     <!-- jsPDF SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <!-- Main Application Logic -->
-    <script src="app.js?v=51"></script>
+    <script src="app.js?v=67"></script>
 
     <!-- Progressive Web App (PWA) Service Worker & Install Prompt -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('UVIRA PWA Service Worker registered:', reg.scope))
+            navigator.serviceWorker.register('./sw.js?v=19')
+                .then(reg => {
+                    reg.update();
+                    console.log('LIAMORO PWA Service Worker registered:', reg.scope);
+                })
                 .catch(err => console.warn('PWA Service Worker registration failed:', err));
         });
     }
@@ -2410,7 +2695,7 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredInstallPrompt = e;
-        const dismissed = localStorage.getItem('uvira_pwa_dismissed');
+        const dismissed = localStorage.getItem('liamoro_pwa_dismissed') || localStorage.getItem('uvira_pwa_dismissed');
         if (!dismissed) {
             const installBanner = document.getElementById('pwa-install-banner');
             if (installBanner) installBanner.style.display = 'block';
@@ -2422,8 +2707,8 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
             deferredInstallPrompt.prompt();
             deferredInstallPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted UVIRA PWA install');
-                    localStorage.setItem('uvira_pwa_dismissed', 'installed');
+                    console.log('User accepted LIAMORO PWA install');
+                    localStorage.setItem('liamoro_pwa_dismissed', 'installed');
                 }
                 deferredInstallPrompt = null;
                 const installBanner = document.getElementById('pwa-install-banner');
@@ -2439,16 +2724,16 @@ CREATE POLICY "Public Read/Write Orders" ON public.orders FOR ALL USING (true) W
                 }
             } else {
                 if (typeof showToast === 'function') {
-                    showToast('UVIRA Web App is available! Use your browser menu to "Add to Home Screen" or Install.');
+                    showToast('LIAMORO Web App is available! Use your browser menu to "Add to Home Screen" or Install.');
                 } else {
-                    alert('UVIRA Web App: Use your browser menu to "Add to Home Screen" or Install.');
+                    alert('LIAMORO Web App: Use your browser menu to "Add to Home Screen" or Install.');
                 }
             }
         }
     }
 
     function dismissPwaInstall() {
-        localStorage.setItem('uvira_pwa_dismissed', 'true');
+        localStorage.setItem('liamoro_pwa_dismissed', 'true');
         const installBanner = document.getElementById('pwa-install-banner');
         if (installBanner) {
             installBanner.style.opacity = '0';

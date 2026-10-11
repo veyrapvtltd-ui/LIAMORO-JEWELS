@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uvira-jewels-v2';
+const CACHE_NAME = 'liamoro-jewels-v19';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -41,8 +41,8 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
-  // Skip caching Supabase API or external CDN calls to keep them fresh
-  if (url.origin.includes('supabase.co') || url.pathname.includes('/rest/v1/')) {
+  // Skip caching external API calls or dynamic REST endpoints to keep them fresh
+  if (url.pathname.includes('/rest/v1/')) {
     return;
   }
 
@@ -58,14 +58,16 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       })
       .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
+        return caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
           if (cachedResponse) {
             return cachedResponse;
           }
           if (event.request.headers.get('accept')?.includes('text/html')) {
             return caches.match('./index.html');
           }
+          return new Response('', { status: 404, statusText: 'Not Found' });
         });
       })
   );
 });
+

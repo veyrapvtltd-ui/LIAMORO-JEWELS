@@ -1,11 +1,130 @@
-// Helper to enforce product requirements (Whoop ₹15,000, Divine Pendants ₹15,000, 925 Sterling Silver, inStock true)
-function normalizeProductData(p) {
+// Exact Folder Pricing Map for Men Earrings / Studs (from MEN STUDS directory)
+const STUD_FOLDER_PRICING = {
+    1: { cp: 4635, sp: 7635 },
+    2: { cp: 3090, sp: 6500 },
+    3: { cp: 4120, sp: 8120 },
+    4: { cp: 3605, sp: 7605 },
+    5: { cp: 3090, sp: 7090 },
+    6: { cp: 4999, sp: 7999 },
+    7: { cp: 4120, sp: 7120 },
+    8: { cp: 4120, sp: 7120 },
+    9: { cp: 1999, sp: 3999 },
+    10: { cp: 1999, sp: 3999 },
+    11: { cp: 1999, sp: 3999 },
+    12: { cp: 3999, sp: 7999 },
+    13: { cp: 3999, sp: 7999 },
+    14: { cp: 3999, sp: 7999 },
+    15: { cp: 3999, sp: 7999 }
+};
+
+function getStudFolderPricing(prodId) {
+    if (!prodId) return null;
+    const match = String(prodId).match(/earring-(\d+)/);
+    if (match && match[1]) {
+        const num = parseInt(match[1], 10);
+        return STUD_FOLDER_PRICING[num] || null;
+    }
+    return null;
+}
+
+// Exact Folder Pricing Map for Best Sellers (from BEST SELLERS directory)
+const BEST_SELLER_FOLDER_PRICING = {
+    "prod-bestseller-1-cross-pendant": { cp: 6000, sp: 10000, subType: "Elite Pendant", name: "Handcrafted Silver Cross Pendant" },
+    "prod-bestseller-2-dollar-pendant": { cp: 7000, sp: 15000, subType: "Elite Pendant", name: "Iced Dollar Sign Pendant" },
+    "prod-bestseller-3-dumbbell-pendant": { cp: 4000, sp: 7000, subType: "Elite Pendant", name: "Fitness Dumbbell Pendant" },
+    "prod-bestseller-4-hexagon-pendant": { cp: 5000, sp: 9000, subType: "Elite Pendant", name: "Geometric Hexagon Pendant" },
+    "prod-bestseller-5-panda-pendant": { cp: 4000, sp: 7000, subType: "Elite Pendant", name: "Diamond Cut Panda Pendant" },
+    "prod-bestseller-6-elite-ring-1": { cp: 6000, sp: 10000, subType: "Elite Ring", name: "Elite Signet Ring - Octagon Pavé" },
+    "prod-bestseller-7-elite-ring-2": { cp: 4000, sp: 8000, subType: "Elite Ring", name: "Elite Statement Ring - Solitaire Channel" },
+    "prod-bestseller-8-elite-ring-3": { cp: 7000, sp: 10000, subType: "Elite Ring", name: "Elite Crown Ring - Royal Cushion" },
+    "prod-bestseller-9-elite-ring-4": { cp: 8000, sp: 13000, subType: "Elite Ring", name: "Elite Heritage Ring - Triple Pavé" },
+    "prod-bestseller-10-elite-ring-5": { cp: 12000, sp: 18000, subType: "Elite Ring", name: "Elite Sovereign Ring - Master Ice Solitaire" }
+};
+
+function getBestsellerFolderPricing(prodId) {
+    if (!prodId) return null;
+    return BEST_SELLER_FOLDER_PRICING[prodId] || null;
+}
+
+function getItemNoDisplay(p, fallbackIndex = null) {
+    let num = (p && p.item_no) ? p.item_no : ((p && p.specs && p.specs.item_no) ? p.specs.item_no : null);
+    if (!num && typeof fallbackIndex === 'number' && fallbackIndex >= 0) {
+        num = fallbackIndex + 1;
+    }
+    if (!num) num = 1;
+    return `Item #${String(num).padStart(2, '0')}`;
+}
+
+// Helper to enforce exact product pricing & cost requirements:
+// Best Sellers: Exact C.P & S.P from BEST SELLERS directory (Cross, Dollar, Dumbbell, Hexagon, Panda, Rings 1-5)
+// Whoop: Cost 7,000 / Price 15,000 (Pure 925 Sterling Silver only, No Brass)
+// Divine Pendants: Cost 10,000 / Price 15,000
+// Men Studs: Exact Cost & Selling Price matching MEN STUDS product folders
+function normalizeProductData(p, index) {
     if (!p) return p;
-    p.inStock = true;
-    p.in_stock = true;
-    const isPendant = p.category === 'pendants' || (p.id && p.id.includes('pendant'));
-    if (isPendant) {
+    const itemNum = (typeof index === 'number' && index >= 0) ? (index + 1) : (p.item_no || 1);
+    p.item_no = itemNum;
+    if (!p.specs) p.specs = {};
+    p.specs.item_no = itemNum;
+    p.specs.stock_qty = (p.specs && p.specs.stock_qty !== undefined) ? p.specs.stock_qty : 1;
+    p.inStock = p.specs.stock_qty > 0;
+    p.in_stock = p.inStock;
+
+    // Best Seller Folder Detection (Takes priority over general category fallbacks)
+    const bestsellerPricing = getBestsellerFolderPricing(p.id);
+    const isBestsellerProd = p.category === 'bestseller' || (p.id && p.id.startsWith('prod-bestseller-')) || Boolean(bestsellerPricing);
+
+    const isEarring = !isBestsellerProd && (p.category === 'earrings' || (p.id && p.id.includes('earring')));
+    const isPendant = !isBestsellerProd && (p.category === 'pendants' || (p.id && p.id.includes('pendant')));
+    const isCharm = !isBestsellerProd && (p.category === 'charms' || (p.id && p.id.includes('charm')));
+
+    if (isBestsellerProd) {
+        p.category = 'bestseller';
+        p.is_bestseller = true;
+        p.isBestseller = true;
+        if (bestsellerPricing) {
+            p.price = bestsellerPricing.sp;
+            p.costPrice = bestsellerPricing.cp;
+            p.cost_price = bestsellerPricing.cp;
+            p.specs.sub_type = bestsellerPricing.subType;
+        } else {
+            p.price = p.price || 10000;
+            p.costPrice = p.costPrice || p.cost_price || Math.round(p.price * 0.6);
+            p.cost_price = p.costPrice;
+        }
+        p.originalPrice = p.original_price || p.price;
+        p.original_price = p.original_price || p.price;
+        p.specs.metal = p.specs.metal || 'Solid 92.5% Sterling Silver';
+        p.specs.finish = p.specs.finish || 'High Polish Rhodium / Micropavé';
+        p.specs.weight = p.specs.weight || (p.id.includes('ring') ? '12.0g' : '14.0g');
+        p.specs.disable_auto_rate = true;
+        p.specs.is_bestseller = true;
+        p.specs.cost_price = p.costPrice;
+    } else if (isEarring) {
+        p.category = 'earrings';
+        const studPricing = getStudFolderPricing(p.id);
+        if (studPricing) {
+            p.price = studPricing.sp;
+            p.costPrice = studPricing.cp;
+            p.cost_price = studPricing.cp;
+        } else {
+            p.price = p.price || 3999;
+            p.costPrice = p.costPrice || p.cost_price || Math.round(p.price * 0.6);
+            p.cost_price = p.costPrice;
+        }
+        p.originalPrice = p.original_price || p.price;
+        p.original_price = p.original_price || p.price;
+        p.gender = "him";
+        if (!p.specs) p.specs = {};
+        p.specs.weight = p.specs.weight || '2.2g';
+        p.specs.metal = p.specs.metal || 'Solid 92.5% Sterling Silver';
+        p.specs.gender = "him";
+        p.specs.disable_auto_rate = true;
+        p.specs.cost_price = p.costPrice;
+    } else if (isPendant) {
         p.price = 15000;
+        p.costPrice = 10000;
+        p.cost_price = 10000;
         p.originalPrice = 15000;
         p.original_price = 15000;
         p.category = 'pendants';
@@ -13,15 +132,39 @@ function normalizeProductData(p) {
         p.specs.weight = p.specs.weight || '12.5g';
         p.specs.metal = 'Solid 92.5% Sterling Silver';
         p.specs.disable_auto_rate = true;
+        p.specs.cost_price = 10000;
+    } else if (isCharm) {
+        // Charms: Cost 3500, Price 8200
+        p.price = 8200;
+        p.costPrice = 3500;
+        p.cost_price = 3500;
+        p.originalPrice = 8200;
+        p.original_price = 8200;
+        p.category = 'charms';
+        if (!p.specs) p.specs = {};
+        p.specs.weight = p.specs.weight || '4.5g';
+        p.specs.metal = p.specs.metal || 'Solid 92.5% Sterling Silver / 18K Gold Plated';
+        p.specs.disable_auto_rate = true;
+        p.specs.cost_price = 3500;
     } else {
-        p.price = 15000;
-        p.originalPrice = 15000;
-        p.original_price = 15000;
+        // All Whoop Cases: Cost 7000, Price 21000, 100% Solid 92.5 Sterling Silver
+        p.price = 21000;
+        p.costPrice = 7000;
+        p.cost_price = 7000;
+        p.originalPrice = 21000;
+        p.original_price = 21000;
         p.category = 'whoop';
         if (!p.specs) p.specs = {};
         p.specs.weight = '20.0g';
         p.specs.metal = 'Solid 92.5% Sterling Silver';
         p.specs.disable_auto_rate = true;
+        p.specs.cost_price = 7000;
+        // Item #01 and Item #03 flagged as Best Sellers
+        if (p.id === 'prod-whoop-1-custom-crest-gem-set-whoop-case-batman' || p.id === 'prod-whoop-3-custom-crest-gem-set-whoop-case-plain-classic') {
+            p.is_bestseller = true;
+            p.isBestseller = true;
+            p.specs.is_bestseller = true;
+        }
     }
     
     let imgs = [];
@@ -31,7 +174,7 @@ function normalizeProductData(p) {
         imgs = [p.image];
     }
     while (imgs.length < 2) {
-        const fallback = isPendant ? 'assets/divine_pendants/pendant_1_1.webp' : 'assets/whoop/whoop_1_1.webp';
+        const fallback = isBestsellerProd ? (p.image || 'assets/best_sellers/cross_pendant_1.jpeg') : (isEarring ? 'assets/men_earrings/earring_1_2.webp' : (isPendant ? 'assets/divine_pendants/pendant_1_1.webp' : (isCharm ? 'assets/charms/charm_1_1.jpeg' : 'assets/whoop/whoop_1_1.webp')));
         imgs.push(imgs[0] || fallback);
     }
     p.specs.images = imgs;
@@ -45,8 +188,9 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-1-custom-crest-gem-set-whoop-case-batman",
         "title": "Custom Crest Gem-Set Whoop Case Batman",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
+        "is_bestseller": true,
         "rating": 5,
         "reviews_count": 17,
         "plating": "Solid 92.5 Sterling Silver",
@@ -57,6 +201,7 @@ const WHOOP_PRODUCTS_SEED = [
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "20.0g",
             "finish": "Rhodium Polish with Gem-Set Crest",
+            "is_bestseller": true,
             "disable_auto_rate": true,
             "images": [
                 "assets/whoop/whoop_1_1.webp",
@@ -68,8 +213,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-2-custom-crest-gem-set-whoop-case-ferrari",
         "title": "Custom Crest Gem-Set Whoop Case Ferrari",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 19,
         "plating": "Solid 92.5 Sterling Silver",
@@ -91,8 +236,9 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-3-custom-crest-gem-set-whoop-case-plain-classic",
         "title": "Custom Crest Gem-Set Whoop Case Plain Classic",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
+        "is_bestseller": true,
         "rating": 5,
         "reviews_count": 21,
         "plating": "Solid 92.5 Sterling Silver",
@@ -103,6 +249,7 @@ const WHOOP_PRODUCTS_SEED = [
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "20.0g",
             "finish": "Rhodium Polish with Gem-Set Crest",
+            "is_bestseller": true,
             "disable_auto_rate": true,
             "images": [
                 "assets/whoop/whoop_3_1.webp",
@@ -114,8 +261,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-4-custom-crest-gem-set-whoop-case-nicole-edition",
         "title": "Custom Crest Gem-Set Whoop Case Nicole Edition",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 23,
         "plating": "Solid 92.5 Sterling Silver",
@@ -137,8 +284,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-5-custom-crest-gem-set-whoop-case-uneven-cut",
         "title": "Custom Crest Gem-Set Whoop Case Uneven Cut",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 25,
         "plating": "Solid 92.5 Sterling Silver",
@@ -160,8 +307,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-6-custom-crest-gem-set-whoop-case-shopify",
         "title": "Custom Crest Gem-Set Whoop Case Shopify",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 27,
         "plating": "Solid 92.5 Sterling Silver",
@@ -183,8 +330,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-7-custom-crest-gem-set-whoop-case-patek-philippe",
         "title": "Custom Crest Gem-Set Whoop Case Patek Philippe",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 29,
         "plating": "Solid 92.5 Sterling Silver",
@@ -206,8 +353,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-8-custom-crest-gem-set-whoop-case-horse-crest",
         "title": "Custom Crest Gem-Set Whoop Case Horse Crest",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 31,
         "plating": "Solid 92.5 Sterling Silver",
@@ -229,8 +376,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-9-custom-crest-gem-set-whoop-case-rectangular-diamonds",
         "title": "Custom Crest Gem-Set Whoop Case Rectangular Diamonds",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 33,
         "plating": "Solid 92.5 Sterling Silver",
@@ -252,8 +399,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-10-custom-crest-gem-set-whoop-case-plain-minimalist",
         "title": "Custom Crest Gem-Set Whoop Case Plain Minimalist",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 35,
         "plating": "Solid 92.5 Sterling Silver",
@@ -275,8 +422,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-11-custom-crest-gem-set-whoop-case-f1-racing",
         "title": "Custom Crest Gem-Set Whoop Case F1 Racing",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 37,
         "plating": "Solid 92.5 Sterling Silver",
@@ -298,8 +445,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-12-custom-crest-gem-set-whoop-case-coach-edition",
         "title": "Custom Crest Gem-Set Whoop Case Coach Edition",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 39,
         "plating": "Solid 92.5 Sterling Silver",
@@ -321,8 +468,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-13-custom-crest-gem-set-whoop-case-f1-silver-edition",
         "title": "Custom Crest Gem-Set Whoop Case F1 Silver Edition",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 41,
         "plating": "Solid 92.5 Sterling Silver",
@@ -344,8 +491,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-14-custom-crest-gem-set-whoop-case-dior-edition",
         "title": "Custom Crest Gem-Set Whoop Case Dior Edition",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 43,
         "plating": "Solid 92.5 Sterling Silver",
@@ -367,8 +514,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-15-custom-crest-gem-set-whoop-case-uae-flag",
         "title": "Custom Crest Gem-Set Whoop Case UAE Flag",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 45,
         "plating": "Solid 92.5 Sterling Silver",
@@ -390,8 +537,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-16-custom-crest-gem-set-whoop-case-monaco-edition",
         "title": "Custom Crest Gem-Set Whoop Case Monaco Edition",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 47,
         "plating": "Solid 92.5 Sterling Silver",
@@ -413,8 +560,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-17-custom-crest-gem-set-whoop-case-burj-khalifa",
         "title": "Custom Crest Gem-Set Whoop Case Burj Khalifa",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 49,
         "plating": "Solid 92.5 Sterling Silver",
@@ -436,8 +583,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-18-custom-crest-gem-set-whoop-case-lion-crest",
         "title": "Custom Crest Gem-Set Whoop Case Lion Crest",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 51,
         "plating": "Solid 92.5 Sterling Silver",
@@ -459,8 +606,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-19-custom-crest-gem-set-whoop-case-eagle-crest",
         "title": "Custom Crest Gem-Set Whoop Case Eagle Crest",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 53,
         "plating": "Solid 92.5 Sterling Silver",
@@ -482,8 +629,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-20-custom-crest-gem-set-whoop-case-lk-crest",
         "title": "Custom Crest Gem-Set Whoop Case LK Crest",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 55,
         "plating": "Solid 92.5 Sterling Silver",
@@ -505,8 +652,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-21-custom-crest-gem-set-whoop-case-bull",
         "title": "Custom Crest Gem-Set Whoop Case Bull",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 28,
         "plating": "Solid 92.5 Sterling Silver",
@@ -528,8 +675,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-22-custom-crest-gem-set-whoop-case-dc",
         "title": "Custom Crest Gem-Set Whoop Case DC",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 22,
         "plating": "Solid 92.5 Sterling Silver",
@@ -551,8 +698,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-23-custom-crest-gem-set-whoop-case-seven-horses",
         "title": "Custom Crest Gem-Set Whoop Case Seven Horses",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 34,
         "plating": "Solid 92.5 Sterling Silver",
@@ -574,8 +721,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-24-custom-crest-gem-set-whoop-case-om",
         "title": "Custom Crest Gem-Set Whoop Case Om",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 41,
         "plating": "Solid 92.5 Sterling Silver",
@@ -597,8 +744,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-25-custom-crest-gem-set-whoop-case-panda",
         "title": "Custom Crest Gem-Set Whoop Case Panda",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 19,
         "plating": "Solid 92.5 Sterling Silver",
@@ -620,8 +767,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-26-custom-crest-gem-set-whoop-case-lv",
         "title": "Custom Crest Gem-Set Whoop Case LV",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 31,
         "plating": "Solid 92.5 Sterling Silver",
@@ -643,8 +790,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-27-custom-crest-gem-set-whoop-case-eagle-2",
         "title": "Custom Crest Gem-Set Whoop Case Eagle II",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 28,
         "plating": "Solid 92.5 Sterling Silver",
@@ -666,8 +813,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-28-custom-crest-gem-set-whoop-case-panther",
         "title": "Custom Crest Gem-Set Whoop Case Panther",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 34,
         "plating": "Solid 92.5 Sterling Silver",
@@ -689,8 +836,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-29-custom-crest-gem-set-whoop-case-animal",
         "title": "Custom Crest Gem-Set Whoop Case Animal Kingdom",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 22,
         "plating": "Solid 92.5 Sterling Silver",
@@ -712,8 +859,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-30-custom-crest-gem-set-whoop-case-eternity",
         "title": "Custom Crest Gem-Set Whoop Case Eternity",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 39,
         "plating": "Solid 92.5 Sterling Silver",
@@ -735,8 +882,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-31-custom-crest-gem-set-whoop-case-rose",
         "title": "Custom Crest Gem-Set Whoop Case Rose",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 29,
         "plating": "Solid 92.5 Sterling Silver",
@@ -758,8 +905,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-32-custom-crest-gem-set-whoop-case-gucci",
         "title": "Custom Crest Gem-Set Whoop Case Gucci Edition",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 45,
         "plating": "Solid 92.5 Sterling Silver",
@@ -781,8 +928,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-33-custom-crest-gem-set-whoop-case-snake",
         "title": "Custom Crest Gem-Set Whoop Case Snake",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 36,
         "plating": "Solid 92.5 Sterling Silver",
@@ -804,8 +951,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-34-custom-crest-gem-set-whoop-case-veda",
         "title": "Custom Crest Gem-Set Whoop Case Veda Edition",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 27,
         "plating": "Solid 92.5 Sterling Silver",
@@ -827,8 +974,8 @@ const WHOOP_PRODUCTS_SEED = [
         "id": "prod-whoop-35-custom-crest-gem-set-whoop-case-nicole-patek",
         "title": "Custom Crest Gem-Set Whoop Case Nicole Edition (Patek)",
         "category": "whoop",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 21000,
+        "original_price": 21000,
         "rating": 5,
         "reviews_count": 52,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1081,31 +1228,1421 @@ const DIVINE_PENDANTS_SEED = [
     }
 ];
 
-const ALL_PRODUCTS_SEED = [...WHOOP_PRODUCTS_SEED, ...DIVINE_PENDANTS_SEED];
+const MEN_EARRINGS_SEED = [
+    {
+        "id": "prod-earring-1-cushion-halo",
+        "title": "Cushion Cut Halo Diamond Stud (1 PC)",
+        "category": "earrings",
+        "price": 7635,
+        "original_price": 9500,
+        "rating": 5,
+        "reviews_count": 32,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_1_2.webp",
+        "description": "Sleek masculine cushion-cut sparkling solitaire framed by an intricate micro-pave halo in solid 925 sterling silver. Perfect statement piece for modern gentlemen with secure screw-back fit.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.4g",
+            "finish": "High Polish Rhodium / Platinum Finish",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_1_2.webp",
+                "assets/men_earrings/earring_1_1.webp",
+                "assets/men_earrings/earring_1_3.webp",
+                "assets/men_earrings/earring_1_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-2-royal-solitaire",
+        "title": "Royal Solitaire Diamond Stud (1 PC)",
+        "category": "earrings",
+        "price": 6500,
+        "original_price": 8000,
+        "rating": 5,
+        "reviews_count": 44,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_2_2.webp",
+        "description": "Timeless brilliant-cut solitaire stud set in an architecturally bold 4-prong silver setting. Pure elegance crafted for everyday luxury and charisma.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.1g",
+            "finish": "High Polish Rhodium / Anti-Tarnish Platinum Finish",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_2_2.webp",
+                "assets/men_earrings/earring_2_1.webp",
+                "assets/men_earrings/earring_2_3.webp",
+                "assets/men_earrings/earring_2_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-3-princess-geometric",
+        "title": "Princess Cut Geometric Diamond Stud (1 PC)",
+        "category": "earrings",
+        "price": 8120,
+        "original_price": 10500,
+        "rating": 5,
+        "reviews_count": 39,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_3_2.webp",
+        "description": "Sharp geometric silhouette showcasing a commanding princess-cut center stone encircled with precision micro-prongs in hallmarked 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.6g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_3_2.webp",
+                "assets/men_earrings/earring_3_1.webp",
+                "assets/men_earrings/earring_3_3.webp",
+                "assets/men_earrings/earring_3_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-4-cushion-solitaire",
+        "title": "Cushion Cut Solitaire Stud (1 PC)",
+        "category": "earrings",
+        "price": 7605,
+        "original_price": 9500,
+        "rating": 5,
+        "reviews_count": 25,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_4_2.webp",
+        "description": "Substantial cushion-cut faceted solitaire delivering profound brilliance with rounded contemporary contours. Hand-crafted in pure 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.3g",
+            "finish": "High Polish Rhodium / Platinum Coat",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_4_2.webp",
+                "assets/men_earrings/earring_4_1.webp",
+                "assets/men_earrings/earring_4_3.webp",
+                "assets/men_earrings/earring_4_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-5-blue-halo",
+        "title": "Blue Center Halo Diamond Stud (1 PC)",
+        "category": "earrings",
+        "price": 7090,
+        "original_price": 8900,
+        "rating": 5,
+        "reviews_count": 48,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_5_2.webp",
+        "description": "Striking royal sapphire-blue center stone crowned with an icy pavé diamond halo in solid 925 sterling silver. A magnetic, regal look for evening attire.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.4g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_5_2.webp",
+                "assets/men_earrings/earring_5_1.webp",
+                "assets/men_earrings/earring_5_3.webp",
+                "assets/men_earrings/earring_5_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-6-royal-ascher",
+        "title": "Royal Ascher Stud (1 PC)",
+        "category": "earrings",
+        "price": 7999,
+        "original_price": 9999,
+        "rating": 5,
+        "reviews_count": 31,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_6_2.webp",
+        "description": "Vintage step-cut Ascher architecture exuding quiet luxury and masculine prestige. Solid hallmarked 925 silver handcrafted with utmost precision.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.5g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_6_2.webp",
+                "assets/men_earrings/earring_6_1.webp",
+                "assets/men_earrings/earring_6_3.webp",
+                "assets/men_earrings/earring_6_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-7-crossfire-diamond",
+        "title": "Crossfire Diamond Stud (1 PC)",
+        "category": "earrings",
+        "price": 7120,
+        "original_price": 8900,
+        "rating": 5,
+        "reviews_count": 36,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_7_2.webp",
+        "description": "Dynamic 4-point crossfire prong geometry securing a high-fire brilliant solitaire stone in solid 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.2g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_7_2.webp",
+                "assets/men_earrings/earring_7_1.webp",
+                "assets/men_earrings/earring_7_3.webp",
+                "assets/men_earrings/earring_7_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-8-regal-orbit",
+        "title": "Regal Orbit Diamond Stud (1 PC)",
+        "category": "earrings",
+        "price": 7120,
+        "original_price": 8900,
+        "rating": 5,
+        "reviews_count": 51,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_8_2.webp",
+        "description": "Futuristic concentric silver orbit cradling a radiant center solitaire. Distinctive luxury crafted for trendsetters in pure 925 silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.3g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_8_2.webp",
+                "assets/men_earrings/earring_8_1.webp",
+                "assets/men_earrings/earring_8_3.webp",
+                "assets/men_earrings/earring_8_4.webp",
+                "assets/men_earrings/earring_8_5.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-9-triangle-shape",
+        "title": "Triangle Shape Earrings (1 PC)",
+        "category": "earrings",
+        "price": 3999,
+        "original_price": 4999,
+        "rating": 5,
+        "reviews_count": 42,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_9_2.webp",
+        "description": "Modern trillion triangular geometry crafted with clean minimalist edges in solid 925 sterling silver. Subtle, sharp, and versatile.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "1.8g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_9_2.webp",
+                "assets/men_earrings/earring_9_1.webp",
+                "assets/men_earrings/earring_9_3.webp",
+                "assets/men_earrings/earring_9_4.webp",
+                "assets/men_earrings/earring_9_5.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-10-princess-shape",
+        "title": "Princess Shape Earrings (1 PC)",
+        "category": "earrings",
+        "price": 3999,
+        "original_price": 4999,
+        "rating": 5,
+        "reviews_count": 37,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_10_2.webp",
+        "description": "Crisp square-cut princess stud combining understated masculine restraint with luminous fire in pure 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "1.8g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_10_2.webp",
+                "assets/men_earrings/earring_10_1.webp",
+                "assets/men_earrings/earring_10_3.webp",
+                "assets/men_earrings/earring_10_4.webp",
+                "assets/men_earrings/earring_10_5.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-11-round-shape",
+        "title": "Round Shape Earrings (1 PC)",
+        "category": "earrings",
+        "price": 3999,
+        "original_price": 4999,
+        "rating": 5,
+        "reviews_count": 63,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_11_2.webp",
+        "description": "Essential round brilliant stud designed for effortless daily wear. Solid 925 sterling silver with rhodium anti-tarnish plating.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "1.7g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_11_2.webp",
+                "assets/men_earrings/earring_11_1.webp",
+                "assets/men_earrings/earring_11_3.webp",
+                "assets/men_earrings/earring_11_4.webp",
+                "assets/men_earrings/earring_11_5.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-12-triangle-cut-wrapped",
+        "title": "Triangle Cut Wrapped Stud (1 PC)",
+        "category": "earrings",
+        "price": 7999,
+        "original_price": 9999,
+        "rating": 5,
+        "reviews_count": 29,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_12_2.webp",
+        "description": "Architectural wrapped bezel holding a high-brilliance trillion cut gemstone. Bold lines forged in pure 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.5g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_12_2.webp",
+                "assets/men_earrings/earring_12_1.webp",
+                "assets/men_earrings/earring_12_3.webp",
+                "assets/men_earrings/earring_12_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-13-trillion-crown",
+        "title": "Trillion Crown Stud (1 PC)",
+        "category": "earrings",
+        "price": 7999,
+        "original_price": 9999,
+        "rating": 5,
+        "reviews_count": 33,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_13_2.webp",
+        "description": "Royal crown basket elevating a sharp trillion gem with 360-degree light capture. Solid 925 silver for distinguished charisma.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.4g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_13_2.webp",
+                "assets/men_earrings/earring_13_1.webp",
+                "assets/men_earrings/earring_13_3.webp",
+                "assets/men_earrings/earring_13_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-14-trinity-triangle",
+        "title": "Trinity Triangle Stud (1 PC)",
+        "category": "earrings",
+        "price": 7999,
+        "original_price": 9999,
+        "rating": 5,
+        "reviews_count": 28,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_14_2.webp",
+        "description": "Sculptural tiered trinity frame showcasing intense refraction and sharp modern edges. Premium handcrafted 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.5g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_14_2.webp",
+                "assets/men_earrings/earring_14_1.webp",
+                "assets/men_earrings/earring_14_3.webp",
+                "assets/men_earrings/earring_14_4.webp"
+            ]
+        }
+    },
+    {
+        "id": "prod-earring-15-imperial-emerald",
+        "title": "Imperial Emerald Stud (1 PC)",
+        "category": "earrings",
+        "price": 7999,
+        "original_price": 9999,
+        "rating": 5,
+        "reviews_count": 45,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/men_earrings/earring_15_2.webp",
+        "description": "Regal step-cut emerald-shaped solitaire stud exuding timeless authority and sophisticated polish in solid 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "2.6g",
+            "finish": "High Polish Rhodium",
+            "gender": "Men",
+            "package": "1 PC Stud with Secure Screw Back",
+            "disable_auto_rate": true,
+            "images": [
+                "assets/men_earrings/earring_15_2.webp",
+                "assets/men_earrings/earring_15_1.webp",
+                "assets/men_earrings/earring_15_3.webp",
+                "assets/men_earrings/earring_15_4.webp"
+            ]
+        }
+    }
+];
+
+const BEST_SELLERS_PRODUCTS_SEED = [
+    {
+        "id": "prod-bestseller-1-cross-pendant",
+        "title": "Handcrafted Silver Cross Pendant",
+        "category": "bestseller",
+        "price": 10000,
+        "original_price": 10000,
+        "cost_price": 6000,
+        "costPrice": 6000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 84,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/cross_pendant_1.jpeg",
+        "description": "Artisan-sculpted Christian cross pendant crafted in pure 925 sterling silver with mirror rhodium finish and high-detail beveled contours.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "14.5g",
+            "finish": "High Polish Mirror Rhodium",
+            "sub_type": "Elite Pendant",
+            "gender": "Unisex / Men",
+            "is_bestseller": true,
+            "cost_price": 6000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/cross_pendant_1.jpeg",
+                "assets/best_sellers/cross_pendant_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-bestseller-2-dollar-pendant",
+        "title": "Iced Dollar Sign Pendant",
+        "category": "bestseller",
+        "price": 15000,
+        "original_price": 15000,
+        "cost_price": 7000,
+        "costPrice": 7000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 92,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/dollar_pendant_1.jpeg",
+        "description": "Statement-making Dollar emblem pendant drenched in high-grade micropavé brilliant crystals on solid 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "16.8g",
+            "finish": "Iced Micropavé Rhodium",
+            "sub_type": "Elite Pendant",
+            "gender": "Unisex / Men",
+            "is_bestseller": true,
+            "cost_price": 7000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/dollar_pendant_1.jpeg",
+                "assets/best_sellers/dollar_pendant_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-bestseller-3-dumbbell-pendant",
+        "title": "Fitness Dumbbell Pendant",
+        "category": "bestseller",
+        "price": 7000,
+        "original_price": 7000,
+        "cost_price": 4000,
+        "costPrice": 4000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 68,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/dumbbell_pendant_1.jpeg",
+        "description": "Symbol of relentless discipline and strength. Precision-cast three-dimensional dumbbell pendant sculpted in heavy 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "12.0g",
+            "finish": "Dual Texture Polish & Satin",
+            "sub_type": "Elite Pendant",
+            "gender": "Unisex / Men",
+            "is_bestseller": true,
+            "cost_price": 4000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/dumbbell_pendant_1.jpeg",
+                "assets/best_sellers/dumbbell_pendant_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-bestseller-4-hexagon-pendant",
+        "title": "Geometric Hexagon Pendant",
+        "category": "bestseller",
+        "price": 9000,
+        "original_price": 9000,
+        "cost_price": 5000,
+        "costPrice": 5000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 55,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/hexagon_pendant_1.jpeg",
+        "description": "Architectural honeycomb hexagonal medallion handcrafted in solid 925 sterling silver with sparkling geometric pavé inlay.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "13.2g",
+            "finish": "High Polish Rhodium Geometric",
+            "sub_type": "Elite Pendant",
+            "gender": "Unisex / Men",
+            "is_bestseller": true,
+            "cost_price": 5000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/hexagon_pendant_1.jpeg",
+                "assets/best_sellers/hexagon_pendant_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-bestseller-5-panda-pendant",
+        "title": "Diamond Cut Panda Pendant",
+        "category": "bestseller",
+        "price": 7000,
+        "original_price": 7000,
+        "cost_price": 4000,
+        "costPrice": 4000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 61,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/panda_pendant_1.jpeg",
+        "description": "Playful yet high-luxury sculpted Panda emblem encrusted with precision pavé stones and black enamel detailing in solid 925 silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "11.8g",
+            "finish": "Black Enamel & Pavé Rhodium",
+            "sub_type": "Elite Pendant",
+            "gender": "Unisex / Men",
+            "is_bestseller": true,
+            "cost_price": 4000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/panda_pendant_1.jpeg",
+                "assets/best_sellers/panda_pendant_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-bestseller-6-elite-ring-1",
+        "title": "Elite Signet Ring - Octagon Pavé",
+        "category": "bestseller",
+        "price": 10000,
+        "original_price": 10000,
+        "cost_price": 6000,
+        "costPrice": 6000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 76,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/elite_ring_1_1.jpeg",
+        "description": "Imposing octagonal signet ring with micro-prong pavé setting and heavy solid 925 sterling silver shank for commanding presence.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "12.8g",
+            "finish": "High Polish Rhodium Signet",
+            "sub_type": "Elite Ring",
+            "gender": "Men",
+            "is_bestseller": true,
+            "cost_price": 6000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/elite_ring_1_1.jpeg",
+                "assets/best_sellers/elite_ring_1_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-bestseller-7-elite-ring-2",
+        "title": "Elite Statement Ring - Solitaire Channel",
+        "category": "bestseller",
+        "price": 8000,
+        "original_price": 8000,
+        "cost_price": 4000,
+        "costPrice": 4000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 58,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/elite_ring_2_1.jpeg",
+        "description": "Modern minimalist masculine ring featuring channel-set accent gems and a central bezel highlight in heavy solid 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "10.5g",
+            "finish": "Satin Brushed & Rhodium Polish",
+            "sub_type": "Elite Ring",
+            "gender": "Men",
+            "is_bestseller": true,
+            "cost_price": 4000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/elite_ring_2_1.jpeg",
+                "assets/best_sellers/elite_ring_2_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-bestseller-8-elite-ring-3",
+        "title": "Elite Crown Ring - Royal Cushion",
+        "category": "bestseller",
+        "price": 10000,
+        "original_price": 10000,
+        "cost_price": 7000,
+        "costPrice": 7000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 88,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/elite_ring_3_1.jpeg",
+        "description": "Majestic cushion-top royal crown signet with hand-engraved side gallery and full halo crystal cluster in solid 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "13.6g",
+            "finish": "Royal Crown Rhodium",
+            "sub_type": "Elite Ring",
+            "gender": "Men",
+            "is_bestseller": true,
+            "cost_price": 7000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/elite_ring_3_1.jpeg",
+                "assets/best_sellers/elite_ring_3_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-bestseller-9-elite-ring-4",
+        "title": "Elite Heritage Ring - Triple Pavé",
+        "category": "bestseller",
+        "price": 13000,
+        "original_price": 13000,
+        "cost_price": 8000,
+        "costPrice": 8000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 94,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/elite_ring_4_1.jpeg",
+        "description": "Triple-tier iced band offering opulent sparkle and masculine geometry, hand-set with micro-diamonds on solid 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "15.0g",
+            "finish": "Triple Pavé Heavy Rhodium",
+            "sub_type": "Elite Ring",
+            "gender": "Men",
+            "is_bestseller": true,
+            "cost_price": 8000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/elite_ring_4_1.jpeg",
+                "assets/best_sellers/elite_ring_4_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-bestseller-10-elite-ring-5",
+        "title": "Elite Sovereign Ring - Master Ice Solitaire",
+        "category": "bestseller",
+        "price": 18000,
+        "original_price": 18000,
+        "cost_price": 12000,
+        "costPrice": 12000,
+        "is_bestseller": true,
+        "rating": 5,
+        "reviews_count": 112,
+        "plating": "Solid 92.5 Sterling Silver",
+        "in_stock": true,
+        "image": "assets/best_sellers/elite_ring_5_1.jpeg",
+        "description": "Our highest tier flagship master ring. Centered with an exquisite brilliant-cut solitaire surrounded by diamond-paved stepped shoulders in pure 925 silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver",
+            "weight": "18.5g",
+            "finish": "Master Ice High Rhodium",
+            "sub_type": "Elite Ring",
+            "gender": "Men",
+            "is_bestseller": true,
+            "cost_price": 12000,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/best_sellers/elite_ring_5_1.jpeg",
+                "assets/best_sellers/elite_ring_5_2.jpeg"
+            ]
+        }
+    }
+];
+
+const CHARMS_PRODUCTS_SEED = [
+    {
+        "id": "prod-charm-1-golf-club-ruby",
+        "title": "Whoop Band Charm - Sculpted Golf Club & Ruby Accent",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 15,
+        "plating": "18K Gold Plated with Ruby Accent",
+        "in_stock": true,
+        "image": "assets/charms/charm_1_1.jpeg",
+        "description": "Bespoke handcrafted Whoop band slide-on charm featuring a sculpted 18K yellow gold plated golf club accented with micro pavé crystals and a bezel-set vibrant ruby.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Gold Plated with Ruby Accent",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_1_1.jpeg",
+                "assets/charms/charm_1_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-2-batman-crest",
+        "title": "Whoop Band Charm - Dark Knight Batman Crest",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 16,
+        "plating": "Brushed Rhodium Solid 925 Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_2_1.jpeg",
+        "description": "Signature Dark Knight Batman batwing crest in solid 925 sterling silver with a refined satin brush finish, designed specifically to slide securely onto Whoop bands.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "Brushed Rhodium Solid 925 Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_2_1.jpeg",
+                "assets/charms/charm_2_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-3-superman-shield",
+        "title": "Whoop Band Charm - Superman Hero Shield",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 17,
+        "plating": "Brushed Rhodium Solid 925 Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_3_1.jpeg",
+        "description": "Iconic Superman 'S' pentagon shield emblem in solid 925 sterling silver, hand-beveled with a matte satin texture for the ultimate superhero statement.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "Brushed Rhodium Solid 925 Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_3_1.jpeg",
+                "assets/charms/charm_3_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-4-audi-rings",
+        "title": "Whoop Band Charm - Quattro Rings Edition",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 18,
+        "plating": "High Polish Solid 925 Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_4_2.jpeg",
+        "description": "Precision-engineered interlocking 4-rings Quattro emblem in solid 925 sterling silver, celebrating automotive performance on your Whoop band.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "High Polish Solid 925 Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_4_2.jpeg",
+                "assets/charms/charm_4_1.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-5-cr7-legend",
+        "title": "Whoop Band Charm - CR7 Cristiano Ronaldo Legend",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 19,
+        "plating": "Hand-Finished Solid 925 Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_5_1.jpeg",
+        "description": "Iconic CR7 emblem in solid 925 sterling silver, honoring football greatness with clean aerodynamic lines and dual slide-on anchors.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "Hand-Finished Solid 925 Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_5_1.jpeg",
+                "assets/charms/charm_5_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-6-bmw-roundel",
+        "title": "Whoop Band Charm - BMW M-Heritage Roundel",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 20,
+        "plating": "18K Gold Plated with Black & Blue Enamel",
+        "in_stock": true,
+        "image": "assets/charms/charm_6_1.jpeg",
+        "description": "Classic BMW roundel emblem handcrafted in solid 925 silver with 18K gold bezel plating and rich blue-and-white artisan enamel inlay.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Gold Plated with Black & Blue Enamel",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_6_1.jpeg",
+                "assets/charms/charm_6_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-7-trishul-damru",
+        "title": "Whoop Band Charm - Sacred Trishul & Damru Lord Shiva",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 21,
+        "plating": "High Polish Solid 925 Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_7_1.jpeg",
+        "description": "Sacred Mahadev emblem combining the divine Trishul (trident) and Damru with intricate ghungroo details, cast in pure 925 sterling silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "High Polish Solid 925 Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_7_1.jpeg",
+                "assets/charms/charm_7_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-8-divine-trishul",
+        "title": "Whoop Band Charm - Divine Trishul Power Emblem",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 22,
+        "plating": "Satin Polish Solid 925 Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_8_1.jpeg",
+        "description": "Minimalist yet potent Lord Shiva Trishul cast in solid 925 sterling silver with rounded tips for daily comfort and spiritual empowerment.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "Satin Polish Solid 925 Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_8_1.jpeg",
+                "assets/charms/charm_8_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-9-sacred-om",
+        "title": "Whoop Band Charm - Sacred Om Aum Divine Symbol",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 23,
+        "plating": "Satin Brushed Solid 925 Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_9_2.jpeg",
+        "description": "Timeless sacred Om (Aum) symbol in handcrafted solid 925 sterling silver, representing universal peace and divine consciousness.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "Satin Brushed Solid 925 Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_9_2.jpeg",
+                "assets/charms/charm_9_1.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-10-india-crest",
+        "title": "Whoop Band Charm - INDIA Patriot Bold Crest",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 24,
+        "plating": "Clean Satin Solid 925 Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_10_1.jpeg",
+        "description": "Bold block-cut 'INDIA' emblem in solid 925 sterling silver, sculpted for proud Indian athletes and patriots across the globe.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "Clean Satin Solid 925 Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_10_1.jpeg",
+                "assets/charms/charm_10_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-11-lord-hanuman",
+        "title": "Whoop Band Charm - Lord Hanuman Ji Divine Blessings",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 25,
+        "plating": "18K Yellow Gold Plated Solid Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_11_1.jpeg",
+        "description": "Intricately sculpted divine Lord Hanuman Ji bust with ceremonial mukut crown and necklace, finished in radiant 18K yellow gold plating.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Yellow Gold Plated Solid Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_11_1.jpeg",
+                "assets/charms/charm_11_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-12-ayodhya-ram-mandir",
+        "title": "Whoop Band Charm - Ayodhya Ram Mandir Sacred Shrine (Gold)",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 14,
+        "plating": "18K Gold Plated with Saffron Dhwaja",
+        "in_stock": true,
+        "image": "assets/charms/charm_12_2.jpeg",
+        "description": "Exquisitely detailed Ayodhya Ram Mandir architectural replica in solid 925 silver with 18K gold plating and enamel saffron flag atop the sacred shikhara.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Gold Plated with Saffron Dhwaja",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_12_2.jpeg",
+                "assets/charms/charm_12_1.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-13-ram-mandir-heritage",
+        "title": "Whoop Band Charm - Ram Mandir Heritage Temple",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 15,
+        "plating": "18K Yellow Gold Plated Solid Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_13_2.jpeg",
+        "description": "Panoramic architectural relief of Shri Ram Janmabhoomi Mandir with ornate mandapa pillars and shikhara in brilliant 18K yellow gold finish.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Yellow Gold Plated Solid Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_13_2.jpeg",
+                "assets/charms/charm_13_1.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-14-ram-darbar-arch",
+        "title": "Whoop Band Charm - Sacred Ram Darbar Parivar Arch",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 16,
+        "plating": "18K Yellow Gold Plated with Prabhavali Arch",
+        "in_stock": true,
+        "image": "assets/charms/charm_14_1.jpeg",
+        "description": "Sacred Ram Darbar parivar featuring Bhagwan Ram, Mata Sita, Lakshman Ji, and Bhakt Hanuman under an ornate temple Prabhavali arch in 18K gold.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Yellow Gold Plated with Prabhavali Arch",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_14_1.jpeg",
+                "assets/charms/charm_14_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-15-ram-darbar-figurine",
+        "title": "Whoop Band Charm - Divine Ram Darbar Sacred Figurine",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 17,
+        "plating": "18K Yellow Gold Plated Solid Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_15_1.jpeg",
+        "description": "Clean-profile sacred Ram Darbar sculpted ensemble in 18K yellow gold plated solid silver, bringing continuous protection and grace to your day.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Yellow Gold Plated Solid Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_15_1.jpeg",
+                "assets/charms/charm_15_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-16-lord-krishna-flute",
+        "title": "Whoop Band Charm - Lord Krishna with Flute & Crown",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 18,
+        "plating": "18K Yellow Gold Plated Solid Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_16_1.jpeg",
+        "description": "Enchanting murti of Lord Krishna in divine tribhanga posture playing his holy bansuri flute, detailed with peacock feather crown in 18K gold.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Yellow Gold Plated Solid Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_16_1.jpeg",
+                "assets/charms/charm_16_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-17-mor-pankh-enamel",
+        "title": "Whoop Band Charm - Royal Mor Pankh Peacock Feather (Turquoise)",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 19,
+        "plating": "18K Gold Plated with Vibrant Meenakari Enamel",
+        "in_stock": true,
+        "image": "assets/charms/charm_17_1.jpeg",
+        "description": "Artisanal Mor Pankh peacock feather charm with brilliant turquoise and royal blue meenakari enamel, set in a golden textured quill frame.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Gold Plated with Vibrant Meenakari Enamel",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_17_1.jpeg",
+                "assets/charms/charm_17_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-18-peacock-feather-grace",
+        "title": "Whoop Band Charm - Divine Peacock Feather Grace Enamel",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 20,
+        "plating": "18K Gold Plated with Emerald & Blue Enamel",
+        "in_stock": true,
+        "image": "assets/charms/charm_18_1.jpeg",
+        "description": "Graceful leaf-profile peacock feather charm featuring multi-layered emerald and sapphire blue enamel layers in hand-chiseled 18K gold.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Gold Plated with Emerald & Blue Enamel",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_18_1.jpeg",
+                "assets/charms/charm_18_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-19-krishna-bansuri",
+        "title": "Whoop Band Charm - Krishna Bansuri Flute with Mor Pankh",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 21,
+        "plating": "18K Yellow Gold Plated with Enamel Feather",
+        "in_stock": true,
+        "image": "assets/charms/charm_19_1.jpeg",
+        "description": "Divine Krishna flute adorned with hanging silk tassels and a delicate enameled peacock feather, crafted in 18K gold plated silver.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Yellow Gold Plated with Enamel Feather",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_19_1.jpeg",
+                "assets/charms/charm_19_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-20-sacred-shankh",
+        "title": "Whoop Band Charm - Sacred Shankh Conch Shell Auspicious",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 22,
+        "plating": "18K Yellow Gold Plated Solid Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_20_1.jpeg",
+        "description": "Auspicious Dakshinavarti Shankh conch shell symbolizing prosperity, purity, and spiritual resonance in high-polish 18K yellow gold.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Yellow Gold Plated Solid Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_20_1.jpeg",
+                "assets/charms/charm_20_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-21-panther-emerald",
+        "title": "Whoop Band Charm - Cartier Style Iced Panther Emerald Eyes",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 23,
+        "plating": "Solid 925 Silver Micro Pavé with Emerald Eyes",
+        "in_stock": true,
+        "image": "assets/charms/charm_21_1.jpeg",
+        "description": "High jewelry Cartier-inspired wild panther head fully encrusted with brilliant-cut micro pavé crystals and mesmerizing vivid emerald green gemstone eyes.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "Solid 925 Silver Micro Pavé with Emerald Eyes",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_21_1.jpeg",
+                "assets/charms/charm_21_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-22-tf-monogram",
+        "title": "Whoop Band Charm - TF Luxury Monogram Rose Gold",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 24,
+        "plating": "18K Rose Gold Plated Solid Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_22_1.jpeg",
+        "description": "Architectural interlocking 'TF' monogram in luxury 18K rose gold plated solid 925 silver, adding subtle haute couture sophistication to any strap.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Rose Gold Plated Solid Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_22_1.jpeg",
+                "assets/charms/charm_22_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-23-lv-panther",
+        "title": "Whoop Band Charm - LV Wild Panther Emerald Eyes 18K Gold",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 25,
+        "plating": "18K Yellow Gold Plated with Monogram Engraving & Emerald Eyes",
+        "in_stock": true,
+        "image": "assets/charms/charm_23_1.jpeg",
+        "description": "Regal wild panther head engraved with iconic luxury monogram stars and brilliant diamond-cut crystals, featuring striking emerald eyes in 18K gold.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "18K Yellow Gold Plated with Monogram Engraving & Emerald Eyes",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_23_1.jpeg",
+                "assets/charms/charm_23_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-24-v-chevron-initial-a",
+        "title": "Whoop Band Charm - V-Chevron Pink Sapphire Initial 'A'",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 14,
+        "plating": "Rose Gold with Pink Sapphires & Dangling Letter 'A'",
+        "in_stock": true,
+        "image": "assets/charms/charm_24_1.jpeg",
+        "description": "V-chevron band holder pavé-set with shimmering pink sapphires, suspending an iced pavé initial 'A' dangle in delicate 18K rose gold.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "Rose Gold with Pink Sapphires & Dangling Letter 'A'",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_24_1.jpeg",
+                "assets/charms/charm_24_2.jpeg"
+            ]
+        }
+    },
+    {
+        "id": "prod-charm-25-custom-initials-ak",
+        "title": "Whoop Band Charm - Custom Monogram Initial 'AK' Prestige",
+        "category": "charms",
+        "price": 8200,
+        "cost_price": 3500,
+        "costPrice": 3500,
+        "original_price": 8200,
+        "rating": 5,
+        "reviews_count": 15,
+        "plating": "Clean Satin Solid 925 Silver",
+        "in_stock": true,
+        "image": "assets/charms/charm_25_1.jpeg",
+        "description": "Prestige college-block monogram letters 'AK' in solid 925 sterling silver with beveled inner facets and seamless dual slide-on side bars.",
+        "specs": {
+            "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
+            "weight": "4.5g",
+            "finish": "Clean Satin Solid 925 Silver",
+            "cost_price": 3500,
+            "disable_auto_rate": true,
+            "images": [
+                "assets/charms/charm_25_1.jpeg",
+                "assets/charms/charm_25_2.jpeg"
+            ]
+        }
+    }
+];
+
+const ALL_PRODUCTS_SEED = [...WHOOP_PRODUCTS_SEED, ...DIVINE_PENDANTS_SEED, ...MEN_EARRINGS_SEED, ...BEST_SELLERS_PRODUCTS_SEED, ...CHARMS_PRODUCTS_SEED];
 
 function seedMockProducts() {
-    localStorage.setItem("mock_db_products", JSON.stringify(ALL_PRODUCTS_SEED));
-    console.log("Seeded 45 catalog products (35 Whoop + 10 Divine Pendants) to local database.");
+    const normalizedCatalog = ALL_PRODUCTS_SEED.map((p, idx) => normalizeProductData(p, idx));
+    localStorage.setItem("mock_db_products", JSON.stringify(normalizedCatalog));
+    console.log("Seeded 95 catalog products with Item Numbers #01-#95 and 1 No. stock to local database.");
 }
 seedMockProducts();
 
-let SUPABASE_URL = localStorage.getItem('uvira_supabase_url') || "https://zimapfcyfxiqdnxaaonp.supabase.co";
-let SUPABASE_KEY = localStorage.getItem('uvira_supabase_key') || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppbWFwZmN5ZnhpcWRueGFhb25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyMTE4NjEsImV4cCI6MjEwNDc4Nzg2MX0.n7UVMBY-5iBiaasKw34TkDdD04JgSTo9r7ombxXqnZk";
+// --- SUPABASE DISCONNECTED (RUNNING IN 100% OFFLINE LOCAL STORAGE MODE) ---
+try {
+    localStorage.removeItem('uvira_supabase_url');
+    localStorage.removeItem('uvira_supabase_key');
+} catch (e) {}
+
+let SUPABASE_URL = "";
+let SUPABASE_KEY = "";
 
 let rawSupaClient = null;
 function initRawSupaClient() {
-    try {
-        if (window.supabase && window.supabase.createClient && SUPABASE_URL && SUPABASE_KEY) {
-            rawSupaClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
-    } catch(e) {
-        console.warn("Could not instantiate Supabase client:", e);
-    }
+    rawSupaClient = null;
 }
 initRawSupaClient();
 
-// Resilient Cloud-First Hybrid Database Client (Syncs to Supabase Cloud when connected, uses LocalStorage cache seamlessly)
+// Resilient Offline Local Database Client (uses LocalStorage cache seamlessly)
 const supaClient = {
+    storage: {
+        from: (bucket) => ({
+            upload: async (fileName, file, options) => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            localStorage.setItem('local_storage_' + bucket + '_' + fileName, e.target.result);
+                        } catch(err) {}
+                        resolve({ data: { path: fileName, localUrl: e.target.result }, error: null });
+                    };
+                    reader.onerror = () => resolve({ data: null, error: new Error("File read error") });
+                    reader.readAsDataURL(file);
+                });
+            },
+            getPublicUrl: (fileName) => {
+                const stored = localStorage.getItem('local_storage_' + bucket + '_' + fileName);
+                return { data: { publicUrl: stored || 'logo.png' } };
+            }
+        })
+    },
     from: (table) => {
         const getTableData = () => {
             try { return JSON.parse(localStorage.getItem('mock_db_' + table) || '[]'); }
@@ -1323,8 +2860,8 @@ async function initState() {
         supaClient.from('settings').select('value').eq('key', 'metal_rates').maybeSingle()
     ]);
 
-    // Products - 45 designs: 35 Whoop Cases + 10 Divine Pendants
-    STATE.products = ALL_PRODUCTS_SEED.map(normalizeProductData);
+    // Products - 95 catalog designs with sequential Item Numbers #01-#95 and 1 No. default stock
+    STATE.products = ALL_PRODUCTS_SEED.map((p, idx) => normalizeProductData(p, idx));
 
     // Coupons
     if (couponsResult.status === 'fulfilled' && !couponsResult.value.error) {
@@ -1710,7 +3247,7 @@ function applyQuickFilter(filterType) {
     const priceMaxSlider = document.getElementById("filter-price-max");
     const priceDisplay = document.getElementById("filter-price-val");
     
-    const categoriesList = ["whoop", "whoop_accessories", "rings", "earrings", "pendants", "anklets", "chains", "chain_pendant", "coins", "gold", "gold_coins", "kids", "customised", "kada", "bracelet", "bracelets"];
+    const categoriesList = ["charms", "whoop", "whoop_accessories", "rings", "earrings", "pendants", "anklets", "chains", "chain_pendant", "coins", "gold", "gold_coins", "kids", "customised", "kada", "bracelet", "bracelets"];
     
     if (filterType === "search") {
         // Keep current filters, just perform search
@@ -1733,6 +3270,21 @@ function applyQuickFilter(filterType) {
         priceDisplay.textContent = "₹50,000+";
         const genderHerRadio = document.getElementById("filter-gender-her");
         if (genderHerRadio) genderHerRadio.checked = true;
+    } else if (filterType === "bestseller") {
+        filterByQuickChip('bestseller');
+        return;
+    } else if (filterType === "charms") {
+        filterByQuickChip('charms');
+        return;
+    } else if (filterType === "earrings") {
+        filterByQuickChip('earrings');
+        return;
+    } else if (filterType === "pendants") {
+        filterByQuickChip('pendants');
+        return;
+    } else if (filterType === "whoop") {
+        filterByQuickChip('whoop');
+        return;
     } else if (categoriesList.includes(filterType)) {
         priceMaxSlider.value = 50000;
         priceDisplay.textContent = "₹50,000+";
@@ -1754,47 +3306,107 @@ function applyQuickFilter(filterType) {
     renderShopCatalog();
 }
 
+// --- BEST SELLER HELPER ---
+function isProductBestSeller(p) {
+    if (!p) return false;
+    if (p.id === 'prod-whoop-1-custom-crest-gem-set-whoop-case-batman' || p.id === 'prod-whoop-3-custom-crest-gem-set-whoop-case-plain-classic') return true;
+    if (p.id && (p.id.startsWith('prod-bestseller-') || Boolean(BEST_SELLER_FOLDER_PRICING[p.id]))) return true;
+    if (p.is_bestseller === true || p.isBestseller === true) return true;
+    if (p.specs && (p.specs.is_bestseller === true || p.specs.isBestseller === true)) return true;
+    if (p.category === 'bestseller') return true;
+    return false;
+}
+
 // --- RENDER PRODUCTS GRID (HOME) ---
 function renderHomeProducts() {
     const bestSellersGrid = document.getElementById("best-sellers-grid");
     if (!bestSellersGrid) return;
     
-    // Exactly 8 products on home page as requested, rest viewed via Explore More button
-    const sorted = [...STATE.products].slice(0, 8);
-    bestSellersGrid.innerHTML = sorted.map((p, idx) => createProductCardHtml(p, idx)).join("");
+    // Render high-demand bestsellers on home showcase (Strictly top 8 designs)
+    let featured = STATE.products.filter(p => isProductBestSeller(p)).slice(0, 8);
+    if (featured.length === 0) {
+        const earrings = STATE.products.filter(p => p.category === 'earrings').slice(0, 3);
+        const pendants = STATE.products.filter(p => p.category === 'pendants').slice(0, 2);
+        const whoop = STATE.products.filter(p => p.category === 'whoop').slice(0, 3);
+        featured = [...earrings, ...pendants, ...whoop].slice(0, 8);
+    }
+    
+    bestSellersGrid.innerHTML = featured.map((p, idx) => createProductCardHtml(p, idx)).join("");
 }
 
 // --- RENDER DYNAMIC CATALOG (SHOP VIEW) ---
 
 function filterByQuickChip(type) {
     const chipAll = document.getElementById('chip-all');
+    const chipBestseller = document.getElementById('chip-bestseller');
+    const chipCharms = document.getElementById('chip-charms');
+    const chipEarrings = document.getElementById('chip-earrings');
     const chipPendants = document.getElementById('chip-pendants');
     const chipWhoop = document.getElementById('chip-whoop');
     const chipInstock = document.getElementById('chip-instock');
     const filterInStock = document.getElementById('filter-in-stock');
+    const filterBestseller = document.getElementById('filter-type-bestseller');
+    const filterCharms = document.getElementById('filter-type-charms');
     const filterWhoop = document.getElementById('filter-type-whoop');
     const filterPendants = document.getElementById('filter-type-pendants');
+    const filterEarrings = document.getElementById('filter-type-earrings');
     
     if (chipAll) chipAll.classList.remove('active');
+    if (chipBestseller) chipBestseller.classList.remove('active');
+    if (chipCharms) chipCharms.classList.remove('active');
+    if (chipEarrings) chipEarrings.classList.remove('active');
     if (chipPendants) chipPendants.classList.remove('active');
     if (chipWhoop) chipWhoop.classList.remove('active');
     if (chipInstock) chipInstock.classList.remove('active');
     
     if (type === 'all') {
         if (chipAll) chipAll.classList.add('active');
+        if (filterBestseller) filterBestseller.checked = false;
         if (filterInStock) filterInStock.checked = false;
         if (filterWhoop) filterWhoop.checked = true;
         if (filterPendants) filterPendants.checked = true;
+        if (filterEarrings) filterEarrings.checked = true;
+        if (filterCharms) filterCharms.checked = true;
         const searchInput = document.getElementById('search-main');
         if (searchInput) searchInput.value = '';
+    } else if (type === 'bestseller') {
+        if (chipBestseller) chipBestseller.classList.add('active');
+        if (filterBestseller) filterBestseller.checked = true;
+        if (filterInStock) filterInStock.checked = false;
+        if (filterWhoop) filterWhoop.checked = true;
+        if (filterPendants) filterPendants.checked = true;
+        if (filterEarrings) filterEarrings.checked = true;
+        if (filterCharms) filterCharms.checked = true;
+        const searchInput = document.getElementById('search-main');
+        if (searchInput) searchInput.value = '';
+    } else if (type === 'charms') {
+        if (chipCharms) chipCharms.classList.add('active');
+        if (filterBestseller) filterBestseller.checked = false;
+        if (filterWhoop) filterWhoop.checked = false;
+        if (filterPendants) filterPendants.checked = false;
+        if (filterEarrings) filterEarrings.checked = false;
+        if (filterCharms) filterCharms.checked = true;
+    } else if (type === 'earrings') {
+        if (chipEarrings) chipEarrings.classList.add('active');
+        if (filterBestseller) filterBestseller.checked = false;
+        if (filterWhoop) filterWhoop.checked = false;
+        if (filterPendants) filterPendants.checked = false;
+        if (filterEarrings) filterEarrings.checked = true;
+        if (filterCharms) filterCharms.checked = false;
     } else if (type === 'pendants') {
         if (chipPendants) chipPendants.classList.add('active');
+        if (filterBestseller) filterBestseller.checked = false;
         if (filterWhoop) filterWhoop.checked = false;
         if (filterPendants) filterPendants.checked = true;
+        if (filterEarrings) filterEarrings.checked = false;
+        if (filterCharms) filterCharms.checked = false;
     } else if (type === 'whoop') {
         if (chipWhoop) chipWhoop.classList.add('active');
+        if (filterBestseller) filterBestseller.checked = false;
         if (filterWhoop) filterWhoop.checked = true;
         if (filterPendants) filterPendants.checked = false;
+        if (filterEarrings) filterEarrings.checked = false;
+        if (filterCharms) filterCharms.checked = false;
     } else if (type === 'instock') {
         if (chipInstock) chipInstock.classList.add('active');
         if (filterInStock) filterInStock.checked = true;
@@ -1805,10 +3417,16 @@ function filterByQuickChip(type) {
 function resetAllFilters() {
     const filterInStock = document.getElementById('filter-in-stock');
     if (filterInStock) filterInStock.checked = false;
+    const filterBestseller = document.getElementById('filter-type-bestseller');
+    if (filterBestseller) filterBestseller.checked = false;
     const filterWhoop = document.getElementById('filter-type-whoop');
     if (filterWhoop) filterWhoop.checked = true;
     const filterPendants = document.getElementById('filter-type-pendants');
     if (filterPendants) filterPendants.checked = true;
+    const filterCharms = document.getElementById('filter-type-charms');
+    if (filterCharms) filterCharms.checked = true;
+    const filterEarrings = document.getElementById('filter-type-earrings');
+    if (filterEarrings) filterEarrings.checked = true;
     const filterPriceMax = document.getElementById('filter-price-max');
     if (filterPriceMax) {
         filterPriceMax.value = 50000;
@@ -1831,17 +3449,25 @@ function renderShopCatalog() {
     // Collect Filter Values
     const inStockOnly = document.getElementById("filter-in-stock") ? document.getElementById("filter-in-stock").checked : false;
     const maxPrice = document.getElementById("filter-price-max") ? parseFloat(document.getElementById("filter-price-max").value) : 50000;
+    const bestsellerCheck = document.getElementById("filter-type-bestseller");
+    const bestsellerOnly = bestsellerCheck ? bestsellerCheck.checked : false;
     
     const categories = [];
     const whoopCheck = document.getElementById("filter-type-whoop");
     const pendantsCheck = document.getElementById("filter-type-pendants");
+    const earringsCheck = document.getElementById("filter-type-earrings");
+    const charmsCheck = document.getElementById("filter-type-charms");
     const whoopChecked = whoopCheck ? whoopCheck.checked : false;
     const pendantsChecked = pendantsCheck ? pendantsCheck.checked : false;
+    const earringsChecked = earringsCheck ? earringsCheck.checked : false;
+    const charmsChecked = charmsCheck ? charmsCheck.checked : false;
 
-    if (whoopChecked && !pendantsChecked) {
-        categories.push("whoop", "whoop_accessories");
-    } else if (!whoopChecked && pendantsChecked) {
-        categories.push("pendants");
+    const totalActive = (whoopChecked ? 1 : 0) + (pendantsChecked ? 1 : 0) + (earringsChecked ? 1 : 0) + (charmsChecked ? 1 : 0);
+    if (totalActive > 0 && totalActive < 4) {
+        if (whoopChecked) categories.push("whoop", "whoop_accessories");
+        if (pendantsChecked) categories.push("pendants");
+        if (earringsChecked) categories.push("earrings");
+        if (charmsChecked) categories.push("charms");
     }
     
     const searchQuery = document.getElementById("search-main") ? document.getElementById("search-main").value.toLowerCase().trim() : "";
@@ -1853,6 +3479,9 @@ function renderShopCatalog() {
 
     // Filter Pipeline
     let filtered = STATE.products.filter(p => {
+        // Bestseller Filter
+        if (bestsellerOnly && !isProductBestSeller(p)) return false;
+
         // Price Filter
         const prodPrice = parseFloat(p.price || 0);
         if (!isNaN(prodPrice) && prodPrice > maxPrice) return false;
@@ -1867,7 +3496,7 @@ function renderShopCatalog() {
         }
         
         // Category Filter
-        if (categories.length > 0 && !categories.includes(p.category)) return false;
+        if (categories.length > 0 && !categories.includes(p.category) && !bestsellerOnly) return false;
         
         // Search Matching
         if (searchQuery) {
@@ -1914,16 +3543,32 @@ function renderShopCatalog() {
 // Product Card HTML Generator
 function createProductCardHtml(p, idx = 0) {
     const isWished = STATE.wishlist.includes(p.id) ? "wished" : "";
+    const isBestseller = isProductBestSeller(p);
     const badgeHtml = !p.inStock 
         ? `<div class="product-card-badge out-of-stock">OUT OF STOCK</div>` 
-        : "";
+        : (isBestseller 
+            ? `<div class="product-card-badge" style="background: linear-gradient(135deg, #059669 0%, #024824 100%); color:#FFFFFF; font-weight:700; box-shadow: 0 2px 8px rgba(2, 72, 36, 0.4);">🔥 BEST SELLER</div>` 
+            : "");
         
     const discountPercent = p.originalPrice && p.originalPrice > p.price 
         ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
         : 0;
 
     const secondImg = (p.specs && p.specs.images && p.specs.images.length > 1) ? p.specs.images[1] : p.image;
-    const categoryTag = (p.category === 'pendants' || (p.id && p.id.includes('pendant'))) ? 'Divine Pendant' : 'Whoop 5.0 Case';
+    let categoryTag = 'Whoop 5.0 Case';
+    if (p.specs && p.specs.sub_type) {
+        categoryTag = p.specs.sub_type;
+    } else if (p.category === 'bestseller' || (p.id && p.id.startsWith('prod-bestseller-'))) {
+        categoryTag = (p.id && p.id.includes('ring')) ? 'Elite Ring' : 'Elite Pendant';
+    } else if (p.category === 'charms' || (p.id && p.id.includes('charm'))) {
+        categoryTag = 'Band Charm';
+    } else if (p.category === 'earrings' || (p.id && p.id.includes('earring'))) {
+        categoryTag = 'Men Stud';
+    } else if (p.category === 'pendants' || (p.id && p.id.includes('pendant'))) {
+        categoryTag = 'Divine Pendant';
+    }
+    const itemNoStr = getItemNoDisplay(p, idx);
+    const bestsellerTag = isBestseller ? `<span class="prod-tag-pill" style="font-weight:700; color:#047857; background:#ECFDF5; border:1px solid #A7F3D0;">🔥 Bestseller</span>` : '';
     
     return `
         <div class="product-card animate-entrance" style="animation-delay: ${idx * 0.04}s;">
@@ -1937,6 +3582,8 @@ function createProductCardHtml(p, idx = 0) {
             </div>
             <div class="product-info">
                 <div class="product-tags-row">
+                    <span class="prod-tag-pill" style="font-weight:700; color:var(--color-primary); background:#F1F5F9; border:1px solid #E2E8F0;">${itemNoStr}</span>
+                    ${bestsellerTag}
                     <span class="prod-tag-pill">925 Silver</span>
                     <span class="prod-tag-pill">${categoryTag}</span>
                 </div>
@@ -2024,16 +3671,14 @@ function addToCart(prodId, count = 1) {
     
     const isDetailView = STATE.selectedProduct && STATE.selectedProduct.id === prod.id;
     const isPendant = prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'));
-    const isBrass = isDetailView && (STATE.selectedMetal === 'brass') && !isPendant;
-    const basePrice = isBrass ? 6000 : prod.price;
-    const metalSuffix = isBrass ? " (Brass)" : "";
+    const basePrice = prod.price;
 
     const finishLabel = isDetailView && STATE.selectedFinish ? (STATE.selectedFinish === 'golden' ? 'Golden' : (STATE.selectedFinish === 'rosegold' ? 'Rosegold' : 'Silver')) : 'Silver';
     const isWhoop = prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'));
-    const finishSuffix = (isDetailView && (isWhoop || isPendant)) ? ` [${finishLabel}]` : "";
+    const finishSuffix = (isDetailView && (isWhoop || isPendant || isEarring)) ? ` [${finishLabel}]` : "";
     
     const sizeSuffix = size ? ` (Size: ${size})` : "";
-    const cartTitle = `${prod.title}${metalSuffix}${finishSuffix}${sizeSuffix}${wrapSuffix}`;
+    const cartTitle = `${prod.title}${finishSuffix}${sizeSuffix}${wrapSuffix}`;
     
     const unitPrice = basePrice + (hasGiftWrap ? 1000 : 0);
     
@@ -2047,7 +3692,7 @@ function addToCart(prodId, count = 1) {
             price: unitPrice,
             image: prod.image,
             qty: count,
-            metal: isBrass ? 'Jewellery Brass' : 'Solid 92.5% Sterling Silver',
+            metal: 'Solid 92.5% Sterling Silver',
             finish: finishLabel
         });
     }
@@ -2072,10 +3717,8 @@ function updateCartQty(cartTitle, change) {
 function formatCategoryName(cat) {
     if (!cat) return "";
     const lower = cat.toLowerCase();
-    if (lower === "chains") return "Chains";
-    if (lower === "chain_pendant") return "Chain with Pendant";
-    if (lower === "rings") return "Rings";
-    if (lower === "earrings") return "Earrings";
+    if (lower === "bestseller") return "Best Selling Collection";
+    if (lower === "earrings") return "Men Earrings";
     if (lower === "pendants") return "Divine Pendants";
     if (lower === "whoop") return "Whoop 5.0 Cases";
     if (lower === "anklets") return "Anklets & Toe Rings";
@@ -2128,6 +3771,7 @@ function viewProductDetail(prodId, isPopstate = false) {
     STATE.selectedMetal = 'silver';
     const isPendant = prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'));
     const isWhoop = prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'));
+    const isEarring = prod.category === 'earrings' || (prod.id && prod.id.includes('earring'));
     
     const metalSection = document.getElementById("detail-metal-section");
     const optBrass = document.getElementById("metal-opt-brass");
@@ -2135,7 +3779,14 @@ function viewProductDetail(prodId, isPopstate = false) {
     const silverPriceEl = document.getElementById("metal-opt-silver-price");
     
     if (metalSection) {
-        if (isPendant) {
+        if (isEarring) {
+            metalSection.style.display = "block";
+            if (optBrass) optBrass.style.display = "none";
+            if (optSilver && optSilver.parentElement) {
+                optSilver.parentElement.style.gridTemplateColumns = "1fr";
+            }
+            if (silverPriceEl) silverPriceEl.textContent = `₹${(prod.price || 3999).toLocaleString('en-IN')}`;
+        } else if (isPendant) {
             metalSection.style.display = "block";
             if (optBrass) optBrass.style.display = "none";
             if (optSilver && optSilver.parentElement) {
@@ -2144,11 +3795,18 @@ function viewProductDetail(prodId, isPopstate = false) {
             if (silverPriceEl) silverPriceEl.textContent = "₹15,000";
         } else if (isWhoop) {
             metalSection.style.display = "block";
-            if (optBrass) optBrass.style.display = "block";
+            if (optBrass) optBrass.style.display = "none";
             if (optSilver && optSilver.parentElement) {
-                optSilver.parentElement.style.gridTemplateColumns = "1fr 1fr";
+                optSilver.parentElement.style.gridTemplateColumns = "1fr";
             }
-            if (silverPriceEl) silverPriceEl.textContent = "₹15,000";
+            if (silverPriceEl) silverPriceEl.textContent = `₹${(prod.price || 21000).toLocaleString('en-IN')}`;
+        } else if (prod.category === 'charms' || (prod.id && prod.id.includes('charm'))) {
+            metalSection.style.display = "block";
+            if (optBrass) optBrass.style.display = "none";
+            if (optSilver && optSilver.parentElement) {
+                optSilver.parentElement.style.gridTemplateColumns = "1fr";
+            }
+            if (silverPriceEl) silverPriceEl.textContent = `₹${(prod.price || 8200).toLocaleString('en-IN')}`;
         } else {
             metalSection.style.display = "none";
         }
@@ -2161,7 +3819,7 @@ function viewProductDetail(prodId, isPopstate = false) {
     STATE.selectedFinish = 'silver';
     const finishSection = document.getElementById("detail-finish-section");
     if (finishSection) {
-        finishSection.style.display = (isWhoop || isPendant) ? "block" : "none";
+        finishSection.style.display = (isWhoop || isPendant || isEarring) ? "block" : "none";
     }
     if (typeof selectDetailFinish === 'function') {
         selectDetailFinish('silver');
@@ -2169,7 +3827,6 @@ function viewProductDetail(prodId, isPopstate = false) {
     
     // Ring, Toe Ring, and Chain Size rendering
     const isToeRing = prod.title.toLowerCase().includes("toe");
-    const isEarring = (prod.category || "").toLowerCase() === "earrings" || prod.title.toLowerCase().includes("earring");
     const isRing = ((prod.category || "").toLowerCase() === "rings" || prod.title.toLowerCase().includes("ring") || prod.title.toLowerCase().includes("band")) && !isToeRing && !isEarring;
     const isChain = (prod.category || "").toLowerCase().includes("chain");
     const isKada = (prod.category || "").toLowerCase() === "kada" || prod.title.toLowerCase().includes("kada");
@@ -2240,8 +3897,11 @@ function viewProductDetail(prodId, isPopstate = false) {
     }
     
     // Bind Details
-    if (mainImg) mainImg.src = prod.image;
-    if (category) category.textContent = formatCategoryName(prod.category).toUpperCase();
+    if (mainImg) {
+        mainImg.onerror = () => handleDetailMainImgError(mainImg, prod.image);
+        mainImg.src = prod.image;
+    }
+    if (category) category.textContent = `${getItemNoDisplay(prod)} • ${formatCategoryName(prod.category).toUpperCase()}`;
     if (title) title.textContent = prod.title;
     if (stars) stars.textContent = prod.rating.toFixed(1);
     // Reviews removed per client request
@@ -2290,8 +3950,8 @@ function viewProductDetail(prodId, isPopstate = false) {
         }
         
         thumbs.innerHTML = imgList.map((imgUrl, idx) => `
-            <div class="detail-thumb ${idx === 0 ? 'active-thumb' : ''}" onclick="changeDetailImage('${imgUrl}', this)">
-                <img src="${imgUrl}" alt="Product Image ${idx + 1}" style="width:100%; height:100%; object-fit:cover;">
+            <div class="detail-thumb ${idx === 0 ? 'active-thumb' : ''}" data-thumb-idx="${idx}" onclick="changeDetailImage('${imgUrl}', this)">
+                <img src="${imgUrl}" alt="Product Image ${idx + 1}" style="width:100%; height:100%; object-fit:cover;" onerror="handleDetailThumbError(this, '${prod.image}')">
             </div>
         `).join('');
     }
@@ -2315,10 +3975,8 @@ function viewProductDetail(prodId, isPopstate = false) {
     if (whatsappBtn) {
         whatsappBtn.onclick = () => {
             const qty = parseInt(document.getElementById("qty-val").textContent);
-            const isPendant = prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'));
-            const isBrass = (STATE.selectedMetal === 'brass') && !isPendant;
-            const currentPrice = isBrass ? 6000 : prod.price;
-            const metalName = isBrass ? 'Jewellery Brass' : (prod.specs && prod.specs.metal ? prod.specs.metal : 'Solid 92.5% Sterling Silver');
+            const currentPrice = prod.price;
+            const metalName = (prod.specs && prod.specs.metal) ? prod.specs.metal : 'Solid 92.5% Sterling Silver';
             const finishName = STATE.selectedFinish ? (STATE.selectedFinish === 'golden' ? 'Golden' : (STATE.selectedFinish === 'rosegold' ? 'Rosegold' : 'Silver')) : 'Silver';
             const giftBoxCheck = document.getElementById("detail-gift-wrap");
             const hasGift = giftBoxCheck && giftBoxCheck.checked;
@@ -2328,19 +3986,59 @@ function viewProductDetail(prodId, isPopstate = false) {
             const isBase64 = prod.image && prod.image.startsWith("data:");
             const photoUrl = isBase64 ? "[Custom Design Uploaded]" : prod.image;
             
-            const text = encodeURIComponent(`Hello UVIRA JEWELS! I am interested in purchasing the following item:\n\n*Product:* ${prod.title}\n*Selected Metal:* ${metalName}\n*Finish Colour:* ${finishName}\n*Price:* ₹${finalP.toLocaleString("en-IN")}${giftBoxText}\n*Quantity:* ${qty}\n*Product Photo:* ${photoUrl}\n\nPlease let me know availability and billing details!`);
+            const text = encodeURIComponent(`Hello LIAMORO JEWELS! I am interested in purchasing the following item:\n\n*Product:* ${prod.title}\n*Selected Metal:* ${metalName}\n*Finish Colour:* ${finishName}\n*Price:* ₹${finalP.toLocaleString("en-IN")}${giftBoxText}\n*Quantity:* ${qty}\n*Product Photo:* ${photoUrl}\n\nPlease let me know availability and billing details!`);
             window.open(`https://api.whatsapp.com/send?phone=916289974877&text=${text}`, "_blank");
         };
     }
 }
 
+function handleDetailThumbError(imgEl, fallbackUrl) {
+    if (!imgEl) return;
+    const thumbContainer = imgEl.closest('.detail-thumb');
+    if (!thumbContainer) return;
+    
+    const wasActive = thumbContainer.classList.contains('active-thumb');
+    thumbContainer.style.display = 'none';
+    thumbContainer.classList.remove('active-thumb');
+    
+    if (wasActive) {
+        const remainingThumbs = Array.from(document.querySelectorAll('#detail-thumbs .detail-thumb')).filter(t => t.style.display !== 'none');
+        if (remainingThumbs.length > 0) {
+            remainingThumbs[0].classList.add('active-thumb');
+            const firstImg = remainingThumbs[0].querySelector('img');
+            const mainImg = document.getElementById('detail-main-img');
+            if (mainImg && firstImg) {
+                mainImg.src = firstImg.src;
+            }
+        } else {
+            const mainImg = document.getElementById('detail-main-img');
+            if (mainImg) mainImg.src = fallbackUrl || 'logo.png';
+        }
+    }
+}
+
+function handleDetailMainImgError(imgEl, fallbackUrl) {
+    if (imgEl) {
+        imgEl.onerror = null;
+        imgEl.src = fallbackUrl || (STATE.selectedProduct ? STATE.selectedProduct.image : 'logo.png');
+    }
+}
+
 function changeDetailImage(src, element) {
     const mainImg = document.getElementById("detail-main-img");
-    if (mainImg) mainImg.src = src;
+    if (mainImg) {
+        mainImg.onerror = () => {
+            mainImg.onerror = null;
+            mainImg.src = (STATE.selectedProduct && STATE.selectedProduct.image) ? STATE.selectedProduct.image : 'logo.png';
+        };
+        mainImg.src = src;
+    }
     
     const thumbs = document.querySelectorAll(".detail-thumb");
     thumbs.forEach(t => t.classList.remove("active-thumb"));
-    element.classList.add("active-thumb");
+    if (element) {
+        element.classList.add("active-thumb");
+    }
 }
 
 function adjustDetailQty(val) {
@@ -2383,12 +4081,8 @@ function selectProductSize(size, element) {
 }
 
 function selectDetailMetal(metal) {
+    STATE.selectedMetal = 'silver';
     const prod = STATE.selectedProduct;
-    const isPendant = prod && (prod.category === 'pendants' || (prod.id && prod.id.includes('pendant')));
-    if (isPendant) {
-        metal = 'silver';
-    }
-    STATE.selectedMetal = metal;
     const optSilver = document.getElementById('metal-opt-silver');
     const optBrass = document.getElementById('metal-opt-brass');
     const priceEl = document.getElementById('detail-price');
@@ -2397,45 +4091,31 @@ function selectDetailMetal(metal) {
     const specMetal = document.getElementById('spec-metal');
     const specAuth = document.getElementById('spec-auth');
 
-    if (metal === 'brass' && !isPendant) {
-        if (optBrass) {
-            optBrass.style.border = '2px solid var(--color-primary)';
-            optBrass.style.background = '#F8FAFC';
-            const title = optBrass.querySelector('span');
-            if (title) title.style.color = 'var(--color-primary)';
-        }
-        if (optSilver) {
-            optSilver.style.border = '1px solid var(--color-silver-mid)';
-            optSilver.style.background = '#FFFFFF';
-            const title = optSilver.querySelector('span');
-            if (title) title.style.color = '#334155';
-        }
-        if (priceEl) priceEl.textContent = '₹6,000';
-        if (origPriceEl) origPriceEl.style.display = 'none';
-        if (discEl) discEl.style.display = 'none';
-        if (specMetal) specMetal.textContent = 'Jewellery Grade Brass (High Polish)';
-        if (specAuth) specAuth.textContent = 'Premium Brass Construction';
-    } else {
-        if (optSilver) {
-            optSilver.style.border = '2px solid var(--color-primary)';
-            optSilver.style.background = '#F8FAFC';
-            const title = optSilver.querySelector('span');
-            if (title) title.style.color = 'var(--color-primary)';
-        }
-        if (optBrass) {
-            optBrass.style.border = '1px solid var(--color-silver-mid)';
-            optBrass.style.background = '#FFFFFF';
-            const title = optBrass.querySelector('span');
-            if (title) title.style.color = '#334155';
-        }
-        const unitPrice = (prod && prod.price) ? prod.price : 15000;
-        const origPrice = (prod && prod.original_price) ? prod.original_price : 15000;
-        if (priceEl) priceEl.textContent = `₹${unitPrice.toLocaleString('en-IN')}`;
-        if (origPriceEl) origPriceEl.style.display = 'none';
-        if (discEl) discEl.style.display = 'none';
-        if (specMetal) specMetal.textContent = 'Solid 92.5% Sterling Silver';
-        if (specAuth) specAuth.textContent = '92.5 Hallmark Certificate Included';
+    if (optBrass) optBrass.style.display = 'none';
+    if (optSilver) {
+        optSilver.style.border = '2px solid var(--color-primary)';
+        optSilver.style.background = '#F8FAFC';
+        const title = optSilver.querySelector('span');
+        if (title) title.style.color = 'var(--color-primary)';
     }
+    const unitPrice = (prod && prod.price) ? prod.price : 21000;
+    const origPrice = (prod && prod.original_price) ? prod.original_price : unitPrice;
+    if (priceEl) priceEl.textContent = `₹${unitPrice.toLocaleString('en-IN')}`;
+    if (origPriceEl) {
+        origPriceEl.textContent = `₹${origPrice.toLocaleString('en-IN')}`;
+        origPriceEl.style.display = origPrice > unitPrice ? 'inline' : 'none';
+    }
+    if (discEl) {
+        if (origPrice > unitPrice) {
+            const disc = Math.round(((origPrice - unitPrice) / origPrice) * 100);
+            discEl.textContent = `${disc}% OFF`;
+            discEl.style.display = 'inline-block';
+        } else {
+            discEl.style.display = 'none';
+        }
+    }
+    if (specMetal) specMetal.textContent = 'Solid 92.5% Sterling Silver';
+    if (specAuth) specAuth.textContent = 'Authentic 92.5 Hallmark Certificate Included';
 }
 
 function selectDetailFinish(finish) {
@@ -2515,17 +4195,14 @@ function triggerBuyNow() {
             }
         }
         
-        const isPendant = prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'));
-        const isBrass = (STATE.selectedMetal === 'brass') && !isPendant;
-        const basePrice = isBrass ? 6000 : prod.price;
-        const metalSuffix = isBrass ? " (Brass)" : "";
+        const basePrice = prod.price;
 
         const finishLabel = STATE.selectedFinish ? (STATE.selectedFinish === 'golden' ? 'Golden' : (STATE.selectedFinish === 'rosegold' ? 'Rosegold' : 'Silver')) : 'Silver';
         const isWhoop = prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'));
-        const finishSuffix = (isWhoop || isPendant) ? ` [${finishLabel}]` : "";
+        const finishSuffix = (isWhoop || isPendant || isEarring) ? ` [${finishLabel}]` : "";
         
         const sizeSuffix = size ? ` (Size: ${size})` : "";
-        const cartTitle = `${prod.title}${metalSuffix}${finishSuffix}${sizeSuffix}${wrapSuffix}`;
+        const cartTitle = `${prod.title}${finishSuffix}${sizeSuffix}${wrapSuffix}`;
         
         const unitPrice = basePrice + (hasGiftWrap ? 1000 : 0);
         
@@ -2539,7 +4216,7 @@ function triggerBuyNow() {
                 price: unitPrice,
                 image: prod.image,
                 qty: count,
-                metal: isBrass ? 'Jewellery Brass' : 'Solid 92.5% Sterling Silver',
+                metal: 'Solid 92.5% Sterling Silver',
                 finish: finishLabel
             });
         }
@@ -3190,7 +4867,7 @@ function finalizeOrderPlacement(newOrder, orderId) {
             itemsText += `${idx + 1}. *Product:* ${item.title}\n   *Price:* ₹${item.price.toLocaleString("en-IN")}\n   *Quantity:* ${item.qty}\n   *Product Photo:* ${photoUrl}\n\n`;
         });
         
-        const text = encodeURIComponent(`Hello UVIRA JEWELS! I have placed an order and uploaded my payment screenshot:\n\n*Order ID:* ${orderId}\n*Customer Name:* ${newOrder.customer}\n*Phone:* ${newOrder.phone}\n*Shipping Address:* ${newOrder.address}\n\n*Order Items:*\n${itemsText}*Shipping Fee:* ₹150\n*Grand Total:* ₹${newOrder.total.toLocaleString("en-IN")}\n\nPlease verify my payment screenshot and confirm my order!`);
+        const text = encodeURIComponent(`Hello LIAMORO JEWELS! I have placed an order and uploaded my payment screenshot:\n\n*Order ID:* ${orderId}\n*Customer Name:* ${newOrder.customer}\n*Phone:* ${newOrder.phone}\n*Shipping Address:* ${newOrder.address}\n\n*Order Items:*\n${itemsText}*Shipping Fee:* ₹150\n*Grand Total:* ₹${newOrder.total.toLocaleString("en-IN")}\n\nPlease verify my payment screenshot and confirm my order!`);
         
         window.open(`https://api.whatsapp.com/send?phone=916289974877&text=${text}`, "_blank");
     }
@@ -3299,6 +4976,7 @@ function navigateAdminTab(tabId) {
     if (tabId === "dashboard") renderAdminDashboard();
     if (tabId === "rates") renderAdminRates();
     if (tabId === "orders") renderAdminOrders();
+    if (tabId === "income") renderAdminIncomeTab();
     if (tabId === "inventory") renderAdminInventoryList();
     if (tabId === "gst") renderAdminGstPortal();
     if (tabId === "coupons") loadAdminCoupons();
@@ -3481,7 +5159,7 @@ async function downloadUserData(email) {
         doc.setTextColor(0, 0, 0);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(24);
-        doc.text("UVIRA JEWELS", 15, 20);
+        doc.text("LIAMORO JEWELS", 15, 20);
         
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
@@ -3660,7 +5338,7 @@ async function downloadUserData(email) {
         doc.setFont("helvetica", "italic");
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text("This is an official audited statement. Generated automatically by UVIRA JEWELS.", 15, y);
+        doc.text("This is an official audited statement. Generated automatically by LIAMORO JEWELS.", 15, y);
 
         // Save PDF
         const filename = `User_Report_${email.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
@@ -3695,18 +5373,668 @@ function loadAdminCoupons() {
     });
 }
 
+// --- COST PRICE (C.P) & NET INCOME HELPERS ---
+function getProductCostPrice(prod) {
+    if (!prod) return 0;
+    // Exact bestseller folder pricing check
+    const bestsellerPricing = getBestsellerFolderPricing(prod.id);
+    if (bestsellerPricing) return bestsellerPricing.cp;
+
+    if (typeof prod.costPrice === "number" && !isNaN(prod.costPrice) && prod.costPrice > 0) return prod.costPrice;
+    if (typeof prod.cost_price === "number" && !isNaN(prod.cost_price) && prod.cost_price > 0) return prod.cost_price;
+    if (prod.specs && typeof prod.specs.cost_price === "number" && !isNaN(prod.specs.cost_price) && prod.specs.cost_price > 0) return prod.specs.cost_price;
+    if (prod.specs && typeof prod.specs.costPrice === "number" && !isNaN(prod.specs.costPrice) && prod.specs.costPrice > 0) return prod.specs.costPrice;
+    
+    // Exact stud check
+    const studPricing = getStudFolderPricing(prod.id);
+    if (studPricing) return studPricing.cp;
+
+    // Exact category costs
+    if (prod.category === 'charms' || (prod.id && prod.id.includes('charm'))) return 3500;
+    if (prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'))) return 7000;
+    if (prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'))) return 10000;
+
+    const sp = prod.price || 0;
+    return Math.round(sp * 0.6);
+}
+
+function calculateUnitProfitBadge() {
+    const cpInput = document.getElementById("new-prod-cost-price");
+    const spInput = document.getElementById("new-prod-price");
+    const badge = document.getElementById("unit-profit-badge");
+    if (!badge) return;
+
+    const cp = parseFloat(cpInput ? cpInput.value : 0);
+    const sp = parseFloat(spInput ? spInput.value : 0);
+
+    if (isNaN(sp) || sp <= 0) {
+        badge.style.display = "none";
+        badge.innerHTML = "";
+        return;
+    }
+
+    if (isNaN(cp) || cp <= 0) {
+        const estCp = Math.round(sp * 0.6);
+        const estProfit = sp - estCp;
+        badge.style.display = "block";
+        badge.style.background = "#EFF6FF";
+        badge.style.border = "1.5px dashed #3B82F6";
+        badge.style.color = "#1E40AF";
+        badge.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span>💡 <strong>Estimated Income (60% Default C.P: ₹${estCp.toLocaleString("en-IN")}):</strong> +₹${estProfit.toLocaleString("en-IN")} / unit (40.0% margin)</span>
+                <span style="font-size:0.75rem; text-decoration:underline; cursor:pointer;" onclick="document.getElementById('new-prod-cost-price').value = ${estCp}; calculateUnitProfitBadge();">Apply Default C.P.</span>
+            </div>
+        `;
+        return;
+    }
+
+    const unitProfit = sp - cp;
+    const marginPct = sp > 0 ? ((unitProfit / sp) * 100).toFixed(1) : "0.0";
+    const markupPct = cp > 0 ? ((unitProfit / cp) * 100).toFixed(1) : "0.0";
+    const isProfitable = unitProfit >= 0;
+
+    badge.style.display = "block";
+    badge.style.background = isProfitable ? "#ECFDF5" : "#FEF2F2";
+    badge.style.border = isProfitable ? "1.5px solid #10B981" : "1.5px solid #EF4444";
+    badge.style.color = isProfitable ? "#065F46" : "#991B1B";
+    badge.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <span>
+                ${isProfitable ? '✨ <strong>Net Unit Profit:</strong>' : '⚠️ <strong>Net Unit Loss:</strong>'}
+                <strong style="font-size:1.05rem;"> ${unitProfit >= 0 ? '+' : ''}₹${unitProfit.toLocaleString("en-IN")}</strong>
+                <span style="font-weight:normal;"> (${marginPct}% Profit Margin | ${markupPct}% Markup on C.P)</span>
+            </span>
+            <span style="font-size:0.78rem; font-weight:700; padding:2px 8px; border-radius:12px; background:${isProfitable ? '#D1FAE5' : '#FEE2E2'}; color:${isProfitable ? '#047857' : '#DC2626'};">
+                ${isProfitable ? 'S.P > C.P ✓' : 'S.P < C.P ✗'}
+            </span>
+        </div>
+    `;
+}
+
 function renderAdminDashboard() {
     const totalSalesNode = document.getElementById("admin-stat-sales");
+    const totalCostNode = document.getElementById("admin-stat-cost");
+    const totalIncomeNode = document.getElementById("admin-stat-income");
+    const totalMarginNode = document.getElementById("admin-stat-margin");
     const totalOrdersNode = document.getElementById("admin-stat-orders");
     const catalogCountNode = document.getElementById("admin-stat-catalog");
     
-    const totalSales = STATE.orders
-        .filter(o => o.status === "delivered" || o.status === "processing" || o.status === "dispatched")
-        .reduce((sum, o) => sum + o.total, 0);
+    const validOrders = STATE.orders
+        .filter(o => o.status === "delivered" || o.status === "processing" || o.status === "dispatched" || o.status === "placed");
+        
+    const totalSales = validOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    let totalCost = 0;
+    validOrders.forEach(o => {
+        const items = Array.isArray(o.items) ? o.items : [];
+        items.forEach(item => {
+            const prod = STATE.products.find(p => p.id === item.id);
+            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            totalCost += cp * (item.qty || 1);
+        });
+    });
+    
+    const netIncome = totalSales - totalCost;
+    const margin = totalSales > 0 ? ((netIncome / totalSales) * 100).toFixed(1) : "0.0";
         
     if (totalSalesNode) totalSalesNode.textContent = `₹${totalSales.toLocaleString("en-IN")}`;
+    if (totalCostNode) totalCostNode.textContent = `₹${totalCost.toLocaleString("en-IN")}`;
+    if (totalIncomeNode) {
+        totalIncomeNode.textContent = `${netIncome >= 0 ? '+' : ''}₹${netIncome.toLocaleString("en-IN")}`;
+        totalIncomeNode.style.color = netIncome >= 0 ? "#047857" : "#DC2626";
+    }
+    if (totalMarginNode) totalMarginNode.textContent = `${margin}%`;
     if (totalOrdersNode) totalOrdersNode.textContent = STATE.orders.length;
     if (catalogCountNode) catalogCountNode.textContent = STATE.products.length;
+}
+
+// --- DEDICATED ADMIN INCOME (C.P vs S.P) PORTAL CONTROLLER ---
+function renderAdminIncomeTab() {
+    renderIncomeKPIs();
+    populateIncomeCalcProducts();
+    runLiveIncomeCalculation();
+    renderCatalogProfitMatrix();
+    renderOrdersIncomeLedger();
+}
+
+function renderIncomeKPIs() {
+    // 1. Stock Valuation & Profit Margin Elements
+    const stockCpNode = document.getElementById("stock-kpi-cp");
+    const stockSpNode = document.getElementById("stock-kpi-sp");
+    const stockProfitNode = document.getElementById("stock-kpi-profit");
+    const stockMarginNode = document.getElementById("stock-kpi-margin");
+    const stockMarkupNode = document.getElementById("stock-kpi-markup");
+    const stockBadgeNode = document.getElementById("stock-kpi-summary-badge");
+
+    // 2. Realized Orders Elements
+    const revNode = document.getElementById("income-kpi-revenue");
+    const costNode = document.getElementById("income-kpi-cost");
+    const profitNode = document.getElementById("income-kpi-profit");
+    const marginNode = document.getElementById("income-kpi-margin");
+    const potNode = document.getElementById("income-kpi-potential");
+
+    // Stock Inventory Totals across entire catalog
+    let totalStockUnits = 0;
+    let totalStockCp = 0;
+    let totalStockSp = 0;
+    let totalStockProfit = 0;
+    const productsList = STATE.products || [];
+
+    productsList.forEach((p, idx) => {
+        const cp = getProductCostPrice(p);
+        const sp = p.price || 0;
+        const stockQty = (p.specs && p.specs.stock_qty !== undefined) ? p.specs.stock_qty : 1;
+        totalStockUnits += stockQty;
+        totalStockCp += cp * stockQty;
+        totalStockSp += sp * stockQty;
+        totalStockProfit += (sp - cp) * stockQty;
+    });
+
+    const stockMargin = totalStockSp > 0 ? ((totalStockProfit / totalStockSp) * 100).toFixed(1) : "0.0";
+    const stockMarkup = totalStockCp > 0 ? ((totalStockProfit / totalStockCp) * 100).toFixed(1) : "0.0";
+
+    if (stockCpNode) stockCpNode.textContent = `₹${totalStockCp.toLocaleString("en-IN")}`;
+    if (stockSpNode) stockSpNode.textContent = `₹${totalStockSp.toLocaleString("en-IN")}`;
+    if (stockProfitNode) {
+        stockProfitNode.textContent = `${totalStockProfit >= 0 ? '+' : ''}₹${totalStockProfit.toLocaleString("en-IN")}`;
+        stockProfitNode.style.color = totalStockProfit >= 0 ? "#047857" : "#DC2626";
+    }
+    if (stockMarginNode) stockMarginNode.textContent = `${stockMargin}%`;
+    if (stockMarkupNode) stockMarkupNode.textContent = `${stockMarkup}%`;
+    if (stockBadgeNode) {
+        stockBadgeNode.textContent = `${productsList.length} Items (Item #01 - #${String(productsList.length).padStart(2, '0')}) • ${totalStockUnits.toLocaleString("en-IN")} Nos. in Stock`;
+    }
+
+    // Realized Customer Orders Totals
+    const validOrders = (STATE.orders || []).filter(o => 
+        o.status === "delivered" || o.status === "processing" || o.status === "dispatched" || o.status === "placed"
+    );
+
+    let totalRevenue = 0;
+    let totalCost = 0;
+
+    validOrders.forEach(o => {
+        totalRevenue += (o.total || 0);
+        const items = Array.isArray(o.items) ? o.items : [];
+        items.forEach(item => {
+            const prod = STATE.products.find(p => p.id === item.id);
+            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            totalCost += cp * (item.qty || 1);
+        });
+    });
+
+    const netProfit = totalRevenue - totalCost;
+    const margin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : "0.0";
+
+    if (revNode) revNode.textContent = `₹${totalRevenue.toLocaleString("en-IN")}`;
+    if (costNode) costNode.textContent = `₹${totalCost.toLocaleString("en-IN")}`;
+    if (profitNode) {
+        profitNode.textContent = `${netProfit >= 0 ? '+' : ''}₹${netProfit.toLocaleString("en-IN")}`;
+        profitNode.style.color = netProfit >= 0 ? "#047857" : "#DC2626";
+    }
+    if (marginNode) marginNode.textContent = `${margin}%`;
+    if (potNode) potNode.textContent = `${validOrders.length}`;
+}
+
+function populateIncomeCalcProducts() {
+    const select = document.getElementById("income-calc-product-select");
+    if (!select) return;
+    
+    const curVal = select.value;
+    select.innerHTML = '<option value="">-- Choose Product to Autofill --</option>' + 
+        (STATE.products || []).map((p, idx) => {
+            const itemNoStr = getItemNoDisplay(p, idx);
+            return `
+            <option value="${p.id}" ${p.id === curVal ? 'selected' : ''}>
+                [${itemNoStr}] ${p.title.length > 28 ? p.title.substring(0, 26) + '...' : p.title} (₹${p.price})
+            </option>
+        `;
+        }).join('');
+}
+
+function loadProductIntoIncomeCalc(prodId) {
+    if (!prodId) return;
+    const prod = (STATE.products || []).find(p => p.id === prodId);
+    if (!prod) return;
+
+    const cp = getProductCostPrice(prod);
+    const sp = prod.price || 0;
+
+    const cpInput = document.getElementById("income-calc-cp");
+    const spInput = document.getElementById("income-calc-sp");
+    const qtyInput = document.getElementById("income-calc-qty");
+
+    if (cpInput) cpInput.value = cp;
+    if (spInput) spInput.value = sp;
+    if (qtyInput) qtyInput.value = 1;
+
+    runLiveIncomeCalculation();
+}
+
+function runLiveIncomeCalculation() {
+    const cpInp = document.getElementById("income-calc-cp");
+    const spInp = document.getElementById("income-calc-sp");
+    const qtyInp = document.getElementById("income-calc-qty");
+    const expInp = document.getElementById("income-calc-expenses");
+
+    if (!cpInp || !spInp) return;
+
+    const cp = parseFloat(cpInp.value) || 0;
+    const sp = parseFloat(spInp.value) || 0;
+    const qty = parseInt(qtyInp ? qtyInp.value : 1) || 1;
+    const expenses = parseFloat(expInp ? expInp.value : 0) || 0;
+
+    const totalRevenue = sp * qty;
+    const totalCost = (cp * qty) + expenses;
+    const netProfit = totalRevenue - totalCost;
+    const margin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : "0.0";
+    const markup = totalCost > 0 ? ((netProfit / totalCost) * 100).toFixed(1) : "0.0";
+
+    const resRev = document.getElementById("income-res-revenue");
+    const resCost = document.getElementById("income-res-cost");
+    const resProfit = document.getElementById("income-res-profit");
+    const resMargin = document.getElementById("income-res-margin");
+    const resMarkup = document.getElementById("income-res-markup");
+    const resStatusBar = document.getElementById("income-res-status-bar");
+    const resultBox = document.getElementById("income-calc-result-box");
+
+    if (resRev) resRev.textContent = `₹${totalRevenue.toLocaleString("en-IN")}`;
+    if (resCost) resCost.textContent = `₹${totalCost.toLocaleString("en-IN")}`;
+    if (resProfit) {
+        resProfit.textContent = `${netProfit >= 0 ? '+' : ''}₹${netProfit.toLocaleString("en-IN")}`;
+        resProfit.style.color = netProfit >= 0 ? "#047857" : "#DC2626";
+    }
+    if (resMargin) {
+        resMargin.textContent = `${margin}%`;
+        resMargin.style.color = netProfit >= 0 ? "#059669" : "#DC2626";
+    }
+    if (resMarkup) resMarkup.textContent = `${markup}%`;
+
+    if (resStatusBar) {
+        if (netProfit > 0) {
+            resStatusBar.style.color = "#065F46";
+            resStatusBar.innerHTML = `✅ <strong>Profitable:</strong> You earn ₹${netProfit.toLocaleString("en-IN")} net income on this order (${margin}% margin)!`;
+            if (resultBox) {
+                resultBox.style.background = "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)";
+                resultBox.style.borderColor = "#10B981";
+            }
+        } else if (netProfit === 0) {
+            resStatusBar.style.color = "#D97706";
+            resStatusBar.innerHTML = `⚖️ <strong>Break-Even:</strong> Total revenue exactly covers cost and expenses (₹0 net profit).`;
+            if (resultBox) {
+                resultBox.style.background = "#FEFCE8";
+                resultBox.style.borderColor = "#F59E0B";
+            }
+        } else {
+            resStatusBar.style.color = "#DC2626";
+            resStatusBar.innerHTML = `⚠️ <strong>Loss-Making:</strong> You lose ₹${Math.abs(netProfit).toLocaleString("en-IN")} on this sale! C.P. + expenses exceed S.P.`;
+            if (resultBox) {
+                resultBox.style.background = "#FEF2F2";
+                resultBox.style.borderColor = "#EF4444";
+            }
+        }
+    }
+}
+
+function renderCatalogProfitMatrix() {
+    const tbody = document.getElementById("income-matrix-tbody");
+    if (!tbody) return;
+    const tfoot = document.getElementById("income-matrix-tfoot");
+
+    const searchInput = document.getElementById("income-matrix-search");
+    const query = (searchInput ? searchInput.value : "").trim().toLowerCase();
+
+    const catSelect = document.getElementById("income-matrix-category");
+    const selectedCategory = catSelect ? catSelect.value : "all";
+
+    const filtered = (STATE.products || []).filter(p => {
+        if (selectedCategory !== "all" && p.category !== selectedCategory) return false;
+        if (query && !p.title.toLowerCase().includes(query) && !p.id.toLowerCase().includes(query) && !String(p.item_no || '').includes(query)) return false;
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:20px; color:var(--color-silver-dark);">No products matched your search or category filter.</td></tr>`;
+        if (tfoot) tfoot.innerHTML = "";
+        return;
+    }
+
+    let sumFilteredUnits = 0;
+    let sumFilteredCp = 0;
+    let sumFilteredSp = 0;
+    let sumFilteredIncome = 0;
+    let sumFilteredPotProfit = 0;
+
+    tbody.innerHTML = filtered.map((p, idx) => {
+        const cp = getProductCostPrice(p);
+        const sp = p.price || 0;
+        const income = sp - cp;
+        const margin = sp > 0 ? ((income / sp) * 100).toFixed(1) : "0.0";
+        const stockQty = (p.specs && p.specs.stock_qty !== undefined) ? p.specs.stock_qty : 1;
+        const potProfit = income * stockQty;
+        const isDefault = !(p.costPrice || p.cost_price || (p.specs && p.specs.cost_price));
+        const itemNoStr = getItemNoDisplay(p, idx);
+
+        sumFilteredUnits += stockQty;
+        sumFilteredCp += cp * stockQty;
+        sumFilteredSp += sp * stockQty;
+        sumFilteredIncome += income;
+        sumFilteredPotProfit += potProfit;
+
+        return `
+            <tr>
+                <td>
+                    <span style="font-weight:800; font-size:0.85rem; color:var(--color-primary); background:#F1F5F9; padding:4px 8px; border-radius:6px; border:1px solid #CBD5E1; display:inline-block; letter-spacing:0.3px;">
+                        ${itemNoStr}
+                    </span>
+                </td>
+                <td style="display:flex; align-items:center; gap:10px;">
+                    <img src="${p.image}" alt="" style="width:36px; height:36px; border-radius:4px; object-fit:cover;">
+                    <div>
+                        <div style="font-weight:600; font-size:0.85rem; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.title}</div>
+                        <div style="font-size:0.72rem; color:var(--color-silver-dark);">${p.id}</div>
+                    </div>
+                </td>
+                <td style="text-transform:uppercase; font-size:0.75rem;">${formatCategoryName(p.category)}</td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="font-size:0.8rem; color:var(--color-silver-dark);">₹</span>
+                        <input type="number" value="${cp}" id="cp-input-${p.id}" style="width:85px; padding:4px 6px; border:1px solid ${isDefault ? '#F59E0B' : 'var(--color-silver-mid)'}; border-radius:4px; font-size:0.85rem; font-weight:600; text-align:right;" onchange="quickUpdateProductCP('${p.id}', this.value)" title="${isDefault ? 'Default 60% estimate - edit to customize' : 'Custom C.P'}">
+                        ${isDefault ? '<span style="font-size:0.68rem; color:#D97706; font-weight:700;" title="Default estimated C.P.">EST</span>' : ''}
+                    </div>
+                </td>
+                <td style="font-weight:600; font-size:0.9rem;">₹${sp.toLocaleString("en-IN")}</td>
+                <td>
+                    <span style="font-weight:700; font-size:0.92rem; color:${income >= 0 ? '#047857' : '#DC2626'};">
+                        ${income >= 0 ? '+' : ''}₹${income.toLocaleString("en-IN")}
+                    </span>
+                </td>
+                <td>
+                    <span style="font-weight:600; color:${income >= 0 ? '#059669' : '#DC2626'};">
+                        ${margin}%
+                    </span>
+                </td>
+                <td style="text-align:center;">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <input type="number" min="0" value="${stockQty}" id="stock-input-${p.id}" style="width:58px; padding:4px 4px; border:1px solid var(--color-silver-mid); border-radius:4px; font-size:0.85rem; font-weight:700; text-align:center;" onchange="quickUpdateProductStockQty('${p.id}', this.value)" title="In-hand stock quantity (Nos.)">
+                        <span style="font-size:0.72rem; color:var(--color-silver-dark); font-weight:600;">Nos.</span>
+                    </div>
+                </td>
+                <td style="font-weight:700; color:${potProfit >= 0 ? '#047857' : '#DC2626'};">
+                    ${potProfit >= 0 ? '+' : ''}₹${potProfit.toLocaleString("en-IN")}
+                </td>
+                <td>
+                    <div style="display:flex; gap:6px;">
+                        <button onclick="loadProductIntoIncomeCalc('${p.id}'); document.getElementById('income-calc-product-select').value = '${p.id}';" class="custom-btn" style="padding:4px 8px; font-size:0.72rem; background:#3B82F6;" title="Test in Live Calculator">
+                            🧮 Calc
+                        </button>
+                        <button onclick="editProduct('${p.id}')" style="background:none; border:none; color:var(--color-accent-pink); font-size:0.78rem; font-weight:600; cursor:pointer;" title="Edit Product in catalog">
+                            Edit
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
+
+    if (tfoot) {
+        const sumMargin = sumFilteredSp > 0 ? ((sumFilteredPotProfit / sumFilteredSp) * 100).toFixed(1) : "0.0";
+        tfoot.innerHTML = `
+            <tr style="background: #F8FAFC; border-top: 2px solid var(--color-silver-mid); font-weight: 700; color: var(--color-primary);">
+                <td colspan="3" style="padding: 12px 14px; font-size: 0.88rem;">
+                    <span style="font-size: 0.95rem; display: block; font-weight: 800; color: var(--color-primary);">TOTAL STOCK INVENTORY</span>
+                    <span style="font-size: 0.74rem; color: var(--color-silver-dark); font-weight: 600;">${filtered.length} designs shown (${sumFilteredUnits} Nos. total)</span>
+                </td>
+                <td style="padding: 12px 14px; font-size: 0.92rem; color: #B45309; font-weight: 800;">
+                    <div style="font-size: 0.7rem; color: #92400E; font-weight: 600; text-transform: uppercase;">Total Stock C.P.</div>
+                    ₹${sumFilteredCp.toLocaleString("en-IN")}
+                </td>
+                <td style="padding: 12px 14px; font-size: 0.92rem; color: #1D4ED8; font-weight: 800;">
+                    <div style="font-size: 0.7rem; color: #1E40AF; font-weight: 600; text-transform: uppercase;">Total Stock S.P.</div>
+                    ₹${sumFilteredSp.toLocaleString("en-IN")}
+                </td>
+                <td style="padding: 12px 14px; font-size: 0.92rem; color: #047857; font-weight: 800;">
+                    <div style="font-size: 0.7rem; color: #065F46; font-weight: 600; text-transform: uppercase;">Total Profit</div>
+                    +₹${sumFilteredPotProfit.toLocaleString("en-IN")}
+                </td>
+                <td style="padding: 12px 14px; font-size: 0.95rem; color: #6D28D9; font-weight: 800;">
+                    <div style="font-size: 0.7rem; color: #5B21B6; font-weight: 600; text-transform: uppercase;">Stock Margin</div>
+                    <span style="background: #F3E8FF; padding: 2px 8px; border-radius: 4px; display: inline-block;">${sumMargin}%</span>
+                </td>
+                <td style="padding: 12px 14px; text-align: center; font-size: 0.88rem;">
+                    <span class="admin-status-badge" style="background: #E0E7FF; color: #3730A3; font-weight: 800;">${sumFilteredUnits.toLocaleString("en-IN")} Nos.</span>
+                </td>
+                <td style="padding: 12px 14px; font-size: 0.95rem; color: #047857; font-weight: 800;">
+                    +₹${sumFilteredPotProfit.toLocaleString("en-IN")}
+                </td>
+                <td style="padding: 12px 14px; text-align: center;">
+                    <button onclick="exportIncomeReportCSV()" class="custom-btn" style="padding: 5px 10px; font-size: 0.75rem; background: #059669; color: #fff; font-weight: 700;" title="Download Income CSV Report">
+                        📥 Export CSV
+                    </button>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+async function quickUpdateProductCP(prodId, newCpVal) {
+    const cp = parseFloat(newCpVal);
+    if (isNaN(cp) || cp < 0) {
+        alert("Please enter a valid Cost Price amount.");
+        renderCatalogProfitMatrix();
+        return;
+    }
+
+    const prod = (STATE.products || []).find(p => p.id === prodId);
+    if (!prod) return;
+
+    prod.costPrice = cp;
+    prod.cost_price = cp;
+    if (!prod.specs) prod.specs = {};
+    prod.specs.cost_price = cp;
+
+    try {
+        await supaClient.from('products').update({ specs: prod.specs }).eq('id', prodId);
+    } catch (e) {
+        console.warn("DB update warning for cost price:", e);
+    }
+
+    renderCatalogProfitMatrix();
+    renderIncomeKPIs();
+    renderAdminDashboard();
+    renderAdminInventoryList();
+}
+
+async function quickUpdateProductStockQty(prodId, newQtyVal) {
+    const qty = parseInt(newQtyVal);
+    if (isNaN(qty) || qty < 0) {
+        alert("Please enter a valid stock quantity (0 or more).");
+        renderCatalogProfitMatrix();
+        return;
+    }
+
+    const prod = (STATE.products || []).find(p => p.id === prodId);
+    if (!prod) return;
+
+    if (!prod.specs) prod.specs = {};
+    prod.specs.stock_qty = qty;
+    prod.inStock = qty > 0;
+    prod.in_stock = qty > 0;
+
+    try {
+        await supaClient.from('products').update({ specs: prod.specs, in_stock: prod.inStock }).eq('id', prodId);
+    } catch (e) {
+        console.warn("DB update warning for stock qty:", e);
+    }
+
+    renderCatalogProfitMatrix();
+    renderIncomeKPIs();
+    renderAdminDashboard();
+    renderAdminInventoryList();
+}
+
+async function setAllStockToOneNo() {
+    (STATE.products || []).forEach(p => {
+        if (!p.specs) p.specs = {};
+        p.specs.stock_qty = 1;
+        p.inStock = true;
+        p.in_stock = true;
+    });
+    renderCatalogProfitMatrix();
+    renderIncomeKPIs();
+    renderAdminDashboard();
+    renderAdminInventoryList();
+    alert("Successfully set in-hand inventory stock to 1 No. for each item.");
+}
+
+async function autoFillDefaultCPForAll() {
+    let count = 0;
+    (STATE.products || []).forEach(p => {
+        let cp = 0;
+        const studPricing = getStudFolderPricing(p.id);
+        if (studPricing) {
+            cp = studPricing.cp;
+        } else if (p.category === 'whoop' || (p.id && p.id.includes('whoop'))) {
+            cp = 7000;
+        } else if (p.category === 'pendants' || (p.id && p.id.includes('pendant'))) {
+            cp = 10000;
+        } else {
+            cp = Math.round((p.price || 0) * 0.6);
+        }
+        p.costPrice = cp;
+        p.cost_price = cp;
+        if (!p.specs) p.specs = {};
+        p.specs.cost_price = cp;
+        count++;
+    });
+
+    renderCatalogProfitMatrix();
+    renderIncomeKPIs();
+    renderAdminDashboard();
+    renderAdminInventoryList();
+    alert(`Successfully applied exact Cost Price (C.P.) to ${count} products.`);
+}
+
+function renderOrdersIncomeLedger() {
+    const tbody = document.getElementById("income-orders-tbody");
+    if (!tbody) return;
+
+    if (!STATE.orders || STATE.orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--color-silver-dark);">No customer orders recorded yet.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = STATE.orders.map(o => {
+        const safeItems = Array.isArray(o.items) ? o.items : [];
+        let orderCost = 0;
+        const itemDescriptions = safeItems.map(item => {
+            const prod = STATE.products.find(p => p.id === item.id);
+            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            orderCost += cp * (item.qty || 1);
+            return `${item.title || 'Item'} (x${item.qty || 1} @ ₹${item.price})`;
+        }).join(", ");
+
+        const revenue = o.total || 0;
+        const netIncome = revenue - orderCost;
+        const margin = revenue > 0 ? ((netIncome / revenue) * 100).toFixed(1) : "0.0";
+        const customerName = (o.customer && o.customer.name) ? o.customer.name : (o.customer || 'Guest Customer');
+
+        return `
+            <tr>
+                <td style="font-weight:700;">
+                    <div>${o.id}</div>
+                    <div style="font-size:0.75rem; color:var(--color-silver-dark); font-weight:normal;">${o.date}</div>
+                </td>
+                <td>
+                    <div style="font-weight:600;">${customerName}</div>
+                    <div style="font-size:0.72rem; color:var(--color-silver-dark);">${o.phone || ''}</div>
+                </td>
+                <td style="max-width:280px; font-size:0.8rem; line-height:1.4;">
+                    ${itemDescriptions || 'No items listed'}
+                </td>
+                <td style="font-weight:700; color:var(--color-primary); font-size:0.95rem;">
+                    ₹${revenue.toLocaleString("en-IN")}
+                </td>
+                <td style="font-weight:700; color:#B45309; font-size:0.95rem;">
+                    ₹${orderCost.toLocaleString("en-IN")}
+                </td>
+                <td>
+                    <div style="font-weight:800; font-size:1rem; color:${netIncome >= 0 ? '#047857' : '#DC2626'};">
+                        ${netIncome >= 0 ? '+' : ''}₹${netIncome.toLocaleString("en-IN")}
+                    </div>
+                </td>
+                <td>
+                    <span style="font-weight:700; color:${netIncome >= 0 ? '#059669' : '#DC2626'};">
+                        ${margin}%
+                    </span>
+                </td>
+                <td>
+                    <span class="admin-status-badge status-${o.status}">
+                        ${(o.status || 'placed').toUpperCase()}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function exportIncomeReportCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    csvContent += "=== PRODUCT CATALOG PROFIT MATRIX (S.P - C.P) ===\r\n";
+    csvContent += "Item No,Product ID,Title,Category,Cost Price (C.P),Selling Price (S.P),1-Item NOI (S.P - C.P),Margin %,Stock Qty (Nos.),Potential Profit\r\n";
+    
+    let totalStockUnits = 0;
+    let totalStockCp = 0;
+    let totalStockSp = 0;
+    let totalStockProfit = 0;
+
+    (STATE.products || []).forEach((p, idx) => {
+        const cp = getProductCostPrice(p);
+        const sp = p.price || 0;
+        const income = sp - cp;
+        const margin = sp > 0 ? ((income / sp) * 100).toFixed(1) : "0.0";
+        const stockQty = (p.specs && p.specs.stock_qty !== undefined) ? p.specs.stock_qty : 1;
+        const potProfit = income * stockQty;
+        totalStockUnits += stockQty;
+        totalStockCp += cp * stockQty;
+        totalStockSp += sp * stockQty;
+        totalStockProfit += potProfit;
+        const itemNoStr = getItemNoDisplay(p, idx);
+        const safeTitle = `"${(p.title || '').replace(/"/g, '""')}"`;
+        csvContent += `${itemNoStr},${p.id},${safeTitle},${p.category},${cp},${sp},${income},${margin}%,${stockQty},${potProfit}\r\n`;
+    });
+
+    const overallMargin = totalStockSp > 0 ? ((totalStockProfit / totalStockSp) * 100).toFixed(1) : "0.0";
+    csvContent += `TOTAL INVENTORY VALUATION,"","ALL INVENTORY STOCKS","",${totalStockCp},${totalStockSp},${totalStockProfit},${overallMargin}%,${totalStockUnits},${totalStockProfit}\r\n`;
+
+    csvContent += "\r\n";
+    csvContent += "=== CUSTOMER ORDERS INCOME REALIZATION LEDGER ===\r\n";
+    csvContent += "Order ID,Date,Customer,Total Revenue (S.P),Total Cost (C.P),Net Income (S.P - C.P),Margin %,Status\r\n";
+
+    (STATE.orders || []).forEach(o => {
+        let orderCost = 0;
+        const safeItems = Array.isArray(o.items) ? o.items : [];
+        safeItems.forEach(item => {
+            const prod = STATE.products.find(p => p.id === item.id);
+            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            orderCost += cp * (item.qty || 1);
+        });
+        const revenue = o.total || 0;
+        const income = revenue - orderCost;
+        const margin = revenue > 0 ? ((income / revenue) * 100).toFixed(1) : "0.0";
+        const customer = `"${((o.customer && o.customer.name) ? o.customer.name : (o.customer || 'Guest')).replace(/"/g, '""')}"`;
+        csvContent += `${o.id},${o.date},${customer},${revenue},${orderCost},${income},${margin}%,${o.status}\r\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `liamoro_income_statement_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Admin Rate tab loading
@@ -3778,9 +6106,9 @@ async function updateAdminRates() {
             await supaClient.from('rates').insert([ratePayload]);
         }
 
-        alert("Live Metal Rates updated on scrolling ticker and saved to Supabase successfully!");
+        alert("Live Metal Rates updated on scrolling ticker and saved successfully!");
     } catch (err) {
-        console.error("Supabase rates update error:", err);
+        console.error("Rates update error:", err);
         alert("Rates updated on store and saved to local cache: " + err.message);
     }
 }
@@ -3791,19 +6119,29 @@ function renderAdminOrders() {
     if (!ordersTbody) return;
     
     if (STATE.orders.length === 0) {
-        ordersTbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No Customer Orders Placed Yet.</td></tr>`;
+        ordersTbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No Customer Orders Placed Yet.</td></tr>`;
         return;
     }
     
     ordersTbody.innerHTML = STATE.orders.map(o => {
         const safeItems = Array.isArray(o.items) ? o.items : [];
+        let orderCost = 0;
         const itemTitles = safeItems.map(item => `${item.title} (x${item.qty})`).join(", ");
-        const itemsListHtml = safeItems.map(item => `
+        const itemsListHtml = safeItems.map(item => {
+            const prod = STATE.products.find(p => p.id === item.id);
+            const cp = prod ? getProductCostPrice(prod) : (item.costPrice || Math.round((item.price || 0) * 0.6));
+            orderCost += cp * (item.qty || 1);
+            return `
             <div style="font-size:0.8rem; margin-bottom:2px; display:flex; justify-content:space-between; gap:12px;">
                 <span>• ${item.title} <span style="color:var(--color-silver-dark); font-weight:600;">x${item.qty}</span></span>
                 <span style="font-weight:600;">₹${(item.price * item.qty).toLocaleString("en-IN")}</span>
             </div>
-        `).join("");
+        `;
+        }).join("");
+
+        const orderRevenue = o.total || 0;
+        const orderIncome = orderRevenue - orderCost;
+        const orderMargin = orderRevenue > 0 ? ((orderIncome / orderRevenue) * 100).toFixed(1) : "0.0";
         
         let ssBtnHtml = "";
         if (o.payment_screenshot) {
@@ -3849,6 +6187,14 @@ function renderAdminOrders() {
                         Subtotal: ₹${(o.subtotal || 0).toLocaleString("en-IN")}<br>
                         Discount: -₹${(o.discount || 0).toLocaleString("en-IN")}
                     </div>
+                </td>
+                <td style="vertical-align: top;">
+                    <div style="font-weight:700; font-size: 0.95rem; color: #B45309;">₹${orderCost.toLocaleString("en-IN")}</div>
+                    <div style="font-size:0.72rem;color:var(--color-silver-dark);margin-top:4px;">C.P Total</div>
+                </td>
+                <td style="vertical-align: top;">
+                    <div style="font-weight:700; font-size: 0.95rem; color: ${orderIncome >= 0 ? '#047857' : '#DC2626'};">${orderIncome >= 0 ? '+' : ''}₹${orderIncome.toLocaleString("en-IN")}</div>
+                    <div style="font-size:0.72rem;color:${orderIncome >= 0 ? '#059669' : '#DC2626'}; font-weight:600; margin-top:4px;">${orderMargin}% Margin</div>
                 </td>
                 <td style="vertical-align: top;">
                     <select class="admin-status-badge status-${o.status}" onchange="changeOrderStatus('${o.id}', this.value)" style="border:none;outline:none;cursor:pointer; font-weight:600;">
@@ -4206,27 +6552,46 @@ function renderAdminInventoryList() {
     const selectedCategory = filterSelect ? filterSelect.value : "all";
     
     const filtered = STATE.products.filter(p => {
+        if (selectedCategory === "bestseller") return isProductBestSeller(p);
         if (selectedCategory !== "all" && p.category !== selectedCategory) return false;
         return true;
     });
     
-    inventoryTbody.innerHTML = filtered.map(p => `
+    inventoryTbody.innerHTML = filtered.map((p, idx) => {
+        const cp = getProductCostPrice(p);
+        const sp = p.price || 0;
+        const income = sp - cp;
+        const margin = sp > 0 ? ((income / sp) * 100).toFixed(1) : "0.0";
+        const itemNoStr = getItemNoDisplay(p, idx);
+        const stockQty = (p.specs && p.specs.stock_qty !== undefined) ? p.specs.stock_qty : 1;
+        return `
         <tr>
+            <td>
+                <span style="font-weight:800; font-size:0.85rem; color:var(--color-primary); background:#F1F5F9; padding:4px 8px; border-radius:6px; border:1px solid #CBD5E1; display:inline-block;">
+                    ${itemNoStr}
+                </span>
+            </td>
             <td><img src="${p.image}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;" alt=""></td>
             <td style="font-weight:600;">${p.title}</td>
             <td style="text-transform:uppercase;font-size:0.75rem;">${formatCategoryName(p.category)}</td>
-            <td>₹${p.price.toLocaleString("en-IN")}</td>
+            <td style="font-weight:600; color:#B45309;">₹${cp.toLocaleString("en-IN")}</td>
+            <td style="font-weight:600; color:var(--color-primary);">₹${sp.toLocaleString("en-IN")}</td>
             <td>
-                <span class="admin-status-badge" style="background-color:${p.inStock ? '#D1FAE5;color:#047857;' : '#FEE2E2;color:#991B1B;'}">
-                    ${p.inStock ? `IN STOCK (${(p.specs && p.specs.stock_qty !== undefined) ? p.specs.stock_qty : 10} pcs)` : 'OUT OF STOCK'}
+                <span style="font-weight:700; color:${income >= 0 ? '#047857' : '#DC2626'};">${income >= 0 ? '+' : ''}₹${income.toLocaleString("en-IN")}</span>
+                <span style="font-size:0.72rem; color:${income >= 0 ? '#059669' : '#DC2626'};">(${margin}%)</span>
+            </td>
+            <td>
+                <span class="admin-status-badge" style="background-color:${stockQty > 0 ? '#D1FAE5;color:#047857;' : '#FEE2E2;color:#991B1B;'}">
+                    ${stockQty > 0 ? `IN STOCK (${stockQty} Nos.)` : 'OUT OF STOCK'}
                 </span>
             </td>
             <td>
-                <button onclick="editProduct('${p.id}')" style="color:var(--color-accent-pink);font-size:0.78rem;font-weight:600;margin-right:12px;">Edit</button>
-                <button onclick="deleteProduct('${p.id}')" style="color:#EF4444;font-size:0.78rem;font-weight:600;">Delete</button>
+                <button onclick="editProduct('${p.id}')" style="color:var(--color-accent-pink);font-size:0.78rem;font-weight:600;margin-right:12px;background:none;border:none;cursor:pointer;">Edit</button>
+                <button onclick="deleteProduct('${p.id}')" style="color:#EF4444;font-size:0.78rem;font-weight:600;background:none;border:none;cursor:pointer;">Delete</button>
             </td>
         </tr>
-    `).join("");
+    `;
+    }).join("");
 }
 
 function handleStockStatusChange() {
@@ -4273,6 +6638,12 @@ async function addNewProduct() {
         price = basePrice;
     }
     const origPrice = parseFloat(document.getElementById("new-prod-orig").value) || price * 2;
+    
+    // Cost Price (C.P) extraction
+    const cpInp = document.getElementById("new-prod-cost-price");
+    const cpVal = parseFloat(cpInp ? cpInp.value : "");
+    const costPrice = (!isNaN(cpVal) && cpVal > 0) ? cpVal : Math.round(price * 0.6);
+
     let image = "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=600&q=80"; // default
     
     const plating = document.getElementById("new-prod-finish").value;
@@ -4314,14 +6685,18 @@ async function addNewProduct() {
     }
     
     const newId = `prod-${STATE.products.length + 1}-${Date.now().toString().slice(-4)}`;
+    const isBestsellerChecked = document.getElementById("new-prod-is-bestseller") ? document.getElementById("new-prod-is-bestseller").checked : (category === "bestseller");
     
     const product = {
         id: newId,
         title: title,
         category: category,
         gender: gender,
+        is_bestseller: isBestsellerChecked,
         price: price,
         originalPrice: origPrice,
+        costPrice: costPrice,
+        cost_price: costPrice,
         rating: 4.8,
         reviewsCount: 1,
         plating: plating,
@@ -4340,7 +6715,9 @@ async function addNewProduct() {
             market_base: document.getElementById("new-prod-market-base").value,
             disable_auto_rate: isManual,
             manual_base_price: manualBasePrice,
+            cost_price: costPrice,
             stock_qty: stockQty,
+            is_bestseller: isBestsellerChecked,
             available_sizes: document.getElementById("new-prod-available-sizes") ? document.getElementById("new-prod-available-sizes").value.trim() : "",
             gender: gender
         }
@@ -4352,8 +6729,10 @@ async function addNewProduct() {
         id: product.id,
         title: product.title,
         category: product.category,
+        is_bestseller: isBestsellerChecked,
         price: product.price,
         original_price: product.originalPrice,
+        cost_price: product.costPrice,
         rating: product.rating,
         reviews_count: product.reviewsCount,
         plating: product.plating,
@@ -4371,6 +6750,15 @@ async function addNewProduct() {
     document.getElementById("new-prod-title").value = "";
     document.getElementById("new-prod-price").value = "";
     document.getElementById("new-prod-orig").value = "";
+    if (document.getElementById("new-prod-is-bestseller")) {
+        document.getElementById("new-prod-is-bestseller").checked = false;
+    }
+    if (cpInp) cpInp.value = "";
+    const profitBadge = document.getElementById("unit-profit-badge");
+    if (profitBadge) {
+        profitBadge.innerHTML = "";
+        profitBadge.style.display = "none";
+    }
     document.getElementById("new-prod-img-file").value = "";
     document.getElementById("new-prod-img-base64").value = "";
     document.getElementById("new-prod-finish").value = "silver";
@@ -4448,24 +6836,56 @@ async function changeAdminPassword() {
         await supaClient.from('settings').upsert({ key: 'admin_password', value: newVal }, { onConflict: 'key' });
         STATE.adminPassword = newVal;
         localStorage.setItem("mrt_admin_password", newVal);
-        alert("Admin password updated successfully and saved to Supabase!");
+        alert("Admin password updated successfully!");
     } catch (err) {
-        console.error("Failed to save admin password to Supabase:", err);
+        console.error("Failed to save admin password:", err);
         localStorage.setItem("mrt_admin_password", newVal);
-        alert("Admin password updated locally, but failed to save to Supabase: " + err.message);
+        alert("Admin password updated locally: " + err.message);
     }
     
     currentInp.value = "";
     newInp.value = "";
 }
 
-// --- CLOUD DATABASE (SUPABASE) MANAGEMENT ---
+// --- CLOUD DATABASE MANAGEMENT ---
 function initCloudDbConfig() {
     const urlInp = document.getElementById("admin-supabase-url");
     const keyInp = document.getElementById("admin-supabase-key");
-    if (urlInp) urlInp.value = localStorage.getItem('uvira_supabase_url') || SUPABASE_URL || "";
-    if (keyInp) keyInp.value = localStorage.getItem('uvira_supabase_key') || SUPABASE_KEY || "";
-    testCloudDbConnection(false);
+    const storedUrl = localStorage.getItem('uvira_supabase_url') || SUPABASE_URL || "";
+    const storedKey = localStorage.getItem('uvira_supabase_key') || SUPABASE_KEY || "";
+    if (urlInp) urlInp.value = storedUrl;
+    if (keyInp) keyInp.value = storedKey;
+
+    if (!storedUrl || !storedKey) {
+        const statusBox = document.getElementById("cloud-db-status");
+        const statusDot = document.getElementById("cloud-db-status-dot");
+        const statusText = document.getElementById("cloud-db-status-text");
+        if (statusBox && statusText) {
+            statusBox.style.background = "#F1F5F9";
+            statusBox.style.color = "#475569";
+            statusBox.style.borderColor = "#CBD5E1";
+            if (statusDot) statusDot.textContent = "🔌";
+            statusText.textContent = "Disconnected — Running in Local Storage Mode (Offline Database).";
+        }
+    } else {
+        testCloudDbConnection(false);
+    }
+}
+
+function disconnectCloudDb() {
+    try {
+        localStorage.removeItem('uvira_supabase_url');
+        localStorage.removeItem('uvira_supabase_key');
+    } catch(e) {}
+    SUPABASE_URL = "";
+    SUPABASE_KEY = "";
+    rawSupaClient = null;
+    const urlInp = document.getElementById("admin-supabase-url");
+    const keyInp = document.getElementById("admin-supabase-key");
+    if (urlInp) urlInp.value = "";
+    if (keyInp) keyInp.value = "";
+    initCloudDbConfig();
+    alert("Supabase Cloud has been disconnected. The app is running completely on Local Storage.");
 }
 
 async function testCloudDbConnection(showAlert = false) {
@@ -4658,7 +7078,7 @@ async function syncProductsToCloudDb() {
         const { error } = await rawSupaClient.from('products').upsert(payload, { onConflict: 'id' });
         if (error) throw error;
 
-        alert(`Success! All ${payload.length} designs (Whoop Cases & Divine Pendants) pushed and synced to Supabase Cloud 'products' table.`);
+        alert(`Success! All ${payload.length} designs (Whoop Cases, Divine Pendants & Men Earrings) pushed and synced.`);
     } catch(err) {
         console.error("Products sync error:", err);
         alert("Error syncing products to Supabase: " + err.message);
@@ -4733,12 +7153,10 @@ function initTryOnDragAndDrop() {
 const BANNER_DEFAULTS = {
     hero: 'hero_banner_new.jpg',
     'hero-mobile': 'hero_banner_new.jpg',
-    rings: 'ring.jpeg',
+    bestseller: 'hero_banner_new.jpg',
+    whoop: 'assets/whoop/whoop_1_1.webp',
     earrings: 'earring.jpeg',
     pendants: 'pendant.jpeg',
-    bracelets: 'bracelet.jpeg',
-    anklets: 'anklets.jpeg',
-    chains: 'chains.jpeg',
     him: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=800&q=80',
     her: 'https://images.unsplash.com/photo-1635767798638-3e25273a8236?auto=format&fit=crop&w=800&q=80',
     'him-mobile': 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=400&q=80',
@@ -5301,8 +7719,7 @@ function recalculateAllProductPrices() {
             const prod = STATE.products.find(p => p.id === item.id);
             if (prod) {
                 const hasGiftWrap = item.title.includes("+ Gift Box");
-                const isBrass = item.title.includes("(Brass)");
-                const baseP = isBrass ? 6000 : prod.price;
+                const baseP = prod.price;
                 const newUnitPrice = baseP + (hasGiftWrap ? 1000 : 0);
                 if (item.price !== newUnitPrice) {
                     item.price = newUnitPrice;
@@ -5394,6 +7811,7 @@ function autoCalculateJewelRate() {
     if (priceInput) priceInput.value = totalCost;
     if (origPriceInput) origPriceInput.value = totalCost;
     if (weightSpecInput) weightSpecInput.value = `${weightVal} grams`;
+    calculateUnitProfitBadge();
     
     if (breakdownDiv) {
         breakdownDiv.style.display = "block";
@@ -5498,6 +7916,7 @@ function runManualGstCalculation() {
     // Auto update the original price preview to finalPrice * 2
     const origPriceInput = document.getElementById("new-prod-orig");
     if (origPriceInput) origPriceInput.value = finalPrice;
+    calculateUnitProfitBadge();
     
     if (breakdownDiv) {
         breakdownDiv.style.display = "block";
@@ -5547,11 +7966,20 @@ function editProduct(prodId) {
     // Populate form fields
     document.getElementById("new-prod-title").value = p.title;
     document.getElementById("new-prod-cat").value = p.category;
+    if (document.getElementById("new-prod-is-bestseller")) {
+        document.getElementById("new-prod-is-bestseller").checked = isProductBestSeller(p);
+    }
     if (document.getElementById("new-prod-gender")) document.getElementById("new-prod-gender").value = p.gender || "both";
     document.getElementById("new-prod-price").value = p.price || "";
     document.getElementById("new-prod-orig").value = p.originalPrice || "";
     document.getElementById("new-prod-finish").value = p.plating;
     
+    // Cost Price (C.P) & Unit Profit Badge
+    const cpVal = getProductCostPrice(p);
+    const cpInp = document.getElementById("new-prod-cost-price");
+    if (cpInp) cpInp.value = cpVal || "";
+    calculateUnitProfitBadge();
+
     // Infer market purity base from specs.metal
     const metalSpec = (p.specs && p.specs.metal) ? p.specs.metal.toLowerCase() : "";
     if (p.specs && p.specs.market_base) {
@@ -5631,6 +8059,8 @@ function editProduct(prodId) {
         document.getElementById("new-prod-price").value = p.price || "";
         document.getElementById("new-prod-orig").value = p.originalPrice || "";
     }
+    calculateUnitProfitBadge();
+
     document.getElementById("new-prod-stock").value = p.inStock ? "true" : "false";
     document.getElementById("new-prod-qty").value = (p.specs && p.specs.stock_qty !== undefined) ? p.specs.stock_qty : (p.inStock ? 10 : 0);
     
@@ -5713,6 +8143,11 @@ async function updateExistingProduct() {
         return;
     }
     
+    // Cost Price extraction
+    const cpInp = document.getElementById("new-prod-cost-price");
+    const cpVal = parseFloat(cpInp ? cpInp.value : "");
+    const costPrice = (!isNaN(cpVal) && cpVal > 0) ? cpVal : (STATE.products[idx].costPrice || Math.round(price * 0.6));
+
     // Process Supabase Storage Upload for edit
     const fileInput = document.getElementById("new-prod-img-file");
     if (fileInput && fileInput.files && fileInput.files[0]) {
@@ -5740,14 +8175,18 @@ async function updateExistingProduct() {
     
     // Update the product fields, retaining rating & reviews
     const existingProduct = STATE.products[idx];
+    const isBestsellerChecked = document.getElementById("new-prod-is-bestseller") ? document.getElementById("new-prod-is-bestseller").checked : (category === "bestseller");
     
     const updatedProduct = {
         ...existingProduct,
         title: title,
         category: category,
         gender: gender,
+        is_bestseller: isBestsellerChecked,
         price: price,
         originalPrice: origPrice,
+        costPrice: costPrice,
+        cost_price: costPrice,
         plating: plating,
         inStock: inStock,
         image: image,
@@ -5764,7 +8203,9 @@ async function updateExistingProduct() {
             market_base: document.getElementById("new-prod-market-base").value,
             disable_auto_rate: isManual,
             manual_base_price: manualBasePrice,
+            cost_price: costPrice,
             stock_qty: stockQty,
+            is_bestseller: isBestsellerChecked,
             available_sizes: document.getElementById("new-prod-available-sizes") ? document.getElementById("new-prod-available-sizes").value.trim() : "",
             gender: gender
         }
@@ -5776,8 +8217,10 @@ async function updateExistingProduct() {
         id: updatedProduct.id,
         title: updatedProduct.title,
         category: updatedProduct.category,
+        is_bestseller: isBestsellerChecked,
         price: updatedProduct.price,
         original_price: updatedProduct.originalPrice,
+        cost_price: updatedProduct.costPrice,
         rating: updatedProduct.rating,
         reviews_count: updatedProduct.reviewsCount,
         plating: updatedProduct.plating,
@@ -5790,10 +8233,10 @@ async function updateExistingProduct() {
     try {
         const { error } = await supaClient.from('products').upsert([dbProduct]);
         if (error) throw error;
-        alert(`Success! Product "${title}" has been updated in Supabase.`);
+        alert(`Success! Product "${title}" has been updated.`);
     } catch (err) {
-        console.error("Supabase product update error:", err);
-        alert(`Product updated locally, but failed to save to Supabase: ${err.message}`);
+        console.error("Product update error:", err);
+        alert(`Product updated locally: ${err.message}`);
     }
     
     if (submitBtn) {
@@ -5814,6 +8257,13 @@ function cancelEditProduct() {
     if (document.getElementById("new-prod-gender")) document.getElementById("new-prod-gender").value = "both";
     document.getElementById("new-prod-price").value = "";
     document.getElementById("new-prod-orig").value = "";
+    const cpInp = document.getElementById("new-prod-cost-price");
+    if (cpInp) cpInp.value = "";
+    const profitBadge = document.getElementById("unit-profit-badge");
+    if (profitBadge) {
+        profitBadge.innerHTML = "";
+        profitBadge.style.display = "none";
+    }
     document.getElementById("new-prod-img-file").value = "";
     document.getElementById("new-prod-img-base64").value = "";
     document.getElementById("new-prod-finish").value = "silver";
@@ -5916,7 +8366,7 @@ function showStampDetail(mark) {
         },
         jeweller: {
             title: "4. Jeweller's Identification Mark",
-            desc: "UVIRA's official identification mark (stamped as 'UVIRA'), guaranteeing that this piece was handcrafted by UVIRA JEWELS and conforms to our strict quality standards."
+            desc: "LIAMORO's official identification mark (stamped as 'LIAMORO'), guaranteeing that this piece was handcrafted by LIAMORO JEWELS and conforms to our strict quality standards."
         }
     };
     
@@ -5949,7 +8399,7 @@ function checkAllergy(issue) {
     
     if (issue === 'rash') {
         heading = "The Cause: Nickel Contact Dermatitis";
-        solution = "Most cheap fashion jewelry is made of brass or base metals plated with Nickel. When you sweat, nickel salts dissolve and absorb into the skin, triggering red rashes and itching. \n\nOur Solution: UVIRA JEWELS jewelry is 100% Nickel-Free. We use pure 925 sterling silver alloyed only with copper, and shield it under luxury Rhodium plating (platinum family) so nickel never touches your skin.";
+        solution = "Most cheap fashion jewelry is made of brass or base metals plated with Nickel. When you sweat, nickel salts dissolve and absorb into the skin, triggering red rashes and itching. \n\nOur Solution: LIAMORO JEWELS jewelry is 100% Nickel-Free. We use pure 925 sterling silver alloyed only with copper, and shield it under luxury Rhodium plating (platinum family) so nickel never touches your skin.";
     } else if (issue === 'green') {
         heading = "The Cause: Acidic Copper Oxidation";
         solution = "Cheap alloys release copper or copper oxides that react with the acids and oils in your skin, leaving a harmless but unsightly green or dark stain. \n\nOur Solution: All our rings are finished with mirror-polished Rhodium plating or 18K Yellow Gold plating, creating a solid barrier that prevents copper oxidation and keeps your fingers clean and bright.";
@@ -6225,14 +8675,17 @@ function exportProductsToCSV() {
     }
     
     // Create CSV header
-    let csvContent = "Product ID,Title,Category,Gender,Price (INR),Original Price (INR),In Stock,Plating,Weight,Width,Available Sizes,Description,Image URL\r\n";
+    let csvContent = "Product ID,Title,Category,Gender,Cost Price (C.P),Selling Price (S.P),Unit Income (S.P - C.P),Margin %,Original Price (INR),In Stock,Plating,Weight,Width,Available Sizes,Description,Image URL\r\n";
     
     STATE.products.forEach(p => {
         const id = p.id || "";
         const title = String(p.title || "").replace(/"/g, '""');
         const category = String(p.category || "").replace(/"/g, '""');
         const gender = String(p.gender || "").replace(/"/g, '""');
+        const cp = getProductCostPrice(p);
         const price = p.price || 0;
+        const income = price - cp;
+        const margin = price > 0 ? ((income / price) * 100).toFixed(1) : "0.0";
         const originalPrice = p.originalPrice || 0;
         const inStock = p.inStock ? "Yes" : "No";
         const plating = String(p.plating || "").replace(/"/g, '""');
@@ -6243,13 +8696,13 @@ function exportProductsToCSV() {
         const description = String(p.description || "").replace(/"/g, '""').replace(/\r?\n|\r/g, " ");
         const imageUrl = p.image || "";
         
-        csvContent += `"${id}","${title}","${category}","${gender}",${price},${originalPrice},"${inStock}","${plating}","${weight}","${width}","${availableSizes}","${description}","${imageUrl}"\r\n`;
+        csvContent += `"${id}","${title}","${category}","${gender}",${cp},${price},${income},"${margin}%",${originalPrice},"${inStock}","${plating}","${weight}","${width}","${availableSizes}","${description}","${imageUrl}"\r\n`;
     });
     
     // Trigger download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
-    const filename = "UVIRAJEWELS_Inventory_Export.csv";
+    const filename = "LIAMOROJEWELS_Inventory_Export.csv";
     
     if (navigator.msSaveBlob) { // IE 10+
         navigator.msSaveBlob(blob, filename);
@@ -6524,7 +8977,7 @@ function downloadTryOnResult() {
 function shareTryOnWhatsapp() {
     const prod = STATE.selectedProduct;
     if (!prod) return;
-    const message = `Hello UVIRA JEWELS, I just tried on the *${prod.title}* virtually using your AI Try-On tool! I would love to consult with you about purchasing this piece. (Product ID: ${prod.id})`;
+    const message = `Hello LIAMORO JEWELS, I just tried on the *${prod.title}* virtually using your AI Try-On tool! I would love to consult with you about purchasing this piece. (Product ID: ${prod.id})`;
     const url = `https://api.whatsapp.com/send?phone=916289974877&text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
 }
@@ -6831,7 +9284,7 @@ function downloadOrderInvoicePdf(orderId) {
                 </div>
                 
                 <div class="footer-note">
-                    <p>Thank you for shopping at UVIRA JEWELS! All our jewelry is 92.5 Sterling Silver certified.</p>
+                    <p>Thank you for shopping at LIAMORO JEWELS! All our jewelry is 92.5 Sterling Silver certified.</p>
                     <p style="font-size: 0.7rem; margin-top: 10px;">This is a computer-generated tax invoice and does not require a physical signature.</p>
                 </div>
             </div>
@@ -7637,7 +10090,7 @@ function updateAuthModalView() {
     if (succEl) succEl.style.display = 'none';
 
     if (isAuthSignupMode) {
-        if (titleEl) titleEl.textContent = 'Create UVIRA Account';
+        if (titleEl) titleEl.textContent = 'Create LIAMORO Account';
         if (submitBtn) submitBtn.textContent = 'Create Account';
         if (toggleText) toggleText.textContent = 'Already have an account?';
         if (toggleLink) toggleLink.textContent = 'Sign In';
@@ -7645,7 +10098,7 @@ function updateAuthModalView() {
         if (confirmGroup) confirmGroup.style.display = 'block';
         if (refGroup) refGroup.style.display = 'block';
     } else {
-        if (titleEl) titleEl.textContent = 'Login to UVIRA';
+        if (titleEl) titleEl.textContent = 'Login to LIAMORO';
         if (submitBtn) submitBtn.textContent = 'Sign In';
         if (toggleText) toggleText.textContent = "Don't have an account?";
         if (toggleLink) toggleLink.textContent = 'Sign up';
@@ -8482,7 +10935,7 @@ function downloadTdsReportPdf() {
     // Title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-    doc.text("UVIRA JEWELS", 15, 20);
+    doc.text("LIAMORO JEWELS", 15, 20);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);

@@ -1,12 +1,12 @@
 {
-  "name": "UVIRA JEWELS",
-  "short_name": "UVIRA",
-  "description": "Premium Handcrafted 925 Sterling Silver Jewellery & Whoop Accessories",
+  "name": "LIAMORO JEWELS",
+  "short_name": "LIAMORO",
+  "description": "Premium Handcrafted 925 Sterling Silver Jewellery & Accessories",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#1C334E",
-  "theme_color": "#1C334E",
+  "background_color": "#024824",
+  "theme_color": "#024824",
   "icons": [
     {
       "src": "icon-192.png",
