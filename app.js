@@ -58,7 +58,7 @@ function getItemNoDisplay(p, fallbackIndex = null) {
 // Helper to enforce exact product pricing & cost requirements:
 // Best Sellers: Exact C.P & S.P from BEST SELLERS directory (Cross, Dollar, Dumbbell, Hexagon, Panda, Rings 1-5)
 // Whoop: Cost 7,000 / Price 15,000 (Pure 925 Sterling Silver only, No Brass)
-// Divine Pendants: Cost 30,000 / Price 30,000
+// Divine Pendants: Cost 20,000 / Price 30,000 (33.3% Profit Margin)
 // Men Studs: Exact Cost & Selling Price matching MEN STUDS product folders
 function normalizeProductData(p, index) {
     if (!p) return p;
@@ -123,8 +123,8 @@ function normalizeProductData(p, index) {
         p.specs.cost_price = p.costPrice;
     } else if (isPendant) {
         p.price = 30000;
-        p.costPrice = 30000;
-        p.cost_price = 30000;
+        p.costPrice = 20000;
+        p.cost_price = 20000;
         p.originalPrice = 30000;
         p.original_price = 30000;
         p.category = 'pendants';
@@ -132,7 +132,7 @@ function normalizeProductData(p, index) {
         p.specs.weight = p.specs.weight || '12.5g';
         p.specs.metal = 'Solid 92.5% Sterling Silver';
         p.specs.disable_auto_rate = true;
-        p.specs.cost_price = 30000;
+        p.specs.cost_price = 20000;
     } else if (isCharm) {
         // Charms: Cost 3500, Price 15000, MRP 20000 (25% OFF)
         p.price = 15000;
@@ -1014,8 +1014,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Om Sacred Shield Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 28,
@@ -1026,7 +1026,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "12.5g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1040,8 +1040,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Shri Hanuman Ji Sankat Mochan Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 34,
@@ -1052,7 +1052,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "13.2g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1066,8 +1066,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Lord Shiva Trishul & Damru Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 42,
@@ -1078,7 +1078,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "11.8g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1092,8 +1092,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Lord Ganesha Vighnaharta Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 31,
@@ -1104,7 +1104,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "12.0g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1118,8 +1118,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Om Floral Mandala Aura Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 26,
@@ -1130,7 +1130,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "12.4g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1144,8 +1144,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Lord Shiva Meditating Mahadev Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 39,
@@ -1156,7 +1156,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "13.5g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1170,8 +1170,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Sacred Shankh Conch Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 22,
@@ -1182,7 +1182,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "11.5g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1196,8 +1196,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Om Radiant Prana Sun Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 27,
@@ -1208,7 +1208,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "12.8g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1222,8 +1222,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Om Trimurti Chandra Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 30,
@@ -1234,7 +1234,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "11.2g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -1248,8 +1248,8 @@ const DIVINE_PENDANTS_SEED = [
         "title": "Mahadev Trishul Mahakaal Divine Pendant",
         "category": "pendants",
         "price": 30000,
-        "cost_price": 30000,
-        "costPrice": 30000,
+        "cost_price": 20000,
+        "costPrice": 20000,
         "original_price": 30000,
         "rating": 5,
         "reviews_count": 45,
@@ -1260,7 +1260,7 @@ const DIVINE_PENDANTS_SEED = [
         "specs": {
             "metal": "Solid 92.5% Sterling Silver",
             "weight": "13.0g",
-            "cost_price": 30000,
+            "cost_price": 20000,
             "finish": "High Polish Rhodium / 18K Gold / Rose Gold",
             "disable_auto_rate": true,
             "images": [
@@ -5606,11 +5606,6 @@ function getProductCostPrice(prod) {
     const bestsellerPricing = getBestsellerFolderPricing(prod.id);
     if (bestsellerPricing) return bestsellerPricing.cp;
 
-    if (typeof prod.costPrice === "number" && !isNaN(prod.costPrice) && prod.costPrice > 0) return prod.costPrice;
-    if (typeof prod.cost_price === "number" && !isNaN(prod.cost_price) && prod.cost_price > 0) return prod.cost_price;
-    if (prod.specs && typeof prod.specs.cost_price === "number" && !isNaN(prod.specs.cost_price) && prod.specs.cost_price > 0) return prod.specs.cost_price;
-    if (prod.specs && typeof prod.specs.costPrice === "number" && !isNaN(prod.specs.costPrice) && prod.specs.costPrice > 0) return prod.specs.costPrice;
-    
     // Exact stud check
     const studPricing = getStudFolderPricing(prod.id);
     if (studPricing) return studPricing.cp;
@@ -5618,7 +5613,16 @@ function getProductCostPrice(prod) {
     // Exact category costs
     if (prod.category === 'charms' || (prod.id && prod.id.includes('charm'))) return 3500;
     if (prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'))) return 7000;
-    if (prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'))) return 30000;
+    if (prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'))) {
+        if (typeof prod.costPrice === "number" && prod.costPrice > 0 && prod.costPrice !== 30000) return prod.costPrice;
+        if (typeof prod.cost_price === "number" && prod.cost_price > 0 && prod.cost_price !== 30000) return prod.cost_price;
+        return 20000;
+    }
+
+    if (typeof prod.costPrice === "number" && !isNaN(prod.costPrice) && prod.costPrice > 0) return prod.costPrice;
+    if (typeof prod.cost_price === "number" && !isNaN(prod.cost_price) && prod.cost_price > 0) return prod.cost_price;
+    if (prod.specs && typeof prod.specs.cost_price === "number" && !isNaN(prod.specs.cost_price) && prod.specs.cost_price > 0) return prod.specs.cost_price;
+    if (prod.specs && typeof prod.specs.costPrice === "number" && !isNaN(prod.specs.costPrice) && prod.specs.costPrice > 0) return prod.specs.costPrice;
 
     const sp = prod.price || 0;
     return Math.round(sp * 0.6);
@@ -5903,6 +5907,26 @@ function runLiveIncomeCalculation() {
     }
 }
 
+function applyTargetMarginToIncomeCalc(targetMarginPct) {
+    const cpInp = document.getElementById("income-calc-cp");
+    const spInp = document.getElementById("income-calc-sp");
+    const qtyInp = document.getElementById("income-calc-qty");
+    const expInp = document.getElementById("income-calc-expenses");
+    if (!cpInp || !spInp) return;
+
+    const cp = parseFloat(cpInp.value) || 0;
+    const qty = parseInt(qtyInp ? qtyInp.value : 1) || 1;
+    const expenses = parseFloat(expInp ? expInp.value : 0) || 0;
+    const totalCost = (cp * qty) + expenses;
+
+    const effectiveMargin = Math.min(Math.max(targetMarginPct, 1), 95);
+    const reqRevenue = totalCost / (1 - (effectiveMargin / 100));
+    const targetSp = Math.round(reqRevenue / qty);
+
+    spInp.value = targetSp;
+    runLiveIncomeCalculation();
+}
+
 function renderCatalogProfitMatrix() {
     const tbody = document.getElementById("income-matrix-tbody");
     if (!tbody) return;
@@ -6124,7 +6148,7 @@ async function autoFillDefaultCPForAll() {
         } else if (p.category === 'whoop' || (p.id && p.id.includes('whoop'))) {
             cp = 7000;
         } else if (p.category === 'pendants' || (p.id && p.id.includes('pendant'))) {
-            cp = 30000;
+            cp = 20000;
         } else {
             cp = Math.round((p.price || 0) * 0.6);
         }
@@ -6952,6 +6976,7 @@ async function addNewProduct() {
             calc_weight: parseFloat(document.getElementById("new-prod-calc-weight").value),
             calc_making: parseFloat(document.getElementById("new-prod-calc-making").value) || 0,
             calc_making_type: document.getElementById("new-prod-calc-making-type").value,
+            calc_margin: document.getElementById("new-prod-calc-margin") ? (parseFloat(document.getElementById("new-prod-calc-margin").value) || 35) : 35,
             calc_gst: gstVal,
             market_base: document.getElementById("new-prod-market-base").value,
             disable_auto_rate: isManual,
@@ -8056,7 +8081,10 @@ function autoCalculateJewelRate() {
             makingVal = (405.0 / 245) * 100;
         }
     }
-    const gstVal = parseFloat(document.getElementById("new-prod-calc-gst").value) || 0;
+    const marginInput = document.getElementById("new-prod-calc-margin");
+    const marginVal = parseFloat(marginInput ? marginInput.value : 35);
+    const targetMargin = (!isNaN(marginVal) && marginVal >= 0 && marginVal < 95) ? marginVal : 35;
+    const gstVal = parseFloat(document.getElementById("new-prod-calc-gst").value) || 3;
     
     const priceInput = document.getElementById("new-prod-price");
     const origPriceInput = document.getElementById("new-prod-orig");
@@ -8070,10 +8098,13 @@ function autoCalculateJewelRate() {
     
     // Choose live rate depending on dropdown value
     let liveRate = STATE.rates.sterling;
+    let purityLabel = "925 Sterling Purity";
     if (marketBase === "gold") {
         liveRate = STATE.rates.gold || 17000.00;
+        purityLabel = "24K Gold Purity";
     } else if (marketBase === "fine") {
         liveRate = STATE.rates.fine;
+        purityLabel = "999 Fine Purity";
     }
     
     const metalCost = weightVal * liveRate;
@@ -8083,7 +8114,7 @@ function autoCalculateJewelRate() {
     let makingText = "";
     if (makingType === "percentage") {
         makingCost = metalCost * (makingVal / 100);
-        makingText = `Making Charges (${makingVal}% of Metal Cost): ₹${makingCost.toFixed(2)}`;
+        makingText = `Making Charges (${makingVal.toFixed(1)}% of Metal Cost): ₹${makingCost.toFixed(2)}`;
     } else if (makingType === "flat") {
         makingCost = makingVal;
         makingText = `Making Charges (Flat Rate): ₹${makingCost.toFixed(2)}`;
@@ -8092,33 +8123,45 @@ function autoCalculateJewelRate() {
         makingText = `Making Charges (${weightVal}g @ ₹${makingVal.toFixed(2)}/g): ₹${makingCost.toFixed(2)}`;
     }
     
-    const subtotal = metalCost + makingCost;
-    const baseMRP = Math.round(subtotal);
+    // Manufacturing Cost (Cost Price / C.P.) = Metal Cost + Making Charges
+    const manufacturingCp = Math.round(metalCost + makingCost);
+
+    // Retail Selling Price (S.P. / Listing MRP Excl. GST) derived from Target Profit Margin
+    // Formula: S.P = C.P / (1 - Margin%)
+    const baseMRP = targetMargin > 0 ? Math.round(manufacturingCp / (1 - (targetMargin / 100))) : manufacturingCp;
+    const netProfit = baseMRP - manufacturingCp;
+    const actualMarginPct = baseMRP > 0 ? ((netProfit / baseMRP) * 100).toFixed(1) : "0.0";
+    const actualMarkupPct = manufacturingCp > 0 ? ((netProfit / manufacturingCp) * 100).toFixed(1) : "0.0";
     const gstCost = baseMRP * (gstVal / 100);
+    const estCheckoutPrice = Math.round(baseMRP + gstCost);
     
     if (priceInput) priceInput.value = baseMRP;
-    if (origPriceInput) origPriceInput.value = Math.round(baseMRP * 1.6);
+    if (origPriceInput) origPriceInput.value = Math.round(baseMRP * 1.5);
     if (weightSpecInput) weightSpecInput.value = `${weightVal} grams`;
 
-    // Auto-calculate benchmark Cost Price (C.P) if empty or marked auto-calculated
+    // Auto-populate Cost Price (C.P) if empty or marked auto-calculated
     const cpInput = document.getElementById("new-prod-cost-price");
-    const calcCp = Math.round(baseMRP * 0.6);
     if (cpInput && (!cpInput.value || cpInput.dataset.autoCalculated === "true")) {
-        cpInput.value = calcCp;
+        cpInput.value = manufacturingCp;
         cpInput.dataset.autoCalculated = "true";
     }
     calculateUnitProfitBadge();
     
     if (breakdownDiv) {
         breakdownDiv.style.display = "block";
+        breakdownDiv.style.backgroundColor = "#F0FDF4";
+        breakdownDiv.style.borderLeft = "4px solid #10B981";
+        breakdownDiv.style.color = "#0F172A";
         breakdownDiv.innerHTML = `
-            <strong>Auto-Calculation Breakdown (MRP Excl. GST):</strong><br>
-            • Metal Cost (${weightVal}g @ ₹${liveRate.toFixed(2)}/g for ${marketBase === 'gold' ? '24K Gold Purity' : (marketBase === 'fine' ? '999 Fine Purity' : '925 Sterling Purity')}): ₹${metalCost.toFixed(2)}<br>
+            <strong>💎 Auto-Calculation Breakdown (MRP Excl. GST):</strong><br>
+            • Metal Cost (${weightVal}g @ ₹${liveRate.toFixed(2)}/g for ${purityLabel}): ₹${metalCost.toFixed(2)}<br>
             • ${makingText}<br>
-            • <strong>Base MRP (Excl. GST): ₹${baseMRP}</strong><br>
-            • <strong>Auto-Calculated Cost Price (C.P): ₹${calcCp}</strong> (Est. Net Income: ₹${baseMRP - calcCp} / unit)<br>
+            • <strong>Actual Manufacturing Cost (C.P): ₹${manufacturingCp.toLocaleString("en-IN")}</strong><br>
+            • <strong>Target Profit Margin: ${actualMarginPct}%</strong> (Markup on Cost: ${actualMarkupPct}%)<br>
+            • <strong>Est. Net Unit Income: +₹${netProfit.toLocaleString("en-IN")} / piece</strong><br>
+            • <strong>Base Listing MRP (S.P Excl. GST): ₹${baseMRP.toLocaleString("en-IN")}</strong><br>
             • 3% GST (Added at checkout): ₹${gstCost.toFixed(2)}<br>
-            • Est. Checkout Price (MRP + GST): ₹${Math.round(baseMRP + gstCost)}
+            • Est. Checkout Price (MRP + GST): ₹${estCheckoutPrice.toLocaleString("en-IN")}
         `;
     }
 }
@@ -8130,6 +8173,7 @@ function toggleAutoRateFields() {
         "new-prod-calc-weight",
         "new-prod-calc-making",
         "new-prod-calc-making-type",
+        "new-prod-calc-margin",
         "new-prod-market-base"
     ];
     
@@ -8210,10 +8254,10 @@ function runManualGstCalculation() {
     const gstCost = baseMRP * (gstVal / 100);
     const estTotalWithGst = Math.round(baseMRP + gstCost);
     
-    // Auto update the original price preview to baseMRP * 1.6 if empty or less than baseMRP
+    // Auto update the original price preview to baseMRP * 1.5 if empty or less than baseMRP
     const origPriceInput = document.getElementById("new-prod-orig");
     if (origPriceInput && (!origPriceInput.value || parseFloat(origPriceInput.value) <= baseMRP)) {
-        origPriceInput.value = Math.round(baseMRP * 1.6);
+        origPriceInput.value = Math.round(baseMRP * 1.5);
     }
 
     // Auto-calculate benchmark Cost Price (C.P) if empty or marked auto-calculated
@@ -8225,6 +8269,11 @@ function runManualGstCalculation() {
     }
     calculateUnitProfitBadge();
     
+    const currentCp = parseFloat(cpInput ? cpInput.value : calcCp) || calcCp;
+    const manualIncome = baseMRP - currentCp;
+    const manualMargin = baseMRP > 0 ? ((manualIncome / baseMRP) * 100).toFixed(1) : "0.0";
+    const manualMarkup = currentCp > 0 ? ((manualIncome / currentCp) * 100).toFixed(1) : "0.0";
+    
     if (breakdownDiv) {
         breakdownDiv.style.display = "block";
         breakdownDiv.style.backgroundColor = "var(--color-accent-pink-light)";
@@ -8233,7 +8282,7 @@ function runManualGstCalculation() {
         breakdownDiv.innerHTML = `
             <strong>Manual Price Breakdown (MRP Excl. GST):</strong><br>
             • <strong>Base MRP (Listing Price): ₹${baseMRP.toLocaleString("en-IN")}</strong><br>
-            • <strong>Auto-Calculated Cost Price (C.P): ₹${calcCp.toLocaleString("en-IN")}</strong> (Est. Net Income: ₹${(baseMRP - calcCp).toLocaleString("en-IN")} / unit)<br>
+            • <strong>Cost Price (C.P): ₹${currentCp.toLocaleString("en-IN")}</strong> (Est. Net Income: +₹${manualIncome.toLocaleString("en-IN")} / unit | ${manualMargin}% Margin | ${manualMarkup}% Markup)<br>
             • 3% GST (Added at checkout): ₹${gstCost.toFixed(2)}<br>
             • Est. Checkout Price (MRP + GST): ₹${estTotalWithGst.toLocaleString("en-IN")}
         `;
@@ -8396,6 +8445,9 @@ function editProduct(prodId) {
     if (p.specs && p.specs.calc_making !== undefined) {
         document.getElementById("new-prod-calc-making").value = p.specs.calc_making;
         document.getElementById("new-prod-calc-making-type").value = p.specs.calc_making_type || "per-gram";
+        if (document.getElementById("new-prod-calc-margin")) {
+            document.getElementById("new-prod-calc-margin").value = (p.specs.calc_margin !== undefined) ? p.specs.calc_margin : "35";
+        }
         document.getElementById("new-prod-calc-gst").value = p.specs.calc_gst !== undefined ? p.specs.calc_gst : "3";
         if (!p.specs.disable_auto_rate) {
             autoCalculateJewelRate();
@@ -8403,6 +8455,9 @@ function editProduct(prodId) {
     } else {
         document.getElementById("new-prod-calc-making").value = "";
         document.getElementById("new-prod-calc-making-type").value = "per-gram";
+        if (document.getElementById("new-prod-calc-margin")) {
+            document.getElementById("new-prod-calc-margin").value = "35";
+        }
         document.getElementById("new-prod-calc-gst").value = "3";
         const breakdown = document.getElementById("rate-calculation-breakdown");
         if (breakdown) {
@@ -8583,6 +8638,7 @@ async function updateExistingProduct() {
             calc_weight: parseFloat(document.getElementById("new-prod-calc-weight").value),
             calc_making: parseFloat(document.getElementById("new-prod-calc-making").value) || 0,
             calc_making_type: document.getElementById("new-prod-calc-making-type").value,
+            calc_margin: document.getElementById("new-prod-calc-margin") ? (parseFloat(document.getElementById("new-prod-calc-margin").value) || 35) : 35,
             calc_gst: gstVal,
             market_base: document.getElementById("new-prod-market-base").value,
             disable_auto_rate: isManual,
@@ -8677,9 +8733,11 @@ function cancelEditProduct() {
     const calcGst = document.getElementById("new-prod-calc-gst");
     const breakdown = document.getElementById("rate-calculation-breakdown");
     
+    const calcMargin = document.getElementById("new-prod-calc-margin");
     if (calcWeight) calcWeight.value = "";
     if (calcMaking) calcMaking.value = "";
     if (calcMakingType) calcMakingType.value = "per-gram";
+    if (calcMargin) calcMargin.value = "35";
     if (calcGst) calcGst.value = "3";
     if (breakdown) {
         breakdown.innerHTML = "";

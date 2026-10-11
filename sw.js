@@ -1,4 +1,4 @@
-const CACHE_NAME = 'liamoro-jewels-v35';
+const CACHE_NAME = 'liamoro-jewels-v36';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
