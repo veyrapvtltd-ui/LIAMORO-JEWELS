@@ -2605,18 +2605,24 @@ function seedMockProducts() {
 }
 seedMockProducts();
 
-// --- SUPABASE DISCONNECTED (RUNNING IN 100% OFFLINE LOCAL STORAGE MODE) ---
-try {
-    localStorage.removeItem('uvira_supabase_url');
-    localStorage.removeItem('uvira_supabase_key');
-} catch (e) {}
-
-let SUPABASE_URL = "";
-let SUPABASE_KEY = "";
+// --- SUPABASE CLOUD DATABASE CONFIGURATION ---
+let SUPABASE_URL = "https://nxttaoujpzvurkzwznzt.supabase.co";
+let SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54dHRhb3VqcHp2dXJrend6bnp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3MDE1MTcsImV4cCI6MjEwNzI3NzUxN30.DBf4BkpKnKm2CP5L9BSor41eLlL6tHFIgHaqkn-uswQ";
 
 let rawSupaClient = null;
 function initRawSupaClient() {
-    rawSupaClient = null;
+    const url = localStorage.getItem('uvira_supabase_url') || SUPABASE_URL;
+    const key = localStorage.getItem('uvira_supabase_key') || SUPABASE_KEY;
+    if (window.supabase && url && key) {
+        try {
+            rawSupaClient = window.supabase.createClient(url, key);
+        } catch(e) {
+            console.warn("Supabase client init warning:", e);
+            rawSupaClient = null;
+        }
+    } else {
+        rawSupaClient = null;
+    }
 }
 initRawSupaClient();
 
@@ -6920,7 +6926,18 @@ async function testCloudDbConnection(showAlert = false) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 6000);
         
-        const resp = await fetch(`${targetUrl}/rest/v1/settings?select=key&limit=1`, {
+        // 1. Check cloud project health via Auth settings
+        const authResp = await fetch(`${targetUrl}/auth/v1/settings`, {
+            method: 'GET',
+            headers: {
+                'apikey': targetKey,
+                'Authorization': `Bearer ${targetKey}`
+            },
+            signal: controller.signal
+        });
+
+        // 2. Check if tables are created
+        const tableResp = await fetch(`${targetUrl}/rest/v1/settings?select=key&limit=1`, {
             method: 'GET',
             headers: {
                 'apikey': targetKey,
@@ -6931,9 +6948,10 @@ async function testCloudDbConnection(showAlert = false) {
         });
         clearTimeout(timeoutId);
 
-        if (resp.ok) {
-            let host = "Cloud Database";
-            try { host = new URL(targetUrl).hostname; } catch(e) {}
+        let host = "Cloud Database";
+        try { host = new URL(targetUrl).hostname; } catch(e) {}
+
+        if (tableResp.ok) {
             if (statusBox && statusText) {
                 statusBox.style.background = "#ECFDF5";
                 statusBox.style.color = "#065F46";
@@ -6943,9 +6961,20 @@ async function testCloudDbConnection(showAlert = false) {
             }
             if (showAlert) alert(`Success! Connected to Supabase Cloud (${host}). User accounts and data are syncing directly to your cloud database.`);
             return true;
+        } else if (authResp.ok) {
+            // Project is online and credentials are valid, but tables need schema setup
+            if (statusBox && statusText) {
+                statusBox.style.background = "#FEF3C7";
+                statusBox.style.color = "#92400E";
+                statusBox.style.borderColor = "#FCD34D";
+                if (statusDot) statusDot.textContent = "🟡";
+                statusText.textContent = `Supabase Online (${host})! Database tables not initialized yet. Run schema.sql in Supabase SQL Editor.`;
+            }
+            if (showAlert) alert(`Connected to Supabase Project (${host}) successfully!\n\nNote: The database tables have not been created yet in Supabase. Please copy schema.sql and run it in your Supabase Dashboard > SQL Editor to enable full table syncing.`);
+            return true;
         } else {
-            const errText = await resp.text();
-            throw new Error(`HTTP ${resp.status}: ${errText.slice(0, 100)}`);
+            const errText = await authResp.text();
+            throw new Error(`HTTP ${authResp.status}: ${errText.slice(0, 100)}`);
         }
     } catch(err) {
         let host = "database";
