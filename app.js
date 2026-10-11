@@ -2268,7 +2268,7 @@ const CHARMS_PRODUCTS_SEED = [
         "reviews_count": 15,
         "plating": "18K Yellow Gold Plated Solid Silver",
         "in_stock": true,
-        "image": "assets/charms/charm_13_2.jpeg",
+        "image": "assets/charms/charm_13_1.jpeg",
         "description": "Panoramic architectural relief of Shri Ram Janmabhoomi Mandir with ornate mandapa pillars and shikhara in brilliant 18K yellow gold finish.",
         "specs": {
             "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
@@ -2277,8 +2277,8 @@ const CHARMS_PRODUCTS_SEED = [
             "cost_price": 3500,
             "disable_auto_rate": true,
             "images": [
-                "assets/charms/charm_13_2.jpeg",
-                "assets/charms/charm_13_1.jpeg"
+                "assets/charms/charm_13_1.jpeg",
+                "assets/charms/charm_13_2.jpeg"
             ]
         }
     },
@@ -2502,7 +2502,7 @@ const CHARMS_PRODUCTS_SEED = [
         "reviews_count": 24,
         "plating": "18K Rose Gold Plated Solid Silver",
         "in_stock": true,
-        "image": "assets/charms/charm_22_1.jpeg",
+        "image": "assets/charms/charm_22_2.jpeg",
         "description": "Architectural interlocking 'TF' monogram in luxury 18K rose gold plated solid 925 silver, adding subtle haute couture sophistication to any strap.",
         "specs": {
             "metal": "Solid 92.5% Sterling Silver / 18K Gold Plated",
@@ -2511,8 +2511,8 @@ const CHARMS_PRODUCTS_SEED = [
             "cost_price": 3500,
             "disable_auto_rate": true,
             "images": [
-                "assets/charms/charm_22_1.jpeg",
-                "assets/charms/charm_22_2.jpeg"
+                "assets/charms/charm_22_2.jpeg",
+                "assets/charms/charm_22_1.jpeg"
             ]
         }
     },
