@@ -2813,7 +2813,7 @@ const STATE = {
     cart: [],
     wishlist: [],
     orders: [],
-    rates: { sterling: 94.8, fine: 98.5, gold: 7500.00, trend: "up" },
+    rates: { sterling: 250.00, fine: 265.00, gold: 17000.00, trend: "up" },
     coupons: {
         "SILVER10": { code: "SILVER10", type: "percentage", value: 10, is_used: false, single_use: false },
         "SPARKLE15": { code: "SPARKLE15", type: "percentage", value: 15, is_used: false, single_use: false }
@@ -2900,9 +2900,9 @@ async function initState() {
             const gold = parseFloat(rawGold);
 
             if (!isNaN(sterling) && sterling > 0) {
-                STATE.rates.sterling = sterling;
-                STATE.rates.fine = !isNaN(fine) && fine > 0 ? fine : (sterling * 1.07);
-                STATE.rates.gold = !isNaN(gold) && gold > 0 ? gold : 7500.00;
+                STATE.rates.sterling = sterling < 200 ? 250.00 : sterling;
+                STATE.rates.fine = !isNaN(fine) && fine > 0 ? (fine < 200 ? 265.00 : fine) : (STATE.rates.sterling * 1.06);
+                STATE.rates.gold = !isNaN(gold) && gold > 0 ? (gold < 10000 ? 17000.00 : gold) : 17000.00;
                 STATE.rates.trend = data[0].trend || 'up';
                 loadedRates = true;
             }
@@ -2914,9 +2914,9 @@ async function initState() {
         try {
             const parsed = JSON.parse(settingsRatesResult.value.data.value);
             if (parsed && parsed.sterling) {
-                STATE.rates.sterling = parseFloat(parsed.sterling) || 98.00;
-                STATE.rates.fine = parseFloat(parsed.fine) || 105.00;
-                STATE.rates.gold = parseFloat(parsed.gold) || 7500.00;
+                STATE.rates.sterling = (parsed.sterling && parsed.sterling >= 200) ? parseFloat(parsed.sterling) : 250.00;
+                STATE.rates.fine = (parsed.fine && parsed.fine >= 200) ? parseFloat(parsed.fine) : 265.00;
+                STATE.rates.gold = (parsed.gold && parsed.gold >= 10000) ? parseFloat(parsed.gold) : 17000.00;
                 STATE.rates.trend = parsed.trend || 'up';
                 loadedRates = true;
             }
@@ -2930,9 +2930,9 @@ async function initState() {
             try {
                 const parsed = JSON.parse(localRates);
                 if (parsed && parsed.sterling) {
-                    STATE.rates.sterling = parseFloat(parsed.sterling) || 98.00;
-                    STATE.rates.fine = parseFloat(parsed.fine) || 105.00;
-                    STATE.rates.gold = parseFloat(parsed.gold) || 7500.00;
+                    STATE.rates.sterling = (parsed.sterling && parsed.sterling >= 200) ? parseFloat(parsed.sterling) : 250.00;
+                    STATE.rates.fine = (parsed.fine && parsed.fine >= 200) ? parseFloat(parsed.fine) : 265.00;
+                    STATE.rates.gold = (parsed.gold && parsed.gold >= 10000) ? parseFloat(parsed.gold) : 17000.00;
                     STATE.rates.trend = parsed.trend || 'up';
                     loadedRates = true;
                 }
@@ -2940,10 +2940,10 @@ async function initState() {
         }
     }
 
-    // Ensure valid rates numbers
-    if (isNaN(STATE.rates.sterling) || STATE.rates.sterling <= 0) STATE.rates.sterling = 98.00;
-    if (isNaN(STATE.rates.fine) || STATE.rates.fine <= 0) STATE.rates.fine = 105.00;
-    if (isNaN(STATE.rates.gold) || STATE.rates.gold <= 0) STATE.rates.gold = 7500.00;
+    // Ensure valid rates numbers with default Silver: 250.00, Gold: 17,000.00
+    if (isNaN(STATE.rates.sterling) || STATE.rates.sterling <= 0 || STATE.rates.sterling < 200) STATE.rates.sterling = 250.00;
+    if (isNaN(STATE.rates.fine) || STATE.rates.fine <= 0 || STATE.rates.fine < 200) STATE.rates.fine = 265.00;
+    if (isNaN(STATE.rates.gold) || STATE.rates.gold <= 0 || STATE.rates.gold < 10000) STATE.rates.gold = 17000.00;
     localStorage.setItem("mrt_rates", JSON.stringify(STATE.rates));
 
     recalculateAllProductPrices();
@@ -3080,7 +3080,7 @@ function renderRatesTicker() {
     
     const sterlingStr = STATE.rates.sterling.toFixed(2);
     const fineStr = STATE.rates.fine.toFixed(2);
-    const goldStr = (STATE.rates.gold || 7500.00).toFixed(2);
+    const goldStr = (STATE.rates.gold || 17000.00).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const trendIcon = STATE.rates.trend === "up" ? "▲" : "▼";
     const trendClass = STATE.rates.trend === "up" ? "rate-up" : "rate-down";
     
@@ -6051,7 +6051,7 @@ function renderAdminRates() {
     
     if (inpSterling) inpSterling.value = STATE.rates.sterling.toFixed(2);
     if (inpFine) inpFine.value = STATE.rates.fine.toFixed(2);
-    if (inpGold) inpGold.value = (STATE.rates.gold || 7500.00).toFixed(2);
+    if (inpGold) inpGold.value = (STATE.rates.gold || 17000.00).toFixed(2);
 }
 
 async function updateAdminRates() {
@@ -6710,7 +6710,7 @@ async function addNewProduct() {
         image: image,
         description: desc,
         specs: {
-            metal: document.getElementById("new-prod-market-base").value === "gold" ? "24K Gold" : (document.getElementById("new-prod-market-base").value === "fine" ? "625 Silver" : "925 Sterling Silver"),
+            metal: document.getElementById("new-prod-market-base").value === "gold" ? "24K Gold" : (document.getElementById("new-prod-market-base").value === "fine" ? "999 Fine Silver" : "925 Sterling Silver"),
             weight: weight,
             width: width,
             authenticity: document.getElementById("new-prod-market-base").value === "gold" ? "NABL Lab-Certified Gold Assay Card Included" : (document.getElementById("new-prod-market-base").value === "fine" ? "NABL Lab-Tested Certificate Included" : "92.5 Hallmark Certificate Included"),
@@ -7692,7 +7692,7 @@ function recalculateAllProductPrices() {
 
         let liveRate = STATE.rates.sterling;
         if (marketBase === "gold") {
-            liveRate = STATE.rates.gold || 7500.00;
+            liveRate = STATE.rates.gold || 17000.00;
         } else if (marketBase === "fine") {
             liveRate = STATE.rates.fine;
         }
@@ -7812,7 +7812,7 @@ function autoCalculateJewelRate() {
     // Choose live rate depending on dropdown value
     let liveRate = STATE.rates.sterling;
     if (marketBase === "gold") {
-        liveRate = STATE.rates.gold || 7500.00;
+        liveRate = STATE.rates.gold || 17000.00;
     } else if (marketBase === "fine") {
         liveRate = STATE.rates.fine;
     }
@@ -8222,7 +8222,7 @@ async function updateExistingProduct() {
         description: desc,
         specs: {
             ...existingProduct.specs,
-            metal: document.getElementById("new-prod-market-base").value === "gold" ? "24K Gold" : (document.getElementById("new-prod-market-base").value === "fine" ? "625 Silver" : "925 Sterling Silver"),
+            metal: document.getElementById("new-prod-market-base").value === "gold" ? "24K Gold" : (document.getElementById("new-prod-market-base").value === "fine" ? "999 Fine Silver" : "925 Sterling Silver"),
             weight: weight,
             width: width,
             calc_weight: parseFloat(document.getElementById("new-prod-calc-weight").value),
