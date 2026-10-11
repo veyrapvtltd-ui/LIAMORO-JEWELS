@@ -2,3 +2,9 @@ node_modules
 .vercel
 .ds_store
 package-lock.json
+scratch/
+header_desktop.png
+header_mobile.png
+scratch_serp.png
+top_mobile.png
+

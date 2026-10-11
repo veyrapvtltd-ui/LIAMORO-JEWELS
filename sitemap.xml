@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    <!-- Homepage -->
+    <url>
+        <loc>https://liamorojewels.com/</loc>
+        <lastmod>2026-10-11</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+        <image:image>
+            <image:loc>https://liamorojewels.com/logo.png</image:loc>
+            <image:title>Liamoro Jewels - Pure 925 Sterling Silver Jewellery</image:title>
+            <image:caption>Hallmark certified 92.5 pure silver jewellery and bespoke creations</image:caption>
+        </image:image>
+    </url>
+
+    <!-- Shop / Full Catalog -->
+    <url>
+        <loc>https://liamorojewels.com/#shop</loc>
+        <lastmod>2026-10-11</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Best Sellers Collection -->
+    <url>
+        <loc>https://liamorojewels.com/#shop_bestseller</loc>
+        <lastmod>2026-10-11</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Men Earrings & Studs -->
+    <url>
+        <loc>https://liamorojewels.com/#shop_earrings</loc>
+        <lastmod>2026-10-11</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Divine Pendants Collection -->
+    <url>
+        <loc>https://liamorojewels.com/#shop_pendants</loc>
+        <lastmod>2026-10-11</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Custom Whoop Cases -->
+    <url>
+        <loc>https://liamorojewels.com/#shop_whoop</loc>
+        <lastmod>2026-10-11</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Band Charms Collection -->
+    <url>
+        <loc>https://liamorojewels.com/#shop_charms</loc>
+        <lastmod>2026-10-11</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Bespoke Customisation Studio -->
+    <url>
+        <loc>https://liamorojewels.com/#customisation</loc>
+        <lastmod>2026-10-11</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Order Tracking -->
+    <url>
+        <loc>https://liamorojewels.com/#track</loc>
+        <lastmod>2026-10-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+</urlset>

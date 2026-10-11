@@ -1,10 +1,13 @@
-const CACHE_NAME = 'liamoro-jewels-v21';
+const CACHE_NAME = 'liamoro-jewels-v28';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.json',
+  './robots.txt',
+  './sitemap.xml',
+  './payment_qr.jpg',
   './logo.png',
   './logo_footer.png',
   './icon-192.png',

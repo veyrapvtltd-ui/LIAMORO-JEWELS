@@ -134,12 +134,12 @@ function normalizeProductData(p, index) {
         p.specs.disable_auto_rate = true;
         p.specs.cost_price = 10000;
     } else if (isCharm) {
-        // Charms: Cost 3500, Price 8200
-        p.price = 8200;
+        // Charms: Cost 3500, Price 15000, MRP 20000 (25% OFF)
+        p.price = 15000;
         p.costPrice = 3500;
         p.cost_price = 3500;
-        p.originalPrice = 8200;
-        p.original_price = 8200;
+        p.originalPrice = 20000;
+        p.original_price = 20000;
         p.category = 'charms';
         if (!p.specs) p.specs = {};
         p.specs.weight = p.specs.weight || '4.5g';
@@ -1948,10 +1948,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-1-golf-club-ruby",
         "title": "Whoop Band Charm - Sculpted Golf Club & Ruby Accent",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 15,
         "plating": "18K Gold Plated with Ruby Accent",
@@ -1974,10 +1974,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-2-batman-crest",
         "title": "Whoop Band Charm - Dark Knight Batman Crest",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 16,
         "plating": "Brushed Rhodium Solid 925 Silver",
@@ -2000,10 +2000,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-3-superman-shield",
         "title": "Whoop Band Charm - Superman Hero Shield",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 17,
         "plating": "Brushed Rhodium Solid 925 Silver",
@@ -2026,10 +2026,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-4-audi-rings",
         "title": "Whoop Band Charm - Quattro Rings Edition",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 18,
         "plating": "High Polish Solid 925 Silver",
@@ -2052,10 +2052,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-5-cr7-legend",
         "title": "Whoop Band Charm - CR7 Cristiano Ronaldo Legend",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 19,
         "plating": "Hand-Finished Solid 925 Silver",
@@ -2078,10 +2078,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-6-bmw-roundel",
         "title": "Whoop Band Charm - BMW M-Heritage Roundel",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 20,
         "plating": "18K Gold Plated with Black & Blue Enamel",
@@ -2104,10 +2104,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-7-trishul-damru",
         "title": "Whoop Band Charm - Sacred Trishul & Damru Lord Shiva",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 21,
         "plating": "High Polish Solid 925 Silver",
@@ -2130,10 +2130,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-8-divine-trishul",
         "title": "Whoop Band Charm - Divine Trishul Power Emblem",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 22,
         "plating": "Satin Polish Solid 925 Silver",
@@ -2156,10 +2156,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-9-sacred-om",
         "title": "Whoop Band Charm - Sacred Om Aum Divine Symbol",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 23,
         "plating": "Satin Brushed Solid 925 Silver",
@@ -2182,10 +2182,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-10-india-crest",
         "title": "Whoop Band Charm - INDIA Patriot Bold Crest",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 24,
         "plating": "Clean Satin Solid 925 Silver",
@@ -2208,10 +2208,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-11-lord-hanuman",
         "title": "Whoop Band Charm - Lord Hanuman Ji Divine Blessings",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 25,
         "plating": "18K Yellow Gold Plated Solid Silver",
@@ -2234,10 +2234,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-12-ayodhya-ram-mandir",
         "title": "Whoop Band Charm - Ayodhya Ram Mandir Sacred Shrine (Gold)",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 14,
         "plating": "18K Gold Plated with Saffron Dhwaja",
@@ -2260,10 +2260,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-13-ram-mandir-heritage",
         "title": "Whoop Band Charm - Ram Mandir Heritage Temple",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 15,
         "plating": "18K Yellow Gold Plated Solid Silver",
@@ -2286,10 +2286,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-14-ram-darbar-arch",
         "title": "Whoop Band Charm - Sacred Ram Darbar Parivar Arch",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 16,
         "plating": "18K Yellow Gold Plated with Prabhavali Arch",
@@ -2312,10 +2312,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-15-ram-darbar-figurine",
         "title": "Whoop Band Charm - Divine Ram Darbar Sacred Figurine",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 17,
         "plating": "18K Yellow Gold Plated Solid Silver",
@@ -2338,10 +2338,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-16-lord-krishna-flute",
         "title": "Whoop Band Charm - Lord Krishna with Flute & Crown",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 18,
         "plating": "18K Yellow Gold Plated Solid Silver",
@@ -2364,10 +2364,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-17-mor-pankh-enamel",
         "title": "Whoop Band Charm - Royal Mor Pankh Peacock Feather (Turquoise)",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 19,
         "plating": "18K Gold Plated with Vibrant Meenakari Enamel",
@@ -2390,10 +2390,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-18-peacock-feather-grace",
         "title": "Whoop Band Charm - Divine Peacock Feather Grace Enamel",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 20,
         "plating": "18K Gold Plated with Emerald & Blue Enamel",
@@ -2416,10 +2416,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-19-krishna-bansuri",
         "title": "Whoop Band Charm - Krishna Bansuri Flute with Mor Pankh",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 21,
         "plating": "18K Yellow Gold Plated with Enamel Feather",
@@ -2442,10 +2442,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-20-sacred-shankh",
         "title": "Whoop Band Charm - Sacred Shankh Conch Shell Auspicious",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 22,
         "plating": "18K Yellow Gold Plated Solid Silver",
@@ -2468,10 +2468,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-21-panther-emerald",
         "title": "Whoop Band Charm - Cartier Style Iced Panther Emerald Eyes",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 23,
         "plating": "Solid 925 Silver Micro Pavé with Emerald Eyes",
@@ -2494,10 +2494,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-22-tf-monogram",
         "title": "Whoop Band Charm - TF Luxury Monogram Rose Gold",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 24,
         "plating": "18K Rose Gold Plated Solid Silver",
@@ -2520,10 +2520,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-23-lv-panther",
         "title": "Whoop Band Charm - LV Wild Panther Emerald Eyes 18K Gold",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 25,
         "plating": "18K Yellow Gold Plated with Monogram Engraving & Emerald Eyes",
@@ -2546,10 +2546,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-24-v-chevron-initial-a",
         "title": "Whoop Band Charm - V-Chevron Pink Sapphire Initial 'A'",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 14,
         "plating": "Rose Gold with Pink Sapphires & Dangling Letter 'A'",
@@ -2572,10 +2572,10 @@ const CHARMS_PRODUCTS_SEED = [
         "id": "prod-charm-25-custom-initials-ak",
         "title": "Whoop Band Charm - Custom Monogram Initial 'AK' Prestige",
         "category": "charms",
-        "price": 8200,
+        "price": 15000,
         "cost_price": 3500,
         "costPrice": 3500,
-        "original_price": 8200,
+        "original_price": 20000,
         "rating": 5,
         "reviews_count": 15,
         "plating": "Clean Satin Solid 925 Silver",
@@ -2626,11 +2626,21 @@ function initRawSupaClient() {
 }
 initRawSupaClient();
 
-// Resilient Offline Local Database Client (uses LocalStorage cache seamlessly)
+// Resilient Hybrid Supabase Client (uses real rawSupaClient when connected, with LocalStorage fallback)
 const supaClient = {
     storage: {
         from: (bucket) => ({
             upload: async (fileName, file, options) => {
+                if (rawSupaClient && rawSupaClient.storage) {
+                    try {
+                        const res = await rawSupaClient.storage.from(bucket).upload(fileName, file, options || {});
+                        if (!res.error) return res;
+                        console.warn("Supabase storage upload error:", res.error);
+                    } catch(e) {
+                        console.warn("Supabase storage upload exception:", e);
+                    }
+                }
+                // Resilient fallback (e.g. offline)
                 return new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -2644,10 +2654,36 @@ const supaClient = {
                 });
             },
             getPublicUrl: (fileName) => {
+                if (rawSupaClient && rawSupaClient.storage) {
+                    try {
+                        const res = rawSupaClient.storage.from(bucket).getPublicUrl(fileName);
+                        if (res && res.data && res.data.publicUrl) return res;
+                    } catch(e) {}
+                }
                 const stored = localStorage.getItem('local_storage_' + bucket + '_' + fileName);
                 return { data: { publicUrl: stored || 'logo.png' } };
+            },
+            list: async (path, options) => {
+                if (rawSupaClient && rawSupaClient.storage) {
+                    try {
+                        return await rawSupaClient.storage.from(bucket).list(path, options);
+                    } catch(e) {
+                        return { data: [], error: e };
+                    }
+                }
+                return { data: [], error: null };
             }
-        })
+        }),
+        listBuckets: async () => {
+            if (rawSupaClient && rawSupaClient.storage) {
+                try {
+                    return await rawSupaClient.storage.listBuckets();
+                } catch(e) {
+                    return { data: null, error: e };
+                }
+            }
+            return { data: [{ name: 'product-images' }, { name: 'banners' }], error: null };
+        }
     },
     from: (table) => {
         const getTableData = () => {
@@ -3101,7 +3137,13 @@ function renderRatesTicker() {
 // --- MOBILE NAV TOGGLE ---
 function toggleMobileNav() {
     const navMenu = document.querySelector(".nav-menu");
+    const header = document.querySelector("header");
     if (navMenu) {
+        if (header) {
+            const rect = header.getBoundingClientRect();
+            const availableHeight = Math.max(280, window.innerHeight - rect.bottom - 12);
+            navMenu.style.maxHeight = availableHeight + "px";
+        }
         navMenu.classList.toggle("mobile-open");
     }
 }
@@ -3115,12 +3157,82 @@ window.goBackFromDetail = function(e) {
         navigateTo('shop');
     }
 };
+
+// --- DYNAMIC SEO ENGINE ---
+function updatePageSeo(viewId, extra = null) {
+    let title = "Liamoro Jewels: Buy Pure 925 Sterling Silver Jewellery Online | Hallmarked";
+    let desc = "Shop BIS Hallmarked 925 Pure Sterling Silver Jewellery at Liamoro Jewels. Latest designs ✓ Best Offers ✓ Easy Returns ✓ Pan India Delivery. Handcrafted earrings, pendants, Whoop cases & bespoke charms.";
+    
+    if (viewId === "home") {
+        title = "Liamoro Jewels: Buy Pure 925 Sterling Silver Jewellery Online | Hallmarked";
+        desc = "Shop BIS Hallmarked 925 Pure Sterling Silver Jewellery at Liamoro Jewels. Latest designs ✓ Best Offers ✓ Easy Returns ✓ Pan India Delivery. Handcrafted earrings, pendants, Whoop cases & bespoke charms.";
+    } else if (viewId === "shop") {
+        const cat = typeof extra === 'string' ? extra.toLowerCase() : '';
+        if (cat === 'bestseller' || cat === 'best_seller') {
+            title = "Best Selling Pure Silver Jewellery | Liamoro Jewels";
+            desc = "Discover top-rated, best selling 925 Sterling Silver jewellery loved by thousands of happy customers across India.";
+        } else if (cat === 'earrings') {
+            title = "Pure 925 Silver Earrings & Studs | Liamoro Jewels";
+            desc = "Shop handcrafted 925 sterling silver earrings, hypoallergenic studs, hoops, and drops designed for elegance and sensitive skin.";
+        } else if (cat === 'pendants' || cat === 'chain_pendant') {
+            title = "Sterling Silver Pendants & Chains | Liamoro Jewels";
+            desc = "Elevate your style with genuine 925 silver pendants, spiritual motifs, and sleek chains crafted with hallmarked perfection.";
+        } else if (cat === 'whoop' || cat === 'whoop_accessories') {
+            title = "Custom 925 Silver Whoop Cases & Accessories | Liamoro Jewels";
+            desc = "Luxury 925 sterling silver cases and custom hardware tailored specifically for your Whoop fitness tracker.";
+        } else if (cat === 'charms') {
+            title = "925 Pure Silver Charms & Keepsakes | Liamoro Jewels";
+            desc = "Personalized silver charms and bespoke keepsake accents made from solid 925 sterling silver.";
+        } else {
+            title = "Shop Pure 925 Sterling Silver Catalog | Liamoro Jewels";
+            desc = "Browse complete catalog of 100% pure 925 sterling silver rings, earrings, chains, pendants, anklets, and custom jewellery.";
+        }
+    } else if (viewId === "detail" && extra) {
+        const prod = extra;
+        const prodTitle = prod.title || "Silver Jewellery";
+        const prodPrice = prod.price ? ` - ₹${Number(prod.price).toLocaleString('en-IN')}` : '';
+        title = `${prodTitle}${prodPrice} | Liamoro Jewels`;
+        desc = prod.description ? prod.description.slice(0, 155) : `Buy authentic 925 sterling silver ${prodTitle} online at Liamoro Jewels with hallmarked purity, nickel-free comfort, and free shipping.`;
+    } else if (viewId === "customisation") {
+        title = "Custom Silver Studio & Bespoke Engravings | Liamoro Jewels";
+        desc = "Design your dream jewellery with our master silversmiths. Upload custom logos, nameplates, personal sketches, and request custom silver dimensions.";
+    } else if (viewId === "track") {
+        title = "Track Your Order | Liamoro Jewels Express Delivery";
+        desc = "Track your Liamoro Jewels order in real-time. Enter your order ID or phone number to view live shipment and dispatch updates.";
+    } else if (viewId === "admin") {
+        title = "Liamoro Admin Portal | Management Dashboard";
+    }
+
+    document.title = title;
+    
+    // Update meta description
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute("content", desc);
+    
+    // Update Open Graph tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute("content", title);
+    
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute("content", desc);
+
+    // Update Twitter tags
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.setAttribute("content", title);
+
+    const twDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twDesc) twDesc.setAttribute("content", desc);
+}
+
 function navigateTo(viewId, preFilter = null, isPopstate = false) {
     // Close mobile nav if open
     const navMenu = document.querySelector(".nav-menu");
     if (navMenu && navMenu.classList.contains("mobile-open")) {
         navMenu.classList.remove("mobile-open");
     }
+
+    // Dynamic SEO update
+    updatePageSeo(viewId, viewId === "detail" ? STATE.selectedProduct : preFilter);
     
     if (viewId === "admin" && sessionStorage.getItem("mrt_admin_authenticated") !== "true") {
         alert("Access Denied: Please log in using the Admin Panel button.");
@@ -3417,6 +3529,7 @@ function filterByQuickChip(type) {
         if (chipInstock) chipInstock.classList.add('active');
         if (filterInStock) filterInStock.checked = true;
     }
+    if (typeof updatePageSeo === 'function') updatePageSeo('shop', type);
     renderShopCatalog();
 }
 
@@ -3812,7 +3925,7 @@ function viewProductDetail(prodId, isPopstate = false) {
             if (optSilver && optSilver.parentElement) {
                 optSilver.parentElement.style.gridTemplateColumns = "1fr";
             }
-            if (silverPriceEl) silverPriceEl.textContent = `₹${(prod.price || 8200).toLocaleString('en-IN')}`;
+            if (silverPriceEl) silverPriceEl.textContent = `₹${(prod.price || 15000).toLocaleString('en-IN')}`;
         } else {
             metalSection.style.display = "none";
         }
@@ -4497,6 +4610,12 @@ function openCheckoutModal() {
         if (summarySubtotal) summarySubtotal.textContent = `₹${subtotal.toLocaleString("en-IN")}`;
         if (summaryGst) summaryGst.textContent = `₹${Math.round(displayGst).toLocaleString("en-IN")}`;
         if (summaryTotal) summaryTotal.textContent = `₹${Math.round(total).toLocaleString("en-IN")}`;
+
+        const upiAppBtn = document.getElementById("checkout-upi-app-btn");
+        if (upiAppBtn) {
+            const currentUpiId = (document.getElementById('admin-upi-id-input')?.value || 'unnatjain@ptyes').trim();
+            upiAppBtn.href = `upi://pay?pa=${encodeURIComponent(currentUpiId)}&pn=UNNAT%20JAIN&am=${Math.round(total)}&cu=INR&tn=LIAMORO%20JEWELS`;
+        }
 
         modal.style.display = "block";
         overlay.style.display = "block";
@@ -7310,13 +7429,9 @@ function applyBannerSlot(slot, url) {
     if (slot === 'qr') {
         const qrImg = document.getElementById('checkout-upi-qr-img');
         const qrSvg = document.getElementById('checkout-upi-qr-svg');
-        if (url && url.trim() !== '') {
-            if (qrImg) { qrImg.src = url; qrImg.style.display = 'block'; }
-            if (qrSvg) qrSvg.style.display = 'none';
-        } else {
-            if (qrImg) qrImg.style.display = 'none';
-            if (qrSvg) qrSvg.style.display = 'block';
-        }
+        const targetUrl = (url && url.trim() !== '') ? url : 'payment_qr.jpg';
+        if (qrImg) { qrImg.src = targetUrl; qrImg.style.display = 'block'; }
+        if (qrSvg) qrSvg.style.display = 'none';
         return;
     }
     // Category circles: find the img inside cat-circle-item for the given category
@@ -7359,9 +7474,10 @@ async function applyBannerImages() {
             // Handle UPI ID setting specifically
             if (row.key === 'admin_upi_id') {
                 const upiDisplay = document.getElementById('checkout-upi-id-display');
-                if (upiDisplay) upiDisplay.textContent = `UPI ID: ${row.value}`;
+                const val = row.value || 'unnatjain@ptyes';
+                if (upiDisplay) upiDisplay.innerHTML = `<span>UPI ID: <strong>${val}</strong></span> <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`;
                 const upiInput = document.getElementById('admin-upi-id-input');
-                if (upiInput) upiInput.value = row.value;
+                if (upiInput) upiInput.value = val;
             }
 
             // Custom ticker announcement message
@@ -7456,7 +7572,7 @@ async function saveAdminUpiId() {
     try {
         await supaClient.from('settings').upsert({ key: 'admin_upi_id', value: val }, { onConflict: 'key' });
         const upiDisplay = document.getElementById('checkout-upi-id-display');
-        if (upiDisplay) upiDisplay.textContent = `UPI ID: ${val}`;
+        if (upiDisplay) upiDisplay.innerHTML = `<span>UPI ID: <strong>${val}</strong></span> <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`;
         showToast("UPI ID saved successfully.");
     } catch (err) {
         console.error("Error saving UPI ID:", err);
@@ -9223,13 +9339,13 @@ function downloadOrderInvoicePdf(orderId) {
             <div class="invoice-card">
                 <div class="invoice-header">
                     <div>
-                        <div class="brand-title">M. R. THANGA MAALIGAI</div>
-                        <div class="brand-sub">Silver Jewellery</div>
+                        <div class="brand-title">LIAMORO JEWELS</div>
+                        <div class="brand-sub">Pure Silver Jewellery</div>
                         <div style="font-size: 0.8rem; color: #4A5568; margin-top: 8px; line-height: 1.6;">
                             <strong>Legal Name:</strong> RAMCHAND SURESH KUMAR<br>
-                            <strong>Trade Name:</strong> M. R. THANGA MAALIGAI<br>
+                            <strong>Trade Name:</strong> LIAMORO JEWELS<br>
                             <strong>GSTIN:</strong> 33AAKPS5130M1ZG<br>
-                            12, Amin Marg, Rajkot - 360001<br>
+                            Adishiv, Shree Santkabir Houseing Society Ltd, Pedak Rd, behind Bombay Super Height, Patel Nagar, Arya Nagar, Rajkot, Gujarat 360003<br>
                             Phone: +91 62899 74877
                         </div>
                     </div>
@@ -9253,11 +9369,11 @@ function downloadOrderInvoicePdf(orderId) {
                     <div class="billing-box">
                         <div class="box-title">Seller Details</div>
                         <div class="box-content">
-                            <strong>M. R. THANGA MAALIGAI</strong><br>
+                            <strong>LIAMORO JEWELS</strong><br>
                             Legal Name: RAMCHAND SURESH KUMAR<br>
                             GSTIN: 33AAKPS5130M1ZG<br>
-                            12, Amin Marg, Rajkot, Gujarat 360001<br>
-                            Rajkot, Gujarat - 360001
+                            Adishiv, Shree Santkabir Houseing Society Ltd, Pedak Rd, behind Bombay Super Height, Patel Nagar, Arya Nagar, Rajkot, Gujarat 360003<br>
+                            Rajkot, Gujarat - 360003
                         </div>
                     </div>
                 </div>
@@ -9529,6 +9645,20 @@ function closeQrZoom() {
     if (overlay) overlay.style.display = 'none';
     if (modal) modal.style.display = 'none';
 }
+
+window.copyUpiId = function(val) {
+    const id = val || (document.getElementById('admin-upi-id-input')?.value || 'unnatjain@ptyes').trim();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(id).then(() => {
+            if (typeof showToast === "function") showToast("UPI ID Copied: " + id);
+            else alert("UPI ID Copied: " + id);
+        }).catch(() => {
+            prompt("Copy UPI ID:", id);
+        });
+    } else {
+        prompt("Copy UPI ID:", id);
+    }
+};
 
 // --- AUTHENTICATION & USER PROFILES ---
 let isAuthSignupMode = false;
@@ -10625,6 +10755,20 @@ function closePanModal() {
     document.getElementById('pan-modal-overlay').style.display = 'none';
     document.getElementById('pan-modal').style.display = 'none';
     panCallback = null;
+}
+
+function openGoogleSerpPreview() {
+    const overlay = document.getElementById('serp-modal-overlay');
+    const modal = document.getElementById('serp-modal');
+    if (overlay) overlay.style.display = 'block';
+    if (modal) modal.style.display = 'block';
+}
+
+function closeGoogleSerpPreview() {
+    const overlay = document.getElementById('serp-modal-overlay');
+    const modal = document.getElementById('serp-modal');
+    if (overlay) overlay.style.display = 'none';
+    if (modal) modal.style.display = 'none';
 }
 
 function previewAadharPhoto(input, imgId, labelId) {

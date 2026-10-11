@@ -1,0 +1,20 @@
+# robots.txt for Liamoro Jewels
+User-agent: *
+Allow: /
+Allow: /assets/
+Allow: /index.html
+Allow: /style.css
+Allow: /app.js
+Allow: /payment_qr.jpg
+Allow: /logo.png
+Allow: /icon-192.png
+Allow: /icon-512.png
+
+# Disallow administrative and private endpoints
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+Disallow: /rest/v1/
+
+# Sitemap location
+Sitemap: https://liamorojewels.com/sitemap.xml
