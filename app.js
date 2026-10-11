@@ -58,7 +58,7 @@ function getItemNoDisplay(p, fallbackIndex = null) {
 // Helper to enforce exact product pricing & cost requirements:
 // Best Sellers: Exact C.P & S.P from BEST SELLERS directory (Cross, Dollar, Dumbbell, Hexagon, Panda, Rings 1-5)
 // Whoop: Cost 7,000 / Price 15,000 (Pure 925 Sterling Silver only, No Brass)
-// Divine Pendants: Cost 10,000 / Price 15,000
+// Divine Pendants: Cost 20,000 / Price 30,000
 // Men Studs: Exact Cost & Selling Price matching MEN STUDS product folders
 function normalizeProductData(p, index) {
     if (!p) return p;
@@ -122,17 +122,17 @@ function normalizeProductData(p, index) {
         p.specs.disable_auto_rate = true;
         p.specs.cost_price = p.costPrice;
     } else if (isPendant) {
-        p.price = 15000;
-        p.costPrice = 10000;
-        p.cost_price = 10000;
-        p.originalPrice = 15000;
-        p.original_price = 15000;
+        p.price = 30000;
+        p.costPrice = 20000;
+        p.cost_price = 20000;
+        p.originalPrice = 30000;
+        p.original_price = 30000;
         p.category = 'pendants';
         if (!p.specs) p.specs = {};
         p.specs.weight = p.specs.weight || '12.5g';
         p.specs.metal = 'Solid 92.5% Sterling Silver';
         p.specs.disable_auto_rate = true;
-        p.specs.cost_price = 10000;
+        p.specs.cost_price = 20000;
     } else if (isCharm) {
         // Charms: Cost 3500, Price 15000, MRP 20000 (25% OFF)
         p.price = 15000;
@@ -1013,8 +1013,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-1-om-sacred-shield",
         "title": "Om Sacred Shield Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 28,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1036,8 +1036,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-2-shri-hanuman-ji-sankat-mochan",
         "title": "Shri Hanuman Ji Sankat Mochan Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 34,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1059,8 +1059,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-3-lord-shiva-trishul-damru",
         "title": "Lord Shiva Trishul & Damru Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 42,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1082,8 +1082,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-4-lord-ganesha-vighnaharta",
         "title": "Lord Ganesha Vighnaharta Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 31,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1105,8 +1105,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-5-om-floral-mandala-aura",
         "title": "Om Floral Mandala Aura Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 26,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1128,8 +1128,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-6-lord-shiva-meditating-mahadev",
         "title": "Lord Shiva Meditating Mahadev Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 39,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1151,8 +1151,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-7-sacred-shankh-conch-blessings",
         "title": "Sacred Shankh Conch Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 22,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1174,8 +1174,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-8-om-radiant-prana",
         "title": "Om Radiant Prana Sun Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 27,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1197,8 +1197,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-9-om-trimurti-chandra",
         "title": "Om Trimurti Chandra Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 30,
         "plating": "Solid 92.5 Sterling Silver",
@@ -1220,8 +1220,8 @@ const DIVINE_PENDANTS_SEED = [
         "id": "prod-pendant-10-mahadev-trishul-mahakaal",
         "title": "Mahadev Trishul Mahakaal Divine Pendant",
         "category": "pendants",
-        "price": 15000,
-        "original_price": 15000,
+        "price": 30000,
+        "original_price": 30000,
         "rating": 5,
         "reviews_count": 45,
         "plating": "Solid 92.5 Sterling Silver",
@@ -3997,7 +3997,7 @@ function viewProductDetail(prodId, isPopstate = false) {
             if (optSilver && optSilver.parentElement) {
                 optSilver.parentElement.style.gridTemplateColumns = "1fr";
             }
-            if (silverPriceEl) silverPriceEl.textContent = "₹15,000";
+            if (silverPriceEl) silverPriceEl.textContent = `₹${(prod.price || 30000).toLocaleString('en-IN')}`;
         } else if (isWhoop) {
             metalSection.style.display = "block";
             if (optBrass) optBrass.style.display = "none";
@@ -5626,7 +5626,7 @@ function getProductCostPrice(prod) {
     // Exact category costs
     if (prod.category === 'charms' || (prod.id && prod.id.includes('charm'))) return 3500;
     if (prod.category === 'whoop' || (prod.id && prod.id.includes('whoop'))) return 7000;
-    if (prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'))) return 10000;
+    if (prod.category === 'pendants' || (prod.id && prod.id.includes('pendant'))) return 20000;
 
     const sp = prod.price || 0;
     return Math.round(sp * 0.6);
